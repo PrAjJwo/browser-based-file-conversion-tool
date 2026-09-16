@@ -2,44 +2,108 @@
 
 ## Current Project Status
 
-- **Current Phase**: Expansion Tool — Social Media Image Resizer — Complete
-- **Completed Launch Tools (Original 4)**:
-  1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Production-Ready, Real Browser Verified
-  2. Video Compressor (`/video/video-compressor`) — Active, Production-Ready, Real Browser Verified
-  3. Image to PDF (`/pdf/image-to-pdf`) — Active, Production-Ready, Real Browser Verified
-  4. Subtitle Converter (`/pdf/subtitle-converter`) — Active, Production-Ready, Real Browser Verified
-- **Completed Expansion Tools**:
-  5. JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
-  6. Image Resizer (`/image/image-resizer`) — Active, Production-Ready, Real Browser Verified
-  7. Image Compressor (`/image/image-compressor`) — Active, Production-Ready, Real Browser Verified
-  8. Image Format Converter (`/image/image-converter`) — Active, Production-Ready, Real Browser Verified
-  9. Social Image Resizer (`/image/social-resizer`) — Active, Production-Ready, Real Browser Verified
-- **Tool Status Summary**:
-  - Social Image Resizer: Development Complete, Real Browser Verified (14/14 automated CDP suites passed), 2026 Verified Presets for 7 Major Platforms, 3x3 Focal Alignment Grid Verified, Crop to Fill & Fit Entire Image (with Solid White Letterboxing) Verified, Multi-Preset Batch Export Verified, Lazy JSZip Packaging Verified, Content/SEO Complete, Zero-Error Production Build.
-- **Physical Device Notice**: Physical iPhone Safari and Android Chrome verification remains pending before production launch.
-- **Active In-Development Tool**: None (Social Image Resizer completed; next expansion tool queued)
-- **Active Routes (14 Total)**:
-  - `/image/heic-to-jpg` (Tool #1: Active)
-  - `/video/video-compressor` (Tool #2: Active)
-  - `/image/jpg-to-heic` (Expansion Tool: Active)
-  - `/image/image-resizer` (Expansion Tool: Active)
-  - `/image/image-compressor` (Expansion Tool: Active)
-  - `/image/image-converter` (Expansion Tool: Active)
-  - `/image/social-resizer` (Expansion Tool: Active)
-  - `/pdf/image-to-pdf` (Tool #3: Active)
-  - `/pdf/subtitle-converter` (Tool #4: Active)
-  - Category routes: `/image`, `/video`, `/pdf`, `/audio`
+- **Current Phase**: Homepage Redesign — Complete
+- **Status Summary**:
+  - Converter expansion remains frozen as requested. No new converters added.
+  - Successfully redesigned the homepage (`src/pages/index.astro`) around the real working product.
+  - Replaced oversized generic hero with a tight, high-density hero featuring a compact trust badge, single concise H1, one supporting sentence, and an instant quick-launcher search bar.
+  - Added live client-side search filtering (`#tool-search-input`) with keyboard shortcut (`/`) and popular tool pills.
+  - Transformed plain category buttons into meaningful category cards with dynamic active tool counts derived from `tools.ts` (`Image Tools: 6`, `Video Tools: 1`, `PDF & Documents: 2`, `Audio Tools: In Development`).
+  - Unified active tool directory into a clean responsive 3-column grid with category filter tabs and distinct custom icons per tool.
+  - Replaced 20+ repetitive privacy callouts with ONE authoritative visual 3-step privacy flow (1. Local Memory Read $\rightarrow$ 2. Client CPU/Wasm Execution $\rightarrow$ 3. Direct Blob Export) plus a real-time DevTools (F12) verification callout.
+  - Replaced exaggerated marketing fluff ("say goodbye to sketchy upload websites", "position in queue #42", "WebAssembly Power") with 4 mature, technical value propositions.
+  - Verified performance: 0 heavy converter libraries (WASM, FFmpeg, heic2any, jsPDF) loaded on homepage.
+  - Passed responsive QA with 0 horizontal overflow across 5 viewports (375px, 390px, 768px, 1024px, 1440px).
+  - Passed full lightweight regression and verified all 14 site routes return status 200.
+- **Completed Active Converters (9 Total — Frozen & Stable)**:
+  1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Verified
+  2. Video Compressor (`/video/video-compressor`) — Active, Verified
+  3. Image to PDF (`/pdf/image-to-pdf`) — Active, Verified
+  4. Subtitle Converter (`/pdf/subtitle-converter`) — Active, Verified
+  5. JPG to HEIC (`/image/jpg-to-heic`) — Active, Verified
+  6. Image Resizer (`/image/image-resizer`) — Active, Verified
+  7. Image Compressor (`/image/image-compressor`) — Active, Verified
+  8. Image Format Converter (`/image/image-converter`) — Active, Verified
+  9. Social Image Resizer (`/image/social-resizer`) — Active, Verified
+- **Active Routes (14 Total — All 200 OK)**:
   - Homepage: `/`
+  - Category routes: `/image`, `/video`, `/pdf`, `/audio`
+  - Active tool routes: `/image/heic-to-jpg`, `/video/video-compressor`, `/image/jpg-to-heic`, `/image/image-resizer`, `/image/image-compressor`, `/image/image-converter`, `/image/social-resizer`, `/pdf/image-to-pdf`, `/pdf/subtitle-converter`
 - **Build & Static Analysis Status**:
-  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (43 files checked)
-  - `npx astro build`: **0 errors**, 14 static pages generated in 5.75s
-  - Sitemap: Includes `https://browserfiletools.com/image/social-resizer/`
-  - Development URL: `http://localhost:4321/image/social-resizer` (Server active)
-- **Next Planned Work**: Expansion tool from category inventory — **Favicon Generator** (`/image/favicon-generator`).
+  - `npm.cmd run build`: **0 errors**, 14 static pages generated in 5.78s
+  - Homepage JS bundle: **3.11 kB** (zero WASM / zero FFmpeg / zero jsPDF)
+- **Exact Next Action**: Category & Tool Page Consistency Overhaul (Align category pages `/image`, `/video`, `/pdf`, `/audio` and individual tool pages with the upgraded design system and privacy tone).
 
 ---
 
-## Current Tool Progress — Expansion Tool: Social Media Image Resizer
+## Current Phase: Homepage Redesign
+
+### Milestone 1: Hero & Quick Tool Finder
+- Replaced the 120px+ generic hero with a compact container (`py-10 sm:py-14`) featuring:
+  - Single compact trust badge: `● On-Device Sandbox • Zero Server Uploads`.
+  - Concise H1: `Fast, private file tools. Running 100% in your browser.`
+  - 1 supporting sentence explaining on-device image, video, and PDF operations.
+  - Client-side search input `#tool-search-input` with keyboard shortcut `/`, clear on `Escape`, and popular tool buttons (`HEIC to JPG`, `Video Compressor`, `Image Resizer`, `Image Compressor`, `Image to PDF`, `Subtitle Converter`).
+
+### Milestone 2: Meaningful Category Presentation
+- Created structured category overview cards:
+  - **Image Tools**: Dynamic `{imageTools.length} Active Tools` badge, tool tags (`HEIC`, `Resizer`, `Compressor`, `Social`), and link to `/image`.
+  - **Video Tools**: Dynamic `{videoTools.length} Active Tool` badge, tool tag (`Video Compressor`), and link to `/video`.
+  - **PDF & Documents**: Dynamic `{pdfTools.length} Active Tools` badge, tool tags (`Image to PDF`, `Subtitles`), and link to `/pdf`.
+  - **Audio Tools**: Clearly labeled `In Development` status badge to prevent user confusion, with roadmap link to `/audio`.
+
+### Milestone 3: Real Product Active Tool Grid
+- 3-column responsive grid (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5`) rendering all 9 active tools using upgraded `ToolCard.astro`.
+- Distinct SVG icons tailored to each tool (camera for HEIC, video camera for video compressor, crop/grid for social resizer, arrows for format converter, etc.).
+- Real-time client-side search filtering by keyword, title, and category tabs (`All (9)`, `Image (6)`, `Video (1)`, `PDF & Docs (2)`).
+- Friendly empty state with query feedback and one-click "Reset Filter" button.
+
+### Milestone 4: Single Authoritative Privacy Section
+- Replaced dozens of repetitive green callout pills with a unified visual 3-step architecture flow:
+  1. **Choose Your File**: Local Memory Read via HTML5 File API (0 bytes uploaded).
+  2. **Process Locally**: Client CPU / Wasm Execution in browser sandbox.
+  3. **Save Immediately**: Direct Blob Export straight to disk with transient RAM freed on tab close.
+- Included actionable real-time verification note: "Press F12 $\rightarrow$ Network tab. During any conversion, you will observe zero outbound file payloads (Payload Transfer: 0 KB)."
+
+### Milestone 5: Concise Value Propositions
+- Removed defensive/exaggerated copy ("Say goodbye to sketchy websites", "No position in queue #42", "WebAssembly Power").
+- Added 4 clear, mature benefit cards: Zero Upload Delay, Zero Cloud Storage, No Accounts or Sign-ups, Direct Hardware Speed.
+
+### Milestone 6: Automated Testing & Responsive QA
+- Executed `test-fixtures/verify-homepage-redesign.cjs` via CDP:
+  - Zero heavy assets on homepage verified.
+  - SEO single H1 and JSON-LD structured data (`WebSite` and `ItemList`) verified.
+  - Client-side search and category tabs verified.
+  - Visual 3-step privacy section verified.
+  - 5 responsive viewports verified with 0 horizontal overflow (375px, 390px, 768px, 1024px, 1440px).
+- Executed `test-fixtures/lightweight-regression.cjs` (HEIC conversion + 7 route checks) with 100% pass.
+- Verified all 14 site routes return status 200 OK.
+
+
+### Milestone 1: Live Rendered Site Inspection (All 14 Routes)
+- Audited: `/`, `/image`, `/video`, `/pdf`, `/audio`, `/image/heic-to-jpg`, `/image/jpg-to-heic`, `/image/image-resizer`, `/image/image-compressor`, `/image/image-converter`, `/image/social-resizer`, `/video/video-compressor`, `/pdf/image-to-pdf`, `/pdf/subtitle-converter`.
+- Detected key UX flaws: 19–28 privacy slogan repetitions per page, identical document icons across all cards, placeholder characters (`?`, `!`, `&`) in section headers, ad placeholder box, empty `/audio` category in main nav, and inconsistent container max-widths (`max-w-5xl` vs `max-w-6xl` vs `max-w-7xl`).
+
+### Milestone 2: Brand Name Screening & Market Research
+- Screened 20 candidates across 4 strategic angles.
+- Verified active market conflicts: eliminated `Filesmith`, `FileNative`, `LocalKit`, `ZeroCloud`, `Uncloud`, `LocalForge`, `LocalShift`, and `FormatForge`.
+- Shortlisted 5 clean candidates: `ByteMill`, `Sandbench`, `PureFile`, `LocalByte`, `BareConvert`.
+- Selected **Top 3 for User Review**:
+  1. **ByteMill** (Precision & Speed)
+  2. **Sandbench** (Modern Sandboxed Privacy)
+  3. **PureFile** (Clean & Minimalist Utility)
+
+### Milestone 3: Three Visual Design Directions Formulated
+- Direction A: Clean Professional Utility (Linear/Raycast inspired, monochromatic slate, Geist/Inter, compact information density).
+- Direction B: Modern Privacy-First Tech (Proton/Signal inspired, dark graphite + emerald accent, layered surfaces, cryptographic reassurance).
+- Direction C: Friendly Lightweight Productivity (Squoosh/Figma inspired, warm neutrals, approachable 16px radius, playful badges).
+
+### Milestone 4: Information Architecture Blueprint
+- Plan to remove empty `/audio` from top nav until tools exist.
+- Plan to relocate `Subtitle Converter` from `/pdf/` to `/video/` (or media grouping).
+- Plan to implement header tool dropdowns and global tool search (`Cmd+K`).
+
+---
 
 ### Milestone 1: Preset Data Architecture & Verified Specifications (2026)
 - **Completed Work**:

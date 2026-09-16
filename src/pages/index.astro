@@ -1,120 +1,615 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ToolCard from '../components/ToolCard.astro';
-import PrivacyBadge from '../components/PrivacyBadge.astro';
-import { getAllCategories, getAllTools } from '../data/tools';
+import { getAllCategories, getAllTools, getToolsByCategory } from '../data/tools';
 
 const categories = getAllCategories();
 const allTools = getAllTools();
+const activeTools = allTools.filter((t) => t.status === 'active');
+
+const imageTools = getToolsByCategory('image');
+const videoTools = getToolsByCategory('video');
+const pdfTools = getToolsByCategory('pdf');
+const audioTools = getToolsByCategory('audio');
+
+// Structured Data for SEO
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Browser File Tools',
+    url: 'https://browserfiletools.com',
+    description: 'Fast, private client-side file conversion utilities running entirely in your browser with zero server uploads.',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Client-Side File Tools',
+    itemListElement: allTools.map((t, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: t.title,
+      description: t.shortBlurb,
+      url: `https://browserfiletools.com/${t.category}/${t.slug}`,
+    })),
+  },
+];
 ---
 
 <BaseLayout
-  title="Browser File Tools | 100% Private, Client-Side File Conversion"
-  metaDescription="Fast, secure file conversion tools running entirely inside your web browser. No file uploads, no server queues, and complete privacy."
+  title="Browser File Tools — Fast, Private On-Device File Utilities"
+  metaDescription="Convert, compress, and edit images, videos, and PDFs locally in your browser. 100% private client-side utilities with zero file uploads or cloud queues."
+  schemaJson={schema}
 >
-  <!-- Hero Section -->
-  <section class="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-24 border-b border-surface-200/70 bg-gradient-to-b from-white via-surface-50 to-surface-50">
+  <!-- 1. Hero Section -->
+  <section class="relative overflow-hidden pt-10 pb-12 sm:pt-14 sm:pb-16 bg-gradient-to-b from-white via-surface-50 to-surface-100/40 border-b border-surface-200/80">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="mb-6 flex justify-center">
-        <PrivacyBadge variant="subtle" />
+      <!-- Compact Trust Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90 shadow-2xs mb-5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>On-Device Sandbox &bull; Zero Server Uploads</span>
       </div>
 
-      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-surface-950 leading-[1.1]">
-        Private file conversions.<br />
+      <!-- Concise H1 -->
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-surface-950 leading-[1.15] max-w-3xl mx-auto">
+        Fast, private file tools.<br class="hidden sm:inline" />
         <span class="bg-gradient-to-r from-brand-600 via-indigo-600 to-emerald-600 bg-clip-text text-transparent">
-          Directly in your browser.
+          Running 100% in your browser.
         </span>
       </h1>
 
-      <p class="mt-6 text-base sm:text-lg md:text-xl text-surface-600 max-w-2xl mx-auto leading-relaxed">
-        Say goodbye to sketchy upload websites and cloud waiting queues. Every tool processes files 100% locally on your device hardware using modern WebAssembly and Canvas APIs.
+      <!-- One useful supporting sentence -->
+      <p class="mt-4 text-sm sm:text-base md:text-lg text-surface-600 max-w-2xl mx-auto leading-relaxed">
+        Convert images, compress videos, and build PDFs locally in your browser memory&mdash;no cloud uploads, no queues, and no account required.
       </p>
 
-      <!-- Category Filter Pills -->
-      <div class="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-        {categories.map((cat) => (
-          <a
-            href={`/${cat.id}`}
-            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-surface-200 text-surface-700 hover:border-brand-300 hover:text-brand-600 hover:shadow-xs transition-all duration-150"
-          >
-            {cat.name}
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- Value Pillars -->
-  <section class="py-12 bg-white border-b border-surface-200/60">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+      <!-- Quick Tool Finder -->
+      <div class="mt-7 max-w-xl mx-auto">
+        <div class="relative flex items-center">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-surface-400">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           </div>
-          <div>
-            <h3 class="text-sm font-bold text-surface-900">Zero Server Uploads</h3>
-            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
-              Your sensitive documents, confidential videos, and private photos never leave your RAM or reach any remote server.
-            </p>
+          <input
+            id="tool-search-input"
+            type="search"
+            placeholder="Search tools by name, format, or task (e.g. HEIC, MP4, resize, PDF)..."
+            class="w-full pl-11 pr-20 py-3 rounded-xl border border-surface-300 bg-white text-sm text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-xs transition"
+            aria-label="Search tools"
+            autocomplete="off"
+          />
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center gap-1.5 pointer-events-none">
+            <kbd class="hidden sm:inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-semibold text-surface-400 bg-surface-100 border border-surface-200 rounded">
+              /
+            </kbd>
           </div>
         </div>
 
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-surface-900">Zero Queue Waits</h3>
-            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
-              No "Position in queue: #42" waiting screens or throttled download speeds. Processing starts the instant you drop your file.
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-surface-900">WebAssembly Power</h3>
-            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
-              Built on compiled C++ and Rust engines running in safe browser sandboxes via WebAssembly and modern web standards.
-            </p>
-          </div>
+        <!-- Popular Tools Quick Launcher -->
+        <div class="mt-3.5 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-xs">
+          <span class="text-surface-400 font-medium mr-1">Popular:</span>
+          <a href="/image/heic-to-jpg" class="px-2.5 py-1 rounded-lg bg-white hover:border-brand-300 hover:text-brand-600 border border-surface-200 text-surface-700 font-medium transition shadow-2xs">HEIC to JPG</a>
+          <a href="/video/video-compressor" class="px-2.5 py-1 rounded-lg bg-white hover:border-brand-300 hover:text-brand-600 border border-surface-200 text-surface-700 font-medium transition shadow-2xs">Video Compressor</a>
+          <a href="/image/image-resizer" class="px-2.5 py-1 rounded-lg bg-white hover:border-brand-300 hover:text-brand-600 border border-surface-200 text-surface-700 font-medium transition shadow-2xs">Image Resizer</a>
+          <a href="/image/image-compressor" class="px-2.5 py-1 rounded-lg bg-white hover:border-brand-300 hover:text-brand-600 border border-surface-200 text-surface-700 font-medium transition shadow-2xs">Image Compressor</a>
+          <a href="/pdf/image-to-pdf" class="px-2.5 py-1 rounded-lg bg-white hover:border-brand-300 hover:text-brand-600 border border-surface-200 text-surface-700 font-medium transition shadow-2xs">Image to PDF</a>
+          <a href="/pdf/subtitle-converter" class="px-2.5 py-1 rounded-lg bg-white hover:border-brand-300 hover:text-brand-600 border border-surface-200 text-surface-700 font-medium transition shadow-2xs">Subtitle Converter</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Initial Tools Directory -->
-  <section class="py-14 sm:py-20">
+  <!-- 2. Meaningful Category Presentation -->
+  <section class="py-12 sm:py-14 bg-white border-b border-surface-200/70">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-2">
         <div>
-          <h2 class="text-2xl font-extrabold text-surface-900 tracking-tight">
-            Featured Tools
+          <h2 class="text-xl sm:text-2xl font-extrabold text-surface-950 tracking-tight">
+            Browse by Category
           </h2>
-          <p class="text-sm text-surface-500 mt-1">
-            Foundation stage tools scheduled for initial rollout
+          <p class="text-xs sm:text-sm text-surface-500 mt-1">
+            Choose a specialized client-side processing suite
           </p>
         </div>
         <span class="text-xs font-medium text-surface-500">
-          Showing {allTools.length} Initial Converters
+          {activeTools.length} total tools active across categories
         </span>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Image Tools Card -->
+        <div class="p-5 rounded-2xl bg-surface-50/70 border border-surface-200/80 flex flex-col justify-between hover:border-brand-300 transition-colors">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                {imageTools.length} Active {imageTools.length === 1 ? 'Tool' : 'Tools'}
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-surface-900">Image Tools</h3>
+            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
+              Convert, resize, compress, and reframe images in local memory using HTML5 Canvas & WebAssembly.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              <a href="/image/heic-to-jpg" class="text-[11px] px-2 py-0.5 rounded bg-white border border-surface-200 text-surface-600 hover:text-brand-600">HEIC</a>
+              <a href="/image/image-resizer" class="text-[11px] px-2 py-0.5 rounded bg-white border border-surface-200 text-surface-600 hover:text-brand-600">Resizer</a>
+              <a href="/image/image-compressor" class="text-[11px] px-2 py-0.5 rounded bg-white border border-surface-200 text-surface-600 hover:text-brand-600">Compressor</a>
+              <a href="/image/social-resizer" class="text-[11px] px-2 py-0.5 rounded bg-white border border-surface-200 text-surface-600 hover:text-brand-600">Social</a>
+            </div>
+          </div>
+          <div class="mt-5 pt-3 border-t border-surface-200/60">
+            <a href="/image" class="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
+              Explore Image Suite &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Video Tools Card -->
+        <div class="p-5 rounded-2xl bg-surface-50/70 border border-surface-200/80 flex flex-col justify-between hover:border-brand-300 transition-colors">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800">
+                {videoTools.length} Active {videoTools.length === 1 ? 'Tool' : 'Tools'}
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-surface-900">Video Tools</h3>
+            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
+              Compress and adjust video bitrates locally with FFmpeg WebAssembly without server uploading.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              <a href="/video/video-compressor" class="text-[11px] px-2 py-0.5 rounded bg-white border border-surface-200 text-surface-600 hover:text-brand-600">Video Compressor</a>
+            </div>
+          </div>
+          <div class="mt-5 pt-3 border-t border-surface-200/60">
+            <a href="/video" class="text-xs font-semibold text-violet-600 hover:text-violet-700 inline-flex items-center gap-1">
+              Explore Video Suite &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- PDF & Document Tools Card -->
+        <div class="p-5 rounded-2xl bg-surface-50/70 border border-surface-200/80 flex flex-col justify-between hover:border-brand-300 transition-colors">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
+                {pdfTools.length} Active {pdfTools.length === 1 ? 'Tool' : 'Tools'}
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-surface-900">PDF & Documents</h3>
+            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
+              Compile documents and convert timed subtitle streams directly using client-side JavaScript engines.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              <a href="/pdf/image-to-pdf" class="text-[11px] px-2 py-0.5 rounded bg-white border border-surface-200 text-surface-600 hover:text-brand-600">Image to PDF</a>
+              <a href="/pdf/subtitle-converter" class="text-[11px] px-2 py-0.5 rounded bg-white border border-surface-200 text-surface-600 hover:text-brand-600">Subtitles (SRT/VTT)</a>
+            </div>
+          </div>
+          <div class="mt-5 pt-3 border-t border-surface-200/60">
+            <a href="/pdf" class="text-xs font-semibold text-rose-600 hover:text-rose-700 inline-flex items-center gap-1">
+              Explore PDF Suite &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Audio Tools Card -->
+        <div class="p-5 rounded-2xl bg-surface-50/70 border border-surface-200/80 flex flex-col justify-between opacity-80 hover:opacity-100 transition-opacity">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />
+                </svg>
+              </div>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-surface-200 text-surface-700">
+                In Development
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-surface-900">Audio Tools</h3>
+            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
+              Client-side audio conversion, waveform extraction, and bit-depth trimming via Web Audio API.
+            </p>
+            <div class="mt-3">
+              <span class="text-[11px] text-surface-400 italic">Planned for upcoming expansion release</span>
+            </div>
+          </div>
+          <div class="mt-5 pt-3 border-t border-surface-200/60">
+            <a href="/audio" class="text-xs font-semibold text-surface-500 hover:text-surface-800 inline-flex items-center gap-1">
+              View Roadmap &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Active Tool Grid (The Core Product) -->
+  <section id="tools-directory" class="py-12 sm:py-16 bg-surface-50/60">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Section Header with Filter Controls -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-7 gap-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-surface-950 tracking-tight">
+            All Active Tools
+          </h2>
+          <p class="text-xs sm:text-sm text-surface-500 mt-1" id="tool-count-indicator">
+            Showing all {allTools.length} utilities ready for on-device processing
+          </p>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="flex flex-wrap items-center gap-1.5 p-1 bg-surface-200/60 rounded-xl text-xs font-semibold text-surface-600 self-start md:self-auto" id="category-filter-tabs">
+          <button
+            type="button"
+            data-filter="all"
+            class="filter-tab-btn px-3 py-1.5 rounded-lg bg-white text-surface-900 shadow-2xs transition-all"
+          >
+            All ({allTools.length})
+          </button>
+          <button
+            type="button"
+            data-filter="image"
+            class="filter-tab-btn px-3 py-1.5 rounded-lg hover:text-surface-900 transition-all text-surface-600"
+          >
+            Image ({imageTools.length})
+          </button>
+          <button
+            type="button"
+            data-filter="video"
+            class="filter-tab-btn px-3 py-1.5 rounded-lg hover:text-surface-900 transition-all text-surface-600"
+          >
+            Video ({videoTools.length})
+          </button>
+          <button
+            type="button"
+            data-filter="pdf"
+            class="filter-tab-btn px-3 py-1.5 rounded-lg hover:text-surface-900 transition-all text-surface-600"
+          >
+            PDF & Docs ({pdfTools.length})
+          </button>
+        </div>
+      </div>
+
+      <!-- Responsive 3-Column Tools Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="tools-grid">
         {allTools.map((tool) => (
           <ToolCard tool={tool} />
         ))}
       </div>
+
+      <!-- Empty State for Search Filter -->
+      <div id="no-results-state" class="hidden p-10 text-center bg-white rounded-2xl border border-surface-200 mt-4">
+        <div class="w-12 h-12 mx-auto rounded-full bg-surface-100 flex items-center justify-center text-surface-400 mb-3">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-surface-900">No matching tools found</h3>
+        <p class="text-xs text-surface-500 mt-1 max-w-sm mx-auto" id="no-results-query-text">
+          No active converters match your query.
+        </p>
+        <button
+          type="button"
+          id="clear-search-btn"
+          class="mt-4 px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 transition"
+        >
+          Reset Filter
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Single Authoritative Privacy Section (Visual 3-Step) -->
+  <section class="py-14 sm:py-18 bg-white border-b border-surface-200/70">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-surface-950 tracking-tight">
+          How On-Device Processing Works
+        </h2>
+        <p class="text-sm text-surface-600 mt-2 leading-relaxed">
+          Traditional online converters upload your personal files to remote cloud servers. Our tools execute strictly within your local browser sandbox.
+        </p>
+      </div>
+
+      <!-- 3-Step Architecture Flow -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+        <!-- Step 1 -->
+        <div class="p-6 rounded-2xl bg-surface-50 border border-surface-200/80 relative flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-sm flex items-center justify-center">
+                1
+              </span>
+              <span class="text-[10px] font-mono uppercase tracking-wider text-surface-500 px-2 py-0.5 bg-white rounded border border-surface-200">
+                Local Memory Read
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-surface-900 mb-2">Choose Your File</h3>
+            <p class="text-xs text-surface-600 leading-relaxed">
+              Your file is loaded directly into your browser's private memory (RAM) using standard HTML5 File APIs. No byte is ever transmitted across the internet.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-surface-200/60 text-[11px] text-emerald-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            0 bytes uploaded to any server
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="p-6 rounded-2xl bg-surface-50 border border-surface-200/80 relative flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-8 h-8 rounded-lg bg-brand-100 text-brand-800 font-bold text-sm flex items-center justify-center">
+                2
+              </span>
+              <span class="text-[10px] font-mono uppercase tracking-wider text-surface-500 px-2 py-0.5 bg-white rounded border border-surface-200">
+                Client CPU / Wasm
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-surface-900 mb-2">Process Locally</h3>
+            <p class="text-xs text-surface-600 leading-relaxed">
+              Compiled WebAssembly binaries and hardware-accelerated Canvas algorithms process your data right on your device CPU and GPU.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-surface-200/60 text-[11px] text-brand-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+            Hardware-native client compute
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="p-6 rounded-2xl bg-surface-50 border border-surface-200/80 relative flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-800 font-bold text-sm flex items-center justify-center">
+                3
+              </span>
+              <span class="text-[10px] font-mono uppercase tracking-wider text-surface-500 px-2 py-0.5 bg-white rounded border border-surface-200">
+                Direct Blob Export
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-surface-900 mb-2">Save Immediately</h3>
+            <p class="text-xs text-surface-600 leading-relaxed">
+              Output files are packaged as local in-memory Blobs and downloaded straight to your disk. Nothing is stored in any remote cloud database.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-surface-200/60 text-[11px] text-indigo-700 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+            Transient RAM clears upon tab close
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Verification Proof Callout -->
+      <div class="mt-8 p-4 rounded-xl bg-surface-50 border border-surface-200 text-xs text-surface-600 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3 text-center sm:text-left">
+          <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <span>
+            <strong>Verify it yourself:</strong> Open your browser DevTools (<kbd class="px-1 py-0.5 bg-white border border-surface-200 rounded font-mono text-[10px]">F12</kbd> &rarr; <span class="font-medium">Network</span> tab). During any conversion, you will observe zero outbound file payloads.
+          </span>
+        </div>
+        <span class="font-mono text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60 whitespace-nowrap">
+          Payload Transfer: 0 KB
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Concise "Why On-Device" Section -->
+  <section class="py-12 sm:py-16 bg-surface-50/50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-xl mx-auto mb-10">
+        <h2 class="text-xl sm:text-2xl font-extrabold text-surface-950 tracking-tight">
+          Why Choose On-Device Tools
+        </h2>
+        <p class="text-xs sm:text-sm text-surface-500 mt-1">
+          Designed for speed, confidentiality, and zero external dependencies
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Benefit 1 -->
+        <div class="p-5 rounded-2xl bg-white border border-surface-200/80 shadow-2xs">
+          <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <h3 class="text-sm font-bold text-surface-900">Zero Upload Delay</h3>
+          <p class="text-xs text-surface-500 mt-1.5 leading-relaxed">
+            Conversions begin immediately upon dropping a file&mdash;no waiting minutes for massive media files to upload across the internet.
+          </p>
+        </div>
+
+        <!-- Benefit 2 -->
+        <div class="p-5 rounded-2xl bg-white border border-surface-200/80 shadow-2xs">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          </div>
+          <h3 class="text-sm font-bold text-surface-900">Zero Cloud Storage</h3>
+          <p class="text-xs text-surface-500 mt-1.5 leading-relaxed">
+            Your private data never touches remote storage buckets or third-party servers. When you close the browser tab, all memory is instantly freed.
+          </p>
+        </div>
+
+        <!-- Benefit 3 -->
+        <div class="p-5 rounded-2xl bg-white border border-surface-200/80 shadow-2xs">
+          <div class="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          </div>
+          <h3 class="text-sm font-bold text-surface-900">No Accounts or Sign-ups</h3>
+          <p class="text-xs text-surface-500 mt-1.5 leading-relaxed">
+            No mandatory registrations, subscriptions, or email capturing. Open the tool, perform your task, and continue with your day.
+          </p>
+        </div>
+
+        <!-- Benefit 4 -->
+        <div class="p-5 rounded-2xl bg-white border border-surface-200/80 shadow-2xs">
+          <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3" />
+            </svg>
+          </div>
+          <h3 class="text-sm font-bold text-surface-900">Direct Hardware Speed</h3>
+          <p class="text-xs text-surface-500 mt-1.5 leading-relaxed">
+            Compiled WebAssembly modules execute with near-native efficiency, directly utilizing your CPU cores and graphics hardware.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>
+
+<!-- Client-side Search & Category Filtering Script -->
+<script>
+  function setupToolFinder() {
+    const searchInput = document.getElementById('tool-search-input') as HTMLInputElement | null;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('.tool-grid-card'));
+    const filterTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.filter-tab-btn'));
+    const countIndicator = document.getElementById('tool-count-indicator');
+    const noResultsState = document.getElementById('no-results-state');
+    const noResultsQueryText = document.getElementById('no-results-query-text');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+
+    let currentCategory = 'all';
+    let searchQuery = '';
+
+    function filterTools() {
+      const q = searchQuery.trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const cat = card.getAttribute('data-category') || '';
+        const keywords = card.getAttribute('data-keywords') || '';
+        const title = card.getAttribute('data-title') || '';
+
+        const matchesCat = currentCategory === 'all' || cat === currentCategory;
+        const matchesQuery = !q || keywords.includes(q) || title.includes(q);
+
+        if (matchesCat && matchesQuery) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      // Update indicator text
+      if (countIndicator) {
+        if (q || currentCategory !== 'all') {
+          countIndicator.textContent = `Showing ${visibleCount} of ${cards.length} tools`;
+        } else {
+          countIndicator.textContent = `Showing all ${cards.length} utilities ready for on-device processing`;
+        }
+      }
+
+      // Update empty state
+      if (noResultsState) {
+        if (visibleCount === 0) {
+          noResultsState.classList.remove('hidden');
+          if (noResultsQueryText) {
+            noResultsQueryText.textContent = q
+              ? `No active converters match "${q}" in the selected filter.`
+              : `No active converters found in this category.`;
+          }
+        } else {
+          noResultsState.classList.add('hidden');
+        }
+      }
+    }
+
+    // Handle Search Input
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = (e.target as HTMLInputElement).value;
+        filterTools();
+      });
+
+      // Keyboard shortcut '/' to focus search
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== searchInput && !['INPUT', 'TEXTAREA'].includes((document.activeElement as HTMLElement)?.tagName)) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        } else if (e.key === 'Escape' && document.activeElement === searchInput) {
+          searchInput.value = '';
+          searchQuery = '';
+          searchInput.blur();
+          filterTools();
+        }
+      });
+    }
+
+    // Handle Category Filter Tabs
+    filterTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const filter = tab.getAttribute('data-filter') || 'all';
+        currentCategory = filter;
+
+        // Update tab styles
+        filterTabs.forEach((t) => {
+          if (t === tab) {
+            t.classList.add('bg-white', 'text-surface-900', 'shadow-2xs');
+            t.classList.remove('text-surface-600');
+          } else {
+            t.classList.remove('bg-white', 'text-surface-900', 'shadow-2xs');
+            t.classList.add('text-surface-600');
+          }
+        });
+
+        filterTools();
+      });
+    });
+
+    // Handle Clear Search button in empty state
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        currentCategory = 'all';
+
+        filterTabs.forEach((t, i) => {
+          if (i === 0) {
+            t.classList.add('bg-white', 'text-surface-900', 'shadow-2xs');
+            t.classList.remove('text-surface-600');
+          } else {
+            t.classList.remove('bg-white', 'text-surface-900', 'shadow-2xs');
+            t.classList.add('text-surface-600');
+          }
+        });
+
+        filterTools();
+        if (searchInput) searchInput.focus();
+      });
+    }
+  }
+
+  // Initialize on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupToolFinder);
+  } else {
+    setupToolFinder();
+  }
+</script>
