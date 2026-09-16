@@ -1,8 +1,10 @@
 ---
-import { getAllCategories, getToolsByCategory } from '../data/tools';
+import { getToolsByCategory } from '../data/tools';
 import BrandLogo from './BrandLogo.astro';
 
-const categories = getAllCategories();
+const imageTools = getToolsByCategory('image');
+const videoTools = getToolsByCategory('video');
+const pdfTools = getToolsByCategory('pdf');
 ---
 
 <footer class="border-t border-surface-200 bg-white text-surface-600 mt-16">
@@ -48,48 +50,99 @@ const categories = getAllCategories();
           <BrandLogo size="sm" showWordmark={true} />
         </a>
         <p class="text-xs text-surface-500 leading-relaxed mb-4">
-          Fast, open-architecture client-side conversion utilities engineered for privacy, speed, and zero server roundtrips.
+          Clean, private file conversion utilities running 100% on your device hardware with zero server uploads.
         </p>
         <p class="text-[11px] text-surface-400 font-mono">
           Powered by WebAssembly, Web Audio API &amp; HTML5 Canvas.
         </p>
       </div>
 
-      <!-- Categories & Tools Columns for SEO Crawlability -->
-      {categories.map((cat) => {
-        const tools = getToolsByCategory(cat.id);
-        return (
-          <div>
-            <a href={`/${cat.id}`} class="text-xs font-bold text-surface-900 uppercase tracking-wider hover:text-brand-600 focus-visible:outline-brand-500 transition-colors block mb-3">
-              {cat.name}
+      <!-- Column 1: Image Tools -->
+      <div>
+        <a href="/image" class="text-xs font-bold text-surface-900 uppercase tracking-wider hover:text-brand-600 focus-visible:outline-brand-500 transition-colors block mb-3">
+          Image Tools
+        </a>
+        <ul class="space-y-2 text-xs">
+          {imageTools.map((tool) => (
+            <li>
+              <a
+                href={`/image/${tool.slug}`}
+                class="text-surface-600 hover:text-brand-600 focus-visible:outline-brand-500 transition-colors inline-flex items-center gap-1"
+              >
+                <span>{tool.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Column 2: Video Tools -->
+      <div>
+        <a href="/video" class="text-xs font-bold text-surface-900 uppercase tracking-wider hover:text-brand-600 focus-visible:outline-brand-500 transition-colors block mb-3">
+          Video Tools
+        </a>
+        <ul class="space-y-2 text-xs">
+          {videoTools.map((tool) => (
+            <li>
+              <a
+                href={`/video/${tool.slug}`}
+                class="text-surface-600 hover:text-brand-600 focus-visible:outline-brand-500 transition-colors inline-flex items-center gap-1"
+              >
+                <span>{tool.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Column 3: PDF & Document Tools -->
+      <div>
+        <a href="/pdf" class="text-xs font-bold text-surface-900 uppercase tracking-wider hover:text-brand-600 focus-visible:outline-brand-500 transition-colors block mb-3">
+          PDF &amp; Documents
+        </a>
+        <ul class="space-y-2 text-xs">
+          {pdfTools.map((tool) => (
+            <li>
+              <a
+                href={`/pdf/${tool.slug}`}
+                class="text-surface-600 hover:text-brand-600 focus-visible:outline-brand-500 transition-colors inline-flex items-center gap-1"
+              >
+                <span>{tool.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Column 4: Platform & Privacy -->
+      <div>
+        <span class="text-xs font-bold text-surface-900 uppercase tracking-wider block mb-3">
+          Platform
+        </span>
+        <ul class="space-y-2 text-xs text-surface-600">
+          <li>
+            <a href="/#how-it-works" class="hover:text-brand-600 transition-colors">
+              How Local Processing Works
             </a>
-            <ul class="space-y-2 text-xs">
-              {tools.length > 0 ? (
-                tools.map((tool) => (
-                  <li>
-                    <a
-                      href={`/${tool.category}/${tool.slug}`}
-                      class="text-surface-600 hover:text-brand-600 focus-visible:outline-brand-500 transition-colors inline-flex items-center gap-1"
-                    >
-                      <span>{tool.title}</span>
-                      {tool.status === 'coming-soon' && (
-                        <span class="text-[9px] uppercase px-1 py-0.5 rounded bg-surface-100 text-surface-500 font-semibold">Soon</span>
-                      )}
-                    </a>
-                  </li>
-                ))
-              ) : (
-                <li class="text-surface-400 italic">Tools arriving in next release</li>
-              )}
-            </ul>
-          </div>
-        );
-      })}
+          </li>
+          <li>
+            <a href="/#tools-directory" class="hover:text-brand-600 transition-colors">
+              All Active Utilities
+            </a>
+          </li>
+          <li>
+            <span class="text-surface-400">Audio Suite (In Development)</span>
+          </li>
+          <li>
+            <span class="text-surface-400">Zero Tracking &bull; Free Forever</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Bottom copyright -->
     <div class="mt-12 pt-8 border-t border-surface-200 text-center sm:flex sm:justify-between sm:text-left text-xs text-surface-400">
-      <p>&copy; {new Date().getFullYear()} PureFile. Built for speed and total privacy.</p>
+      <p>&copy; {new Date().getFullYear()} PureFile. Clean, private on-device utilities.</p>
       <p class="mt-2 sm:mt-0">All operations are executed 100% on your local hardware.</p>
     </div>
   </div>

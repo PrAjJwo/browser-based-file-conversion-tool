@@ -441,6 +441,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'video-compressor',
     category: 'video',
+    group: 'Video Compression',
     title: 'Video Compressor',
     metaTitle: 'Video Compressor — Compress MP4 & MOV Online',
     metaDescription: 'Compress MP4 and MOV videos to a target file size in your browser. Fast, 100% private in-browser WebAssembly processing with zero server uploads.',
@@ -500,6 +501,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'image-to-pdf',
     category: 'pdf',
+    group: 'Document Compilation',
     title: 'Image to PDF Converter',
     metaTitle: 'Image to PDF Converter — Combine Images into a PDF',
     metaDescription: 'Convert JPG, PNG, and WebP images into a single PDF document in your browser. Fast, 100% private client-side processing with zero server uploads.',
@@ -559,6 +561,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'subtitle-converter',
     category: 'pdf',
+    group: 'Media & Captions',
     title: 'Subtitle Converter',
     metaTitle: 'Subtitle Converter — Convert SRT, VTT & TXT',
     metaDescription: 'Convert SRT, VTT, and TXT subtitle files directly in your browser. Fast, 100% private local conversion with live editing and zero server uploads.',

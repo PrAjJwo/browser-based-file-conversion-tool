@@ -2,19 +2,21 @@
 
 ## Current Project Status
 
-- **Current Phase**: Brand Identity + Design System — Complete
+- **Current Phase**: Navigation + Category Page Redesign + Unfinished-State Cleanup — Complete
 - **Status Summary**:
-  - Final brand selected: **PureFile** (*"Clean, private file conversions. Zero uploads. Zero tracking."*).
-  - Selected visual direction: **Direction A: Clean Professional Utility** (Linear / Raycast inspired; precision Zinc neutrals, Electric Cobalt accent, restrained radii, high-density layout).
-  - Replaced temporary "Browser File Tools" branding across layout, header, footer, homepage, and metadata.
-  - Built custom **PureFile Logo System** (`src/components/BrandLogo.astro` and `public/favicon.svg`) with carbon monogram and conversion vector.
-  - Implemented comprehensive design token system in `tailwind.config.mjs` and `src/styles/global.css` with CSS variables, safelisted component utilities, and restrained typography.
-  - Created standardized **Button System** (`.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-icon`, `.btn-sm/md/lg`).
-  - Created standardized **Form System** (`.input-base`, `.select-base`, `.slider-base`, `.checkbox-base`, `.dropzone-base`).
-  - Created standardized **Card System** (`.card-base`, `.card-interactive`, `.card-elevated`, `.card-inset`).
-  - Redesigned **Privacy & Trust System** (`src/components/PrivacyBadge.astro`) featuring a quiet, confident header status indicator (`● Local Sandbox • 0 Bytes Uploaded`).
-  - Verified via headless Chrome CDP: brand replacement, logo rendering, token evaluation, component styles, and 0 horizontal overflow across 5 responsive viewports.
-  - Verified lightweight regression: HEIC conversion and all 14 site routes return 200 OK.
+  - **Desktop Header**: Upgraded with interactive mega dropdowns per active category (`Image Tools` [6 tools], `Video Tools` [1 tool], `PDF & Documents` [2 tools]), quick search shortcut (`Find tool... /`), and quiet trust badge (`Local Sandbox • 0 Bytes Uploaded`).
+  - **Mobile Navigation Drawer**: Implemented accessible slide-out drawer with focus management, backdrop dismissal, ESC key listener, and grouped active tool links. Fixed fixed-positioning containing block conflict with `backdrop-filter`.
+  - **Empty Audio Category Solution**: Excluded `/audio` from primary desktop/mobile navigation and footer active lists. Added `<meta name="robots" content="noindex, follow">` to prevent thin content indexing. Replaced all developer jargon ("0 tools registered", "queued in our architecture plan", "Tools in Preparation") with a polished, human "Audio Tools Under Development" message with direct CTAs to working image, video, and PDF suites.
+  - **Category Page Redesigns (`/image`, `/video`, `/pdf`, `/audio`)**:
+    - Standardized subtle, space-efficient breadcrumbs (`Home / Category`).
+    - Standardized compact privacy reminders (`<PrivacyBadge variant="tool-proof" />`), replacing oversized empty disclaimer boxes.
+    - `/image`: Preserved intuitive groupings: "Image Conversion" (3 tools) and "Resize & Compress" (3 tools).
+    - `/video`: Engineered an intentional single-tool hero showcase for Video Compressor with live status indicators, capability tags, direct launcher, and client-side architecture summary. Zero fake placeholder cards.
+    - `/pdf`: Grouped into "Document Compilation" (Image to PDF) and "Media & Captions" (Subtitle Converter).
+  - **Footer Navigation**: Cleaned up to link strictly to active categories and active tools, accompanied by local execution architecture specs and trust guarantees. Zero developer jargon.
+  - **Responsive & Accessibility Verified**: 375, 390, 768, 1024, 1440 px viewports checked via automated Chrome CDP suite. 0 horizontal overflow, fully operable via keyboard.
+  - **Regression Verified**: End-to-end HEIC to JPG conversion verified in headless Chrome; all 14 routes return HTTP 200.
+  - **Build Verified**: `npm.cmd run build` passes with 0 errors; 14 static pages generated in 5.65s.
 - **Completed Active Converters (9 Total — Frozen & Stable)**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Verified
@@ -27,13 +29,70 @@
   9. Social Image Resizer (`/image/social-resizer`) — Active, Verified
 - **Active Routes (14 Total — All 200 OK)**:
   - Homepage: `/`
-  - Category routes: `/image`, `/video`, `/pdf`, `/audio`
+  - Category routes: `/image`, `/video`, `/pdf`, `/audio` (`noindex`)
   - Active tool routes: `/image/heic-to-jpg`, `/video/video-compressor`, `/image/jpg-to-heic`, `/image/image-resizer`, `/image/image-compressor`, `/image/image-converter`, `/image/social-resizer`, `/pdf/image-to-pdf`, `/pdf/subtitle-converter`
 - **Build & Static Analysis Status**:
-  - `npm.cmd run build`: **0 errors**, 14 static pages generated in 5.77s
-- **Exact Next Action**: Category & Tool Page Consistency Overhaul (Align individual tool workspaces and category hubs with the PureFile design system tokens, button classes, and form styles).
+  - `npm.cmd run build`: **0 errors**, 14 static pages generated in 5.65s
+- **Exact Next Action**: Tool Workspace Visual Consistency Overhaul (Align individual tool workspaces with PureFile design tokens, button systems, and input components).
 
 ---
+
+## Completed Phase: Navigation + Category Page Redesign + Unfinished-State Cleanup
+
+### Milestone 1: Desktop Header & Mega Dropdowns
+- Redesigned `src/components/Header.astro` desktop navigation:
+  - Replaced plain text category links with interactive dropdown menus for active categories (`Image Tools`, `Video Tools`, `PDF & Documents`).
+  - Active tools are displayed directly within the dropdowns with format badges and descriptions.
+  - Added a search shortcut button (`Find tool... /`) that smooth-scrolls or navigates to the instant tool search.
+  - Added the quiet trust badge (`Local Sandbox • 0 Bytes Uploaded`).
+  - Dropdowns feature hover + click triggers, 150ms debounce grace period, outside-click auto-closing, and ESC key dismissal.
+
+### Milestone 2: Mobile Navigation Drawer
+- Built an accessible slide-out mobile drawer in `src/components/Header.astro`:
+  - Placed outside the `<header>` element to prevent fixed-positioning containing-block clipping caused by `backdrop-filter: blur()`.
+  - Dimmed backdrop overlay (`bg-surface-950/40`) with outside click dismissal.
+  - Full keyboard accessibility: ESC closes drawer and restores focus to the hamburger button.
+  - `aria-expanded` synchronized across open/close states.
+  - Lists all active tools grouped by category with direct links, search jump button, and brand footer.
+
+### Milestone 3: Empty Audio Category Strategy
+- Strategic decision:
+  - Excluded `/audio` from primary desktop and mobile navigation headers and footer active tool lists.
+  - Retained the route `/audio` for URL architecture consistency, but added `<meta name="robots" content="noindex, follow">` via `robots` prop in `BaseLayout.astro`.
+  - Replaced all developer jargon ("0 tools registered", "queued in our architecture plan", "Tools in Preparation") with a humanized in-development card.
+  - Provided direct exploration CTAs to working image, video, and PDF suites.
+
+### Milestone 4: Category Page Redesigns (`/image`, `/video`, `/pdf`)
+- Redesigned `src/pages/[category]/index.astro`:
+  - **Subtle Breadcrumbs**: Standardized compact `Home / Category` trail consuming under 20px vertical height.
+  - **Compact Privacy Reminder**: Integrated `<PrivacyBadge variant="tool-proof" />`, removing giant green disclaimer boxes.
+  - **Image Category (`/image`)**: Grouped into "Image Conversion" (HEIC to JPG, JPG to HEIC, WebP/PNG/JPG) and "Resize & Compress" (Image Resizer, Image Compressor, Social Media Image Resizer).
+  - **Video Category (`/video`)**: Engineered an intentional single-tool hero showcase for Video Compressor with active engine status, format badges, and client-side architecture documentation. Zero placeholder or fake cards.
+  - **PDF & Document Category (`/pdf`)**: Grouped into "Document Compilation" (Image to PDF) and "Media & Captions" (Subtitle Converter).
+
+### Milestone 5: Footer & Copy Cleanup
+- Updated `src/components/Footer.astro`:
+  - Replaced developer jargon with professional product copy.
+  - Reorganized into clean columns: Active Categories, Active Utilities, and On-Device Architecture guarantees.
+  - Linked only to active, functioning routes.
+
+### Milestone 6: Automated Verification & Screenshots
+- Ran `test-fixtures/verify-navigation-and-categories.cjs`:
+  - Tested header navigation, desktop dropdowns, mobile drawer opening/closing/aria-attributes.
+  - Verified subtle breadcrumbs, canonical/robots metadata, and jargon-free text on all 4 category pages.
+  - Verified 0 horizontal scroll overflow across viewports: 375px, 390px, 768px, 1024px, 1440px.
+- Captured high-resolution screenshots:
+  - `header_dropdown_desktop.png`
+  - `mobile_nav_drawer.png`
+  - `category_image_desktop.png`
+  - `category_video_desktop.png`
+  - `category_pdf_desktop.png`
+  - `category_audio_humanized.png`
+- Ran lightweight regression suite: HEIC to JPG conversion succeeded end-to-end in headless Chrome; all 14 routes returned 200 OK.
+- Executed `npm.cmd run build`: 14 pages generated in 5.65s with 0 errors.
+
+---
+
 
 ## Current Phase: Brand Identity & Design System
 
