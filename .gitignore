@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Production build outputs
+dist/
+.astro/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Temporary test download outputs
+test-fixtures/downloads/
+test-fixtures/downloads_*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# System files
+.DS_Store
+Thumbs.db

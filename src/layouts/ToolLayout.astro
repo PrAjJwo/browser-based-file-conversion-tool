@@ -1,0 +1,248 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import PrivacyBadge from '../components/PrivacyBadge.astro';
+import { getCategoryInfo, type Tool } from '../data/tools';
+
+interface Props {
+  title: string;
+  metaDescription: string;
+  tool: Tool;
+}
+
+const { title, metaDescription, tool } = Astro.props;
+const category = getCategoryInfo(tool.category);
+
+const pageTitle = tool.metaTitle || title;
+const siteOrigin = Astro.site ? Astro.site.origin : (process.env.SITE_URL || 'https://browserfiletools.com');
+const toolUrl = new URL(Astro.url.pathname, siteOrigin).href;
+const categoryUrl = new URL(`/${category.id}`, siteOrigin).href;
+const homeUrl = new URL('/', siteOrigin).href;
+
+// Construct JSON-LD SoftwareApplication Schema (no fake ratings/reviews)
+const softwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: tool.title,
+  description: tool.metaDescription,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Any (Web Browser)',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  featureList: [
+    '100% Client-Side Processing',
+    'Zero Server Uploads',
+    'Zero Cloud Queues',
+    'Local WebAssembly Execution',
+  ],
+};
+
+// Construct JSON-LD BreadcrumbList Schema
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: homeUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: category.name,
+      item: categoryUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: tool.title,
+      item: toolUrl,
+    },
+  ],
+};
+
+// Construct JSON-LD FAQPage Schema if tool has FAQs (matches visible content)
+const faqSchema =
+  tool.faqs && tool.faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: tool.faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
+      }
+    : null;
+---
+
+<BaseLayout
+  title={pageTitle}
+  metaDescription={metaDescription}
+  schemaJson={[softwareSchema, breadcrumbSchema, ...(faqSchema ? [faqSchema] : [])]}
+>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <!-- Breadcrumb Navigation -->
+    <nav class="flex items-center gap-2 text-xs text-surface-500 mb-6 flex-wrap" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center gap-1.5 flex-wrap">
+        <li class="inline-flex items-center">
+          <a href="/" class="hover:text-brand-600 focus-visible:outline-brand-500 transition-colors">Home</a>
+        </li>
+        <li class="inline-flex items-center gap-1.5">
+          <span aria-hidden="true">/</span>
+          <a href={`/${category.id}`} class="hover:text-brand-600 focus-visible:outline-brand-500 transition-colors">{category.name}</a>
+        </li>
+        <li class="inline-flex items-center gap-1.5" aria-current="page">
+          <span aria-hidden="true">/</span>
+          <span class="text-surface-900 font-medium truncate max-w-[200px] sm:max-w-none">{tool.title}</span>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Header & Hero Section -->
+    <div class="text-center max-w-3xl mx-auto mb-8">
+      <div class="inline-flex items-center gap-2 mb-3">
+        <span class="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-200/60">
+          {category.name}
+        </span>
+        <PrivacyBadge variant="compact" />
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-surface-950 sm:leading-tight">
+        {tool.title}
+      </h1>
+
+      <p class="mt-3 text-sm sm:text-base text-surface-600 leading-relaxed">
+        {tool.shortBlurb}
+      </p>
+    </div>
+
+    <!-- Prominent In-Browser Privacy Guarantee Banner -->
+    <div class="mb-8">
+      <PrivacyBadge variant="prominent" />
+    </div>
+
+    <!-- Main Tool Interaction Slot (e.g. Dropzone & Converter Shell) -->
+    <section class="tool-component-container mb-12" aria-label="Tool conversion area">
+      <slot name="tool">
+        <!-- Default fallback if no named slot provided -->
+        <slot />
+      </slot>
+    </section>
+
+    <!-- Non-intrusive Ad Slot (Positioned safely after conversion area, never between user and CTA) -->
+    <div class="mb-14 p-4 rounded-xl border border-dashed border-surface-300 bg-surface-100/50 text-center">
+      <span class="text-[11px] uppercase tracking-wider font-semibold text-surface-400">Advertisement Placeholder</span>
+      <p class="text-xs text-surface-500 mt-1">Non-intrusive sponsor banner placed below conversion controls</p>
+    </div>
+
+    <!-- Supporting Editorial Content Slot -->
+    <slot name="editorial" />
+
+    <!-- Supporting Content: How It Works -->
+    <section class="mb-14" aria-labelledby="how-it-works-heading">
+      <slot name="how-it-works">
+        <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">
+              ?
+            </div>
+            <h2 id="how-it-works-heading" class="text-xl font-bold text-surface-900">
+              {tool.slug === 'heic-to-jpg' ? 'How to convert HEIC to JPG' : 'How It Works'}
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {tool.howItWorks.map((step) => (
+              <div class="relative flex flex-col">
+                <div class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center mb-3 shadow-xs">
+                  {step.step}
+                </div>
+                <h3 class="text-sm font-semibold text-surface-900 mb-1">
+                  {step.title}
+                </h3>
+                <p class="text-xs text-surface-500 leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-surface-100 flex items-center gap-2 text-xs text-surface-600">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <span>Your files never leave your device. Everything is processed in your browser.</span>
+          </div>
+        </div>
+      </slot>
+    </section>
+
+    <!-- Supporting Content: Technical Limits & Format Specifications -->
+    <section class="mb-14" aria-labelledby="limitations-heading">
+      <slot name="limitations">
+        <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+              !
+            </div>
+            <div>
+              <h2 id="limitations-heading" class="text-xl font-bold text-surface-900">
+                Browser and file limitations
+              </h2>
+              <p class="text-xs text-surface-500">Understanding client-side hardware boundaries and file handling</p>
+            </div>
+          </div>
+
+          <ul class="space-y-3 mt-4 text-xs sm:text-sm text-surface-600">
+            {tool.limitations.map((limit) => (
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span>{limit}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </slot>
+    </section>
+
+    <!-- Supporting Content: Frequently Asked Questions -->
+    <section class="mb-14" aria-labelledby="faq-heading">
+      <slot name="faq">
+        <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+              &amp;
+            </div>
+            <h2 id="faq-heading" class="text-xl font-bold text-surface-900">
+              Frequently asked questions
+            </h2>
+          </div>
+
+          <div class="space-y-4">
+            {tool.faqs.map((faq) => (
+              <details class="group rounded-xl border border-surface-200 bg-surface-50/50 p-4 transition-colors open:bg-white open:border-brand-200">
+                <summary class="flex items-center justify-between cursor-pointer font-semibold text-sm text-surface-900 list-none">
+                  <span>{faq.question}</span>
+                  <span class="text-surface-400 group-open:rotate-180 transition-transform text-xs">▼</span>
+                </summary>
+                <p class="mt-3 text-xs sm:text-sm text-surface-600 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </slot>
+    </section>
+  </div>
+</BaseLayout>

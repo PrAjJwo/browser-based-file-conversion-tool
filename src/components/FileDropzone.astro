@@ -1,0 +1,415 @@
+---
+interface Props {
+  acceptedFiles?: string;
+  acceptedTypesLabel?: string;
+  sizeWarningMB?: number;
+  sizeCeilingNote?: string;
+  status?: 'coming-soon' | 'active';
+  toolTitle: string;
+  multiple?: boolean;
+  managedExternally?: boolean;
+}
+
+const {
+  acceptedFiles = '*/*',
+  acceptedTypesLabel = 'All files',
+  sizeWarningMB = 100,
+  sizeCeilingNote = 'In-browser processing memory is bounded by available local device RAM.',
+  status = 'coming-soon',
+  toolTitle,
+  multiple = false,
+  managedExternally = false,
+} = Astro.props;
+
+const uniqueId = Math.random().toString(36).substring(2, 9);
+const dropzoneId = `dropzone-${uniqueId}`;
+const fileInputId = `file-input-${uniqueId}`;
+---
+
+<div
+  class="w-full max-w-3xl mx-auto dropzone-container"
+  id={dropzoneId}
+  data-dropzone-id={dropzoneId}
+  data-accepted-files={acceptedFiles}
+  data-size-warning-mb={sizeWarningMB}
+  data-multiple={multiple ? 'true' : 'false'}
+  data-managed-externally={managedExternally ? 'true' : 'false'}
+>
+  <!-- Coming Soon Foundation Notice -->
+  {status === 'coming-soon' && (
+    <div class="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 shadow-xs">
+      <div class="p-1.5 rounded-lg bg-amber-100 text-amber-700 flex-shrink-0 mt-0.5">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200 text-amber-900">
+            Foundation Stage: Coming Soon
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-amber-800 mt-1 leading-relaxed">
+          The <strong>{toolTitle}</strong> conversion engine will be integrated in a subsequent stage. The dropzone below provides the complete user interface shell, file validation, and memory ceiling detection.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <!-- Recommended File Size Limit Notice -->
+  <div class="mb-4 px-3.5 py-2.5 rounded-xl bg-surface-100/90 border border-surface-200 text-surface-600 flex flex-wrap items-center justify-between gap-2 text-xs">
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-surface-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+      </svg>
+      <span class="font-medium text-surface-700">Recommended Size Limit:</span>
+      <span>Under {sizeWarningMB} MB for optimal in-browser performance.</span>
+    </div>
+    <span class="text-[11px] text-surface-500 font-medium">100% In-Browser RAM</span>
+  </div>
+
+  <!-- Interactive Dropzone Area (Semantic label connected to native file input) -->
+  <label
+    for={fileInputId}
+    class="dropzone-area relative block rounded-2xl border-2 border-dashed border-surface-300 hover:border-brand-500 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-500/20 bg-white hover:bg-brand-50/20 p-6 sm:p-10 text-center transition-all duration-200 cursor-pointer shadow-dropzone hover:shadow-dropzone-active group"
+  >
+    <!-- Screen-reader accessible hidden file input -->
+    <input
+      id={fileInputId}
+      type="file"
+      class="file-input sr-only"
+      accept={acceptedFiles}
+      multiple={multiple}
+      aria-label={`Select file${multiple ? 's' : ''} for ${toolTitle}`}
+    />
+
+    <!-- 1. Idle State: Ready for Drag or Browse -->
+    <div class="idle-state flex flex-col items-center">
+      <div class="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mb-4 group-hover:scale-105 group-hover:bg-brand-600 group-hover:text-white transition-all duration-200 shadow-sm" aria-hidden="true">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+        </svg>
+      </div>
+
+      <h3 class="text-base sm:text-lg font-semibold text-surface-900">
+        Drag & drop your file here, or <span class="text-brand-600 underline decoration-brand-300 underline-offset-2">browse</span>
+      </h3>
+
+      <p class="text-xs sm:text-sm text-surface-500 mt-2">
+        Supports <span class="font-medium text-surface-700">{acceptedTypesLabel}</span>
+      </p>
+
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+          <svg class="w-3 h-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+          No server upload
+        </span>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-100 text-surface-600 border border-surface-200">
+          Local device processing
+        </span>
+      </div>
+    </div>
+
+    <!-- 2. Selected File State -->
+    <div class="file-state hidden flex flex-col items-center">
+      <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 shadow-xs" aria-hidden="true">
+        <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <p class="file-name text-sm font-semibold text-surface-900 break-all max-w-md"></p>
+      <p class="file-size text-xs text-surface-500 mt-0.5"></p>
+
+      <!-- Size Ceiling Warning Banner -->
+      <div class="size-warning-box hidden mt-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs text-left max-w-md">
+        <strong class="font-semibold">Memory Notice:</strong> This file exceeds the {sizeWarningMB} MB recommended limit. {sizeCeilingNote}
+      </div>
+
+      <!-- Progress Container -->
+      <div class="progress-container w-full max-w-md mt-5">
+        <div class="flex justify-between text-xs font-medium text-surface-600 mb-1">
+          <span class="progress-status">Ready in browser memory</span>
+          <span class="progress-percentage">0%</span>
+        </div>
+        <div class="w-full h-2.5 rounded-full bg-surface-100 overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar h-full bg-brand-600 transition-all duration-200 rounded-full" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Action Controls -->
+      <div class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full sm:w-auto">
+        <button
+          type="button"
+          class="test-progress-btn px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors focus-visible:outline-brand-500"
+        >
+          Demo Progress State (UI Test)
+        </button>
+        <button
+          type="button"
+          class="remove-file-btn px-3.5 py-2.5 rounded-lg bg-surface-100 hover:bg-surface-200 text-surface-700 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-brand-500"
+          aria-label="Remove selected file"
+        >
+          Remove File
+        </button>
+      </div>
+      <p class="text-[11px] text-surface-400 mt-2">
+        Foundation UI test: exercises progress indicators without running conversion logic.
+      </p>
+    </div>
+  </label>
+
+  <!-- Validation Error Alert -->
+  <div class="validation-error hidden mt-3 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-3" role="alert">
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-rose-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+      <span class="error-message">Invalid file type selected.</span>
+    </div>
+    <button
+      type="button"
+      class="dismiss-error-btn text-rose-700 hover:text-rose-900 font-semibold underline text-[11px]"
+    >
+      Dismiss
+    </button>
+  </div>
+</div>
+
+<script>
+  // Robust Dropzone Foundation Handler with Event Dispatching
+  document.querySelectorAll<HTMLElement>('.dropzone-container').forEach((container) => {
+    const acceptedFiles = container.dataset.acceptedFiles || '*/*';
+    const sizeWarningMB = parseFloat(container.dataset.sizeWarningMb || '100');
+
+    const isManagedExternally = container.dataset.managedExternally === 'true';
+
+    const dropzoneArea = container.querySelector<HTMLLabelElement>('.dropzone-area');
+    const fileInput = container.querySelector<HTMLInputElement>('.file-input');
+    const idleState = container.querySelector<HTMLElement>('.idle-state');
+    const fileState = container.querySelector<HTMLElement>('.file-state');
+    const fileName = container.querySelector<HTMLElement>('.file-name');
+    const fileSize = container.querySelector<HTMLElement>('.file-size');
+    const sizeWarningBox = container.querySelector<HTMLElement>('.size-warning-box');
+    const validationError = container.querySelector<HTMLElement>('.validation-error');
+    const errorMessage = container.querySelector<HTMLElement>('.error-message');
+    const dismissErrorBtn = container.querySelector<HTMLButtonElement>('.dismiss-error-btn');
+    const removeBtn = container.querySelector<HTMLButtonElement>('.remove-file-btn');
+    const testProgressBtn = container.querySelector<HTMLButtonElement>('.test-progress-btn');
+    const progressBar = container.querySelector<HTMLElement>('.progress-bar');
+    const progressPercentage = container.querySelector<HTMLElement>('.progress-percentage');
+    const progressStatus = container.querySelector<HTMLElement>('.progress-status');
+
+    if (!dropzoneArea || !fileInput || !idleState || !fileState || !fileName || !fileSize || !sizeWarningBox || !validationError || !errorMessage || !removeBtn || !testProgressBtn || !progressBar || !progressPercentage || !progressStatus) {
+      return;
+    }
+
+    let testProgressInterval: ReturnType<typeof setInterval> | null = null;
+
+    // Drag-and-drop feedback
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      dropzoneArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzoneArea.classList.add('border-brand-600', 'bg-brand-50/40');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      dropzoneArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzoneArea.classList.remove('border-brand-600', 'bg-brand-50/40');
+      });
+    });
+
+    dropzoneArea.addEventListener('drop', (e) => {
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        handleFiles(files);
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        handleFiles(fileInput.files);
+      }
+    });
+
+    function formatBytes(bytes: number): string {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function validateFileType(file: File): boolean {
+      if (!acceptedFiles || acceptedFiles === '*/*') return true;
+      const patterns = acceptedFiles.split(',').map((s) => s.trim().toLowerCase());
+      const name = file.name.toLowerCase();
+      const type = (file.type || '').toLowerCase();
+
+      return patterns.some((pattern) => {
+        if (pattern.startsWith('.')) {
+          return name.endsWith(pattern);
+        }
+        if (pattern.endsWith('/*')) {
+          const base = pattern.replace('/*', '');
+          return type.startsWith(base);
+        }
+        return type === pattern;
+      });
+    }
+
+    function handleFiles(files: FileList | File[]) {
+      const fileArray = Array.from(files);
+      if (fileArray.length === 0) return;
+
+      validationError?.classList.add('hidden');
+      if (testProgressInterval) clearInterval(testProgressInterval);
+
+      const validFiles: File[] = [];
+      const invalidFiles: File[] = [];
+
+      for (const file of fileArray) {
+        if (validateFileType(file)) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(file);
+        }
+      }
+
+      // Notify about invalid files without blocking valid files
+      if (invalidFiles.length > 0 && errorMessage && validationError) {
+        errorMessage.textContent = `${invalidFiles.length} file(s) skipped (${invalidFiles.map(f => f.name).join(', ')}). Expected format: ${acceptedFiles}`;
+        validationError.classList.remove('hidden');
+      }
+
+      if (validFiles.length === 0) {
+        fileInput!.value = '';
+        return;
+      }
+
+      // If externally managed by an active tool component
+      if (isManagedExternally) {
+        container.dispatchEvent(
+          new CustomEvent('file-dropzone:files-selected', {
+            detail: { files: validFiles },
+            bubbles: true,
+          })
+        );
+        fileInput!.value = '';
+        return;
+      }
+
+      // Standalone single-file preview mode
+      const file = validFiles[0];
+      fileName!.textContent = file.name;
+      fileSize!.textContent = `${formatBytes(file.size)} • Loaded locally in browser memory`;
+
+      const sizeMB = file.size / (1024 * 1024);
+      if (sizeMB > sizeWarningMB) {
+        sizeWarningBox?.classList.remove('hidden');
+      } else {
+        sizeWarningBox?.classList.add('hidden');
+      }
+
+      progressBar!.style.width = '0%';
+      progressPercentage!.textContent = '0%';
+      progressStatus!.textContent = 'Ready in browser memory';
+
+      idleState?.classList.add('hidden');
+      fileState?.classList.remove('hidden');
+
+      container.dispatchEvent(
+        new CustomEvent('file-dropzone:file-selected', {
+          detail: { file },
+          bubbles: true,
+        })
+      );
+      container.dispatchEvent(
+        new CustomEvent('file-dropzone:files-selected', {
+          detail: { files: validFiles },
+          bubbles: true,
+        })
+      );
+    }
+
+    function resetDropzone() {
+      if (testProgressInterval) clearInterval(testProgressInterval);
+      fileInput!.value = '';
+      idleState?.classList.remove('hidden');
+      fileState?.classList.add('hidden');
+      validationError?.classList.add('hidden');
+      testProgressBtn!.disabled = false;
+
+      // Dispatch decoupled event for future tool engines
+      container.dispatchEvent(
+        new CustomEvent('file-dropzone:file-cleared', {
+          bubbles: true,
+        })
+      );
+    }
+
+    removeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      resetDropzone();
+    });
+
+    dismissErrorBtn?.addEventListener('click', () => {
+      validationError?.classList.add('hidden');
+    });
+
+    // Public Event Listeners: Allow external tool engines to control the Dropzone UI
+    container.addEventListener('file-dropzone:set-progress', ((e: CustomEvent) => {
+      const { percentage, statusText } = e.detail || {};
+      if (typeof percentage === 'number') {
+        progressBar!.style.width = `${percentage}%`;
+        progressPercentage!.textContent = `${Math.round(percentage)}%`;
+      }
+      if (statusText) {
+        progressStatus!.textContent = statusText;
+      }
+    }) as EventListener);
+
+    container.addEventListener('file-dropzone:set-error', ((e: CustomEvent) => {
+      const { errorMessage: msg } = e.detail || {};
+      if (errorMessage && msg) {
+        errorMessage.textContent = msg;
+      }
+      validationError?.classList.remove('hidden');
+    }) as EventListener);
+
+    container.addEventListener('file-dropzone:reset', () => {
+      resetDropzone();
+    });
+
+    // UI Simulation Demo Button (Clearly labeled as UI test)
+    testProgressBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      let progress = 0;
+      testProgressBtn.disabled = true;
+      progressStatus!.textContent = 'Allocating client buffer (UI test)...';
+
+      if (testProgressInterval) clearInterval(testProgressInterval);
+
+      testProgressInterval = setInterval(() => {
+        progress += 20;
+        progressBar!.style.width = `${progress}%`;
+        progressPercentage!.textContent = `${progress}%`;
+
+        if (progress === 40) {
+          progressStatus!.textContent = 'Simulating local chunk processing...';
+        } else if (progress === 80) {
+          progressStatus!.textContent = 'Packaging output stream...';
+        } else if (progress >= 100) {
+          if (testProgressInterval) clearInterval(testProgressInterval);
+          progressStatus!.textContent = 'UI Test Completed (No conversion occurred)';
+          testProgressBtn.disabled = false;
+        }
+      }, 150);
+    });
+  });
+</script>

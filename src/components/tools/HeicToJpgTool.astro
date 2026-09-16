@@ -1,0 +1,588 @@
+---
+import FileDropzone from '../FileDropzone.astro';
+import type { Tool } from '../../data/tools';
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+---
+
+<div id="heic-tool-root" class="w-full max-w-3xl mx-auto">
+  <!-- 1. Dropzone File Selector -->
+  <div id="dropzone-wrapper">
+    <FileDropzone
+      toolTitle={tool.title}
+      acceptedFiles={tool.acceptedFiles}
+      acceptedTypesLabel={tool.acceptedTypesLabel}
+      sizeWarningMB={tool.sizeWarningMB}
+      sizeCeilingNote={tool.sizeCeilingNote}
+      status="active"
+      multiple={true}
+      managedExternally={true}
+    />
+  </div>
+
+  <!-- 2. Quality Control & Settings Card -->
+  <div class="mt-6 p-4 sm:p-5 rounded-2xl bg-white border border-surface-200/80 shadow-xs">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <label for="heic-quality-slider" class="text-sm font-semibold text-surface-900 flex items-center gap-2">
+          <span>Output JPG Quality:</span>
+          <span id="quality-display-badge" class="px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 font-mono font-bold text-xs">
+            90%
+          </span>
+        </label>
+        <p class="text-xs text-surface-500 mt-1">
+          Balance between visual clarity and file size (0.5 to 1.0). Default 90% provides near-lossless output.
+        </p>
+      </div>
+
+      <div class="w-full sm:w-48 flex items-center gap-3">
+        <span class="text-xs text-surface-400 font-medium">50%</span>
+        <input
+          id="heic-quality-slider"
+          type="range"
+          min="0.5"
+          max="1.0"
+          step="0.05"
+          value="0.9"
+          class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer accent-brand-600 focus-visible:outline-brand-500"
+          aria-label="JPG Output Quality"
+          aria-valuemin="50"
+          aria-valuemax="100"
+          aria-valuenow="90"
+        />
+        <span class="text-xs text-surface-400 font-medium">100%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch Size Warning (Dynamic banner for large batches) -->
+  <div id="batch-warning-banner" class="hidden mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5">
+    <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+    </svg>
+    <div>
+      <span class="font-semibold">Batch Memory Notice:</span>
+      <span id="batch-warning-text">Large photo batches are processed sequentially in browser RAM. On mobile devices, keep batches under 50 MB for smoothest performance.</span>
+    </div>
+  </div>
+
+  <!-- 3. Selected Files Queue Section (Hidden until files selected) -->
+  <div id="queue-section" class="hidden mt-6 rounded-2xl bg-white border border-surface-200/80 p-5 shadow-xs">
+    <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-surface-100">
+      <div class="flex items-center gap-2">
+        <h3 class="text-sm font-bold text-surface-900">
+          Selected Photos (<span id="queue-count">0</span>)
+        </h3>
+        <span id="queue-total-size" class="text-xs text-surface-500 font-medium"></span>
+      </div>
+      <button
+        id="clear-all-btn"
+        type="button"
+        class="text-xs font-medium text-surface-500 hover:text-rose-600 transition-colors focus-visible:outline-brand-500"
+      >
+        Clear All
+      </button>
+    </div>
+
+    <!-- Scrollable file list -->
+    <div id="queue-list" class="mt-4 space-y-2.5 max-h-72 overflow-y-auto pr-1" role="list">
+      <!-- File cards injected via safe DOM creation -->
+    </div>
+
+    <!-- Conversion Control & Progress Bar -->
+    <div class="mt-6 pt-4 border-t border-surface-100">
+      <!-- Real Progress Status Bar (Hidden until active) -->
+      <div id="progress-container" class="hidden mb-4" role="status" aria-live="polite">
+        <div class="flex justify-between items-center text-xs font-medium text-surface-700 mb-1.5">
+          <span id="progress-status-text" class="truncate max-w-[280px] sm:max-w-md">Processing...</span>
+          <span id="progress-percentage-text" class="font-mono">0%</span>
+        </div>
+        <div class="w-full h-2.5 bg-surface-100 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          <div id="progress-bar-fill" class="h-full bg-brand-600 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <button
+          id="start-convert-btn"
+          type="button"
+          class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2 focus-visible:outline-brand-500"
+        >
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+          <span id="convert-btn-text">Convert to JPG</span>
+        </button>
+
+        <span class="text-xs text-surface-400 text-center sm:text-right">
+          Processed sequentially in local memory
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Results Section (Hidden until conversions complete) -->
+  <div id="results-section" class="hidden mt-6 rounded-2xl bg-white border border-surface-200/80 p-5 shadow-xs">
+    <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-surface-100">
+      <div>
+        <h3 class="text-sm font-bold text-surface-900">
+          Converted JPG Results (<span id="results-count">0</span>)
+        </h3>
+        <p class="text-xs text-surface-500 mt-0.5">Ready for instant local download</p>
+      </div>
+
+      <!-- Batch ZIP Download Button (Shown if >= 2 outputs) -->
+      <button
+        id="download-zip-btn"
+        type="button"
+        class="hidden px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition-colors items-center gap-1.5 focus-visible:outline-emerald-500"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+        <span>Download All as ZIP</span>
+      </button>
+    </div>
+
+    <!-- Result Cards List -->
+    <div id="results-list" class="mt-4 space-y-3 max-h-96 overflow-y-auto pr-1">
+      <!-- Result cards dynamically inserted -->
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    formatBytes,
+    formatSizeDifference,
+    convertHeicFile,
+    downloadBlob,
+    downloadAllAsZip,
+    type QueueItem,
+    type ConvertedResult,
+  } from '../../scripts/heic-to-jpg';
+
+  const root = document.getElementById('heic-tool-root');
+
+  if (root) {
+    const qualitySlider = root.querySelector<HTMLInputElement>('#heic-quality-slider')!;
+    const qualityBadge = root.querySelector<HTMLElement>('#quality-display-badge')!;
+    const batchWarningBanner = root.querySelector<HTMLElement>('#batch-warning-banner')!;
+    const queueSection = root.querySelector<HTMLElement>('#queue-section')!;
+    const queueList = root.querySelector<HTMLElement>('#queue-list')!;
+    const queueCount = root.querySelector<HTMLElement>('#queue-count')!;
+    const queueTotalSize = root.querySelector<HTMLElement>('#queue-total-size')!;
+    const clearAllBtn = root.querySelector<HTMLButtonElement>('#clear-all-btn')!;
+    const startConvertBtn = root.querySelector<HTMLButtonElement>('#start-convert-btn')!;
+    const convertBtnText = root.querySelector<HTMLElement>('#convert-btn-text')!;
+    const progressContainer = root.querySelector<HTMLElement>('#progress-container')!;
+    const progressStatusText = root.querySelector<HTMLElement>('#progress-status-text')!;
+    const progressPercentageText = root.querySelector<HTMLElement>('#progress-percentage-text')!;
+    const progressBarFill = root.querySelector<HTMLElement>('#progress-bar-fill')!;
+    const resultsSection = root.querySelector<HTMLElement>('#results-section')!;
+    const resultsList = root.querySelector<HTMLElement>('#results-list')!;
+    const resultsCount = root.querySelector<HTMLElement>('#results-count')!;
+    const downloadZipBtn = root.querySelector<HTMLButtonElement>('#download-zip-btn')!;
+
+    let queue: QueueItem[] = [];
+    let isConverting = false;
+    let activeObjectUrls: Set<string> = new Set();
+
+    // Memory clean up utility
+    function revokeAllUrls() {
+      activeObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      activeObjectUrls.clear();
+    }
+
+    window.addEventListener('beforeunload', revokeAllUrls);
+
+    // Quality slider change listener
+    qualitySlider.addEventListener('input', () => {
+      const val = parseFloat(qualitySlider.value);
+      const percent = Math.round(val * 100);
+      qualityBadge.textContent = `${percent}%`;
+      qualitySlider.setAttribute('aria-valuenow', String(percent));
+    });
+
+    // Listen for files emitted by FileDropzone
+    root.addEventListener('file-dropzone:files-selected', ((e: CustomEvent) => {
+      const newFiles: File[] = e.detail?.files || [];
+      if (newFiles.length === 0) return;
+
+      // If previous run had completed conversions, clear them for a fresh batch
+      if (queue.some((q) => q.status === 'completed')) {
+        clearQueue();
+      }
+
+      for (const file of newFiles) {
+        // Prevent duplicate file names if exact same file is dropped twice
+        const id = `item-${Math.random().toString(36).substring(2, 9)}`;
+        queue.push({
+          id,
+          file,
+          status: 'ready',
+          results: [],
+        });
+      }
+
+      renderQueue();
+    }) as EventListener);
+
+    // Render Queue UI
+    function renderQueue() {
+      queueList.innerHTML = '';
+      if (queue.length === 0) {
+        queueSection.classList.add('hidden');
+        batchWarningBanner.classList.add('hidden');
+        return;
+      }
+
+      queueSection.classList.remove('hidden');
+      queueCount.textContent = String(queue.length);
+
+      const totalBytes = queue.reduce((acc, item) => acc + item.file.size, 0);
+      queueTotalSize.textContent = `• Total: ${formatBytes(totalBytes)}`;
+
+      // Batch size warning (> 50 MB)
+      if (totalBytes > 50 * 1024 * 1024) {
+        batchWarningBanner.classList.remove('hidden');
+      } else {
+        batchWarningBanner.classList.add('hidden');
+      }
+
+      // Update button text
+      const pendingCount = queue.filter((q) => q.status !== 'completed').length;
+      if (pendingCount > 0) {
+        convertBtnText.textContent = `Convert ${pendingCount} Photo${pendingCount > 1 ? 's' : ''} to JPG`;
+        startConvertBtn.disabled = isConverting;
+      } else {
+        convertBtnText.textContent = 'All Photos Converted';
+        startConvertBtn.disabled = true;
+      }
+
+      // Clear existing list elements safely
+      queueList.innerHTML = '';
+
+      queue.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'flex items-center justify-between p-3 rounded-xl bg-surface-50 border border-surface-200/80 text-xs';
+
+        // Left info: icon + filename + size
+        const leftBox = document.createElement('div');
+        leftBox.className = 'flex items-center gap-2.5 overflow-hidden min-w-0 pr-2';
+
+        const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        iconSvg.setAttribute('class', 'w-4 h-4 text-surface-400 flex-shrink-0');
+        iconSvg.setAttribute('fill', 'none');
+        iconSvg.setAttribute('viewBox', '0 0 24 24');
+        iconSvg.setAttribute('stroke', 'currentColor');
+        iconSvg.setAttribute('stroke-width', '2');
+        const iconPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        iconPath.setAttribute('stroke-linecap', 'round');
+        iconPath.setAttribute('stroke-linejoin', 'round');
+        iconPath.setAttribute('d', 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z');
+        iconSvg.appendChild(iconPath);
+        leftBox.appendChild(iconSvg);
+
+        const textCol = document.createElement('div');
+        textCol.className = 'truncate min-w-0';
+
+        const nameSpan = document.createElement('p');
+        nameSpan.className = 'font-semibold text-surface-900 truncate';
+        nameSpan.textContent = item.file.name; // Security: safely set as textContent
+        nameSpan.title = item.file.name;
+        textCol.appendChild(nameSpan);
+
+        const sizeSpan = document.createElement('span');
+        sizeSpan.className = 'text-[11px] text-surface-500';
+        sizeSpan.textContent = formatBytes(item.file.size);
+        textCol.appendChild(sizeSpan);
+
+        if (item.error) {
+          const errSpan = document.createElement('p');
+          errSpan.className = 'text-[11px] text-rose-600 font-medium mt-0.5';
+          errSpan.textContent = item.error;
+          textCol.appendChild(errSpan);
+        }
+
+        leftBox.appendChild(textCol);
+        card.appendChild(leftBox);
+
+        // Right status & remove
+        const rightBox = document.createElement('div');
+        rightBox.className = 'flex items-center gap-2 flex-shrink-0';
+
+        const badge = document.createElement('span');
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider';
+
+        if (item.status === 'ready') {
+          badge.className += ' bg-surface-200/80 text-surface-700';
+          badge.textContent = 'Ready';
+        } else if (item.status === 'converting') {
+          badge.className += ' bg-indigo-100 text-indigo-800 animate-pulse';
+          badge.textContent = 'Converting...';
+        } else if (item.status === 'completed') {
+          badge.className += ' bg-emerald-100 text-emerald-800';
+          badge.textContent = 'Completed';
+        } else if (item.status === 'failed') {
+          badge.className += ' bg-rose-100 text-rose-800';
+          badge.textContent = 'Failed';
+        }
+        rightBox.appendChild(badge);
+
+        if (!isConverting && item.status !== 'completed') {
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'p-1 rounded text-surface-400 hover:text-rose-600 hover:bg-surface-200/60 transition-colors focus-visible:outline-brand-500';
+          removeBtn.setAttribute('aria-label', `Remove ${item.file.name}`);
+          removeBtn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          `;
+          removeBtn.addEventListener('click', () => {
+            queue = queue.filter((q) => q.id !== item.id);
+            renderQueue();
+          });
+          rightBox.appendChild(removeBtn);
+        }
+
+        card.appendChild(rightBox);
+        queueList.appendChild(card);
+      });
+    }
+
+    // Clear All action
+    function clearQueue() {
+      revokeAllUrls();
+      queue = [];
+      queueList.innerHTML = '';
+      resultsSection.classList.add('hidden');
+      resultsList.innerHTML = '';
+      progressContainer.classList.add('hidden');
+      downloadZipBtn.classList.add('hidden');
+      downloadZipBtn.classList.remove('flex');
+      renderQueue();
+    }
+
+    clearAllBtn.addEventListener('click', () => {
+      if (!isConverting) {
+        clearQueue();
+      }
+    });
+
+    // Start Batch Conversion
+    startConvertBtn.addEventListener('click', async () => {
+      if (isConverting) return;
+      const pendingItems = queue.filter((q) => q.status !== 'completed');
+      if (pendingItems.length === 0) return;
+
+      isConverting = true;
+      startConvertBtn.disabled = true;
+      clearAllBtn.disabled = true;
+      progressContainer.classList.remove('hidden');
+
+      const quality = parseFloat(qualitySlider.value);
+      const totalItems = queue.length;
+      let completedCount = queue.filter((q) => q.status === 'completed').length;
+
+      // Track output filenames across the batch to guarantee uniqueness (e.g., photo.jpg, photo-2.jpg)
+      const usedOutputFilenames = new Set<string>();
+      queue.forEach((q) => {
+        if (q.status === 'completed' && q.results) {
+          q.results.forEach((r) => usedOutputFilenames.add(r.filename.toLowerCase()));
+        }
+      });
+
+      // Sequential execution: memory safety & mobile protection
+      for (let i = 0; i < queue.length; i++) {
+        const item = queue[i];
+        if (item.status === 'completed') continue;
+
+        item.status = 'converting';
+        item.error = undefined;
+
+        // REAL progress updates — no fake percentages
+        if (totalItems > 1) {
+          progressStatusText.textContent = `Converting ${i + 1} of ${totalItems}: ${item.file.name}...`;
+          const currentPct = Math.round((completedCount / totalItems) * 100);
+          progressPercentageText.textContent = `${currentPct}%`;
+          progressBarFill.style.width = `${currentPct}%`;
+        } else {
+          progressStatusText.textContent = `Converting ${item.file.name} in browser memory...`;
+          progressPercentageText.textContent = 'Processing...';
+          progressBarFill.style.width = '100%';
+        }
+
+        renderQueue();
+
+        try {
+          // Client-side conversion via lazy-loaded heic2any
+          const { blobs, filenames } = await convertHeicFile(item.file, quality);
+
+          item.results = blobs.map((blob, bIdx) => {
+            const objectUrl = URL.createObjectURL(blob);
+            activeObjectUrls.add(objectUrl);
+
+            // Deduplicate filenames across the batch (e.g. photo.jpg, photo-2.jpg)
+            const rawFilename = filenames[bIdx];
+            let uniqueFilename = rawFilename;
+            let counter = 2;
+            while (usedOutputFilenames.has(uniqueFilename.toLowerCase())) {
+              const lastDot = rawFilename.lastIndexOf('.');
+              const base = lastDot !== -1 ? rawFilename.substring(0, lastDot) : rawFilename;
+              const ext = lastDot !== -1 ? rawFilename.substring(lastDot + 1) : 'jpg';
+              uniqueFilename = `${base}-${counter}.${ext}`;
+              counter++;
+            }
+            usedOutputFilenames.add(uniqueFilename.toLowerCase());
+
+            return {
+              id: `${item.id}-${bIdx}`,
+              blob,
+              objectUrl,
+              filename: uniqueFilename,
+              originalSize: item.file.size,
+              convertedSize: blob.size,
+            };
+          });
+
+          item.status = 'completed';
+          completedCount++;
+        } catch (err: any) {
+          // Per-file error isolation: one failed file does not crash the rest
+          item.status = 'failed';
+          const msg = err?.message || String(err);
+          if (msg.includes('format') || msg.includes('not supported') || msg.includes('container')) {
+            item.error = 'Unsupported HEIC container or corrupted file.';
+          } else {
+            item.error = 'Conversion failed in browser memory.';
+          }
+        }
+
+        renderQueue();
+        renderResults();
+      }
+
+      isConverting = false;
+      clearAllBtn.disabled = false;
+      renderQueue();
+
+      // Final progress bar state
+      const finalPct = Math.round((completedCount / totalItems) * 100);
+      progressPercentageText.textContent = `${finalPct}%`;
+      progressBarFill.style.width = `${finalPct}%`;
+      progressStatusText.textContent = `Batch finished: ${completedCount} converted, ${totalItems - completedCount} failed.`;
+    });
+
+    // Render Results Cards
+    function renderResults() {
+      const allResults: ConvertedResult[] = [];
+      queue.forEach((q) => {
+        if (q.status === 'completed' && q.results) {
+          allResults.push(...q.results);
+        }
+      });
+
+      if (allResults.length === 0) {
+        resultsSection.classList.add('hidden');
+        resultsList.innerHTML = '';
+        return;
+      }
+
+      resultsSection.classList.remove('hidden');
+      resultsCount.textContent = String(allResults.length);
+
+      // Show ZIP download if 2 or more outputs
+      if (allResults.length >= 2) {
+        downloadZipBtn.classList.remove('hidden');
+        downloadZipBtn.classList.add('flex');
+      } else {
+        downloadZipBtn.classList.add('hidden');
+        downloadZipBtn.classList.remove('flex');
+      }
+
+      resultsList.innerHTML = '';
+
+      allResults.forEach((res) => {
+        const card = document.createElement('div');
+        card.className = 'flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-3.5 rounded-xl bg-surface-50 border border-surface-200/80 gap-3 text-xs';
+
+        // Thumbnail + details
+        const left = document.createElement('div');
+        left.className = 'flex items-center gap-3 min-w-0';
+
+        const thumb = document.createElement('img');
+        thumb.src = res.objectUrl;
+        thumb.alt = `Preview of ${res.filename}`;
+        thumb.className = 'w-12 h-12 rounded-lg object-cover bg-surface-200 border border-surface-200 flex-shrink-0';
+        left.appendChild(thumb);
+
+        const info = document.createElement('div');
+        info.className = 'min-w-0';
+
+        const nameP = document.createElement('p');
+        nameP.className = 'font-semibold text-surface-900 truncate';
+        nameP.textContent = res.filename; // Security: safely set via textContent
+        nameP.title = res.filename;
+        info.appendChild(nameP);
+
+        const sizeP = document.createElement('p');
+        sizeP.className = 'text-[11px] text-surface-500 mt-0.5';
+        sizeP.textContent = formatSizeDifference(res.originalSize, res.convertedSize);
+        info.appendChild(sizeP);
+
+        left.appendChild(info);
+        card.appendChild(left);
+
+        // Download Button
+        const dlBtn = document.createElement('button');
+        dlBtn.type = 'button';
+        dlBtn.className = 'px-3.5 py-1.5 rounded-lg bg-white hover:bg-brand-50 border border-surface-200 hover:border-brand-300 text-brand-700 font-semibold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 flex-shrink-0 focus-visible:outline-brand-500';
+        dlBtn.setAttribute('aria-label', `Download ${res.filename}`);
+        dlBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span>Download JPG</span>
+        `;
+        dlBtn.addEventListener('click', () => {
+          downloadBlob(res.blob, res.filename);
+        });
+
+        card.appendChild(dlBtn);
+        resultsList.appendChild(card);
+      });
+    }
+
+    // ZIP Download Handler
+    downloadZipBtn.addEventListener('click', async () => {
+      const allResults: { filename: string; blob: Blob }[] = [];
+      queue.forEach((q) => {
+        if (q.status === 'completed' && q.results) {
+          q.results.forEach((r) => allResults.push({ filename: r.filename, blob: r.blob }));
+        }
+      });
+
+      if (allResults.length === 0) return;
+
+      downloadZipBtn.disabled = true;
+      const originalText = downloadZipBtn.querySelector('span')!.textContent;
+      downloadZipBtn.querySelector('span')!.textContent = 'Creating ZIP...';
+
+      try {
+        await downloadAllAsZip(allResults, 'converted-jpg-images.zip');
+      } catch (err) {
+        alert('Failed to package ZIP archive. You can still download individual JPGs.');
+      } finally {
+        downloadZipBtn.disabled = false;
+        downloadZipBtn.querySelector('span')!.textContent = originalText;
+      }
+    });
+  }
+</script>

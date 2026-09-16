@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/ToolCard.astro';
+import PrivacyBadge from '../components/PrivacyBadge.astro';
+import { getAllCategories, getAllTools } from '../data/tools';
+
+const categories = getAllCategories();
+const allTools = getAllTools();
+---
+
+<BaseLayout
+  title="Browser File Tools | 100% Private, Client-Side File Conversion"
+  metaDescription="Fast, secure file conversion tools running entirely inside your web browser. No file uploads, no server queues, and complete privacy."
+>
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-24 border-b border-surface-200/70 bg-gradient-to-b from-white via-surface-50 to-surface-50">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="mb-6 flex justify-center">
+        <PrivacyBadge variant="subtle" />
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-surface-950 leading-[1.1]">
+        Private file conversions.<br />
+        <span class="bg-gradient-to-r from-brand-600 via-indigo-600 to-emerald-600 bg-clip-text text-transparent">
+          Directly in your browser.
+        </span>
+      </h1>
+
+      <p class="mt-6 text-base sm:text-lg md:text-xl text-surface-600 max-w-2xl mx-auto leading-relaxed">
+        Say goodbye to sketchy upload websites and cloud waiting queues. Every tool processes files 100% locally on your device hardware using modern WebAssembly and Canvas APIs.
+      </p>
+
+      <!-- Category Filter Pills -->
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+        {categories.map((cat) => (
+          <a
+            href={`/${cat.id}`}
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-surface-200 text-surface-700 hover:border-brand-300 hover:text-brand-600 hover:shadow-xs transition-all duration-150"
+          >
+            {cat.name}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Value Pillars -->
+  <section class="py-12 bg-white border-b border-surface-200/60">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-surface-900">Zero Server Uploads</h3>
+            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
+              Your sensitive documents, confidential videos, and private photos never leave your RAM or reach any remote server.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-surface-900">Zero Queue Waits</h3>
+            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
+              No "Position in queue: #42" waiting screens or throttled download speeds. Processing starts the instant you drop your file.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-surface-900">WebAssembly Power</h3>
+            <p class="text-xs text-surface-500 mt-1 leading-relaxed">
+              Built on compiled C++ and Rust engines running in safe browser sandboxes via WebAssembly and modern web standards.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Initial Tools Directory -->
+  <section class="py-14 sm:py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div>
+          <h2 class="text-2xl font-extrabold text-surface-900 tracking-tight">
+            Featured Tools
+          </h2>
+          <p class="text-sm text-surface-500 mt-1">
+            Foundation stage tools scheduled for initial rollout
+          </p>
+        </div>
+        <span class="text-xs font-medium text-surface-500">
+          Showing {allTools.length} Initial Converters
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        {allTools.map((tool) => (
+          <ToolCard tool={tool} />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

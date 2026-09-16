@@ -1,0 +1,51 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import FileDropzone from '../../components/FileDropzone.astro';
+import HeicToJpgTool from '../../components/tools/HeicToJpgTool.astro';
+import HeicContent from '../../components/tools/HeicContent.astro';
+import { getAllTools, type Tool } from '../../data/tools';
+
+export function getStaticPaths() {
+  const tools = getAllTools();
+  return tools.map((tool) => ({
+    params: {
+      category: tool.category,
+      tool: tool.slug,
+    },
+    props: { tool },
+  }));
+}
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+---
+
+<ToolLayout
+  title={tool.title}
+  metaDescription={tool.metaDescription}
+  tool={tool}
+>
+  <div slot="tool">
+    {tool.slug === 'heic-to-jpg' ? (
+      <HeicToJpgTool tool={tool} />
+    ) : (
+      <FileDropzone
+        toolTitle={tool.title}
+        acceptedFiles={tool.acceptedFiles}
+        acceptedTypesLabel={tool.acceptedTypesLabel}
+        sizeWarningMB={tool.sizeWarningMB}
+        sizeCeilingNote={tool.sizeCeilingNote}
+        status={tool.status}
+      />
+    )}
+  </div>
+
+  {tool.slug === 'heic-to-jpg' && (
+    <div slot="editorial">
+      <HeicContent />
+    </div>
+  )}
+</ToolLayout>
