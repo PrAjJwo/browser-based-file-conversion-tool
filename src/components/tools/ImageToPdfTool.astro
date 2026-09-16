@@ -1,0 +1,577 @@
+---
+import FileDropzone from '../FileDropzone.astro';
+import type { Tool } from '../../data/tools';
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+---
+
+<div id="image-to-pdf-root" class="w-full space-y-6">
+  <!-- Interactive Dropzone -->
+  <FileDropzone
+    toolTitle={tool.title}
+    acceptedFiles={tool.acceptedFiles}
+    acceptedTypesLabel={tool.acceptedTypesLabel}
+    sizeWarningMB={tool.sizeWarningMB}
+    sizeCeilingNote={tool.sizeCeilingNote}
+    status={tool.status}
+  />
+
+  <!-- Memory / Batch Size Warning Banner -->
+  <div
+    id="pdf-batch-warning"
+    class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 text-xs flex items-start gap-3 transition-all"
+    role="alert"
+  >
+    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <div>
+      <p class="font-semibold text-amber-950">Large image batch detected</p>
+      <p class="mt-0.5 leading-relaxed text-amber-800">
+        You have selected over 50 MB of photos. To prevent browser memory exhaustion on mobile devices, pages will be processed sequentially.
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Active Workspace: Selected Images List & Configuration -->
+  <div id="pdf-workspace-section" class="hidden space-y-6">
+    <!-- Header Bar: Count, Size & Clear Action -->
+    <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-surface-50 border border-surface-200/80">
+      <div class="flex items-center gap-2 text-xs text-surface-700">
+        <span class="font-bold text-surface-900 text-sm" id="selected-images-count">0</span>
+        <span>Images Selected</span>
+        <span class="text-surface-400" id="selected-images-total-size">• Total: 0 Bytes</span>
+      </div>
+      <button
+        id="pdf-clear-all-btn"
+        type="button"
+        class="text-xs font-semibold text-surface-500 hover:text-rose-600 transition-colors focus-visible:outline-brand-500"
+      >
+        Clear All
+      </button>
+    </div>
+
+    <!-- PDF Page Settings Configuration Card -->
+    <div class="p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-5">
+      <div class="flex items-center gap-2 pb-3 border-b border-surface-200/60">
+        <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text-xs font-bold uppercase tracking-wider text-surface-700">PDF Page & Document Settings</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <!-- Page Size -->
+        <div class="space-y-1.5">
+          <label for="pdf-page-size" class="font-semibold text-surface-900 block">Page Size</label>
+          <select
+            id="pdf-page-size"
+            class="w-full px-3 py-2 rounded-xl bg-white border border-surface-200 text-surface-800 focus:border-brand-500 focus:outline-none transition-colors"
+            aria-label="PDF Page Size"
+          >
+            <option value="a4" selected>A4 (Standard)</option>
+            <option value="letter">US Letter</option>
+            <option value="legal">US Legal</option>
+            <option value="fit">Fit to Image</option>
+          </select>
+        </div>
+
+        <!-- Orientation -->
+        <div class="space-y-1.5">
+          <label for="pdf-orientation" class="font-semibold text-surface-900 block">Orientation</label>
+          <select
+            id="pdf-orientation"
+            class="w-full px-3 py-2 rounded-xl bg-white border border-surface-200 text-surface-800 focus:border-brand-500 focus:outline-none transition-colors"
+            aria-label="Page Orientation"
+          >
+            <option value="auto" selected>Auto (Match Image)</option>
+            <option value="portrait">Portrait</option>
+            <option value="landscape">Landscape</option>
+          </select>
+        </div>
+
+        <!-- Margins -->
+        <div class="space-y-1.5">
+          <label for="pdf-margins" class="font-semibold text-surface-900 block">Margins</label>
+          <select
+            id="pdf-margins"
+            class="w-full px-3 py-2 rounded-xl bg-white border border-surface-200 text-surface-800 focus:border-brand-500 focus:outline-none transition-colors"
+            aria-label="Page Margins"
+          >
+            <option value="none">No Margins (0)</option>
+            <option value="small" selected>Small (20 pt)</option>
+            <option value="medium">Medium (40 pt)</option>
+            <option value="large">Large (60 pt)</option>
+          </select>
+        </div>
+
+        <!-- Output Filename -->
+        <div class="space-y-1.5">
+          <label for="pdf-filename-input" class="font-semibold text-surface-900 block">Output Filename</label>
+          <input
+            id="pdf-filename-input"
+            type="text"
+            value="images-to-pdf.pdf"
+            placeholder="images-to-pdf.pdf"
+            class="w-full px-3 py-2 rounded-xl bg-white border border-surface-200 text-surface-800 focus:border-brand-500 focus:outline-none transition-colors truncate"
+            aria-label="Output PDF Filename"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Images Queue (Reorderable) -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-surface-700">Pages Order & Preview</h2>
+        <span class="text-[11px] text-surface-500">Use ↑ and ↓ to change page sequence</span>
+      </div>
+
+      <div id="pdf-images-list" class="space-y-2.5 max-h-[32rem] overflow-y-auto pr-1">
+        <!-- Dynamically injected image cards -->
+      </div>
+    </div>
+
+    <!-- Convert Action Bar -->
+    <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-xs text-surface-500 text-center sm:text-left">
+        Each image will be rendered onto its own page in the exact sequence above.
+      </div>
+
+      <button
+        id="start-pdf-btn"
+        type="button"
+        class="w-full sm:w-auto px-7 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2 focus-visible:outline-brand-500"
+      >
+        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span id="start-pdf-btn-text">Convert to PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Progress Bar & Status (Live Region) -->
+  <div
+    id="pdf-progress-container"
+    class="hidden p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-3 transition-all"
+    role="status"
+    aria-live="polite"
+  >
+    <div class="flex items-center justify-between text-xs">
+      <span id="pdf-progress-status-text" class="font-medium text-surface-700">Compiling PDF document...</span>
+      <span id="pdf-progress-percentage-text" class="font-bold text-brand-600">0%</span>
+    </div>
+    <div class="w-full h-2.5 rounded-full bg-surface-200 overflow-hidden">
+      <div
+        id="pdf-progress-bar-fill"
+        class="h-full bg-brand-600 rounded-full transition-all duration-200"
+        style="width: 0%"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Result Section -->
+  <div id="pdf-result-section" class="hidden p-6 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-4">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-surface-900" id="pdf-result-filename">images-to-pdf.pdf</h2>
+          <div class="flex items-center gap-2 text-xs text-surface-600 mt-0.5">
+            <span id="pdf-result-page-count" class="font-semibold text-emerald-800">1 Page</span>
+            <span>•</span>
+            <span id="pdf-result-file-size">0 KB</span>
+            <span>•</span>
+            <span class="text-emerald-700 font-medium">Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button
+          id="pdf-download-btn"
+          type="button"
+          class="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-2 focus-visible:outline-emerald-500"
+        >
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download PDF
+        </button>
+
+        <button
+          id="pdf-new-btn"
+          type="button"
+          class="px-4 py-2.5 rounded-xl border border-surface-200 bg-white hover:bg-surface-50 text-surface-700 font-semibold text-xs transition-colors focus-visible:outline-brand-500"
+        >
+          Create Another
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    formatBytes,
+    isValidImageFile,
+    inspectImageFile,
+    generatePdfFromImages,
+    downloadPdfBlob,
+    type ImageToPdfItem,
+    type PdfConfig,
+    type PageSizeOption,
+    type OrientationOption,
+    type MarginOption,
+    type PdfGenerationResult,
+  } from '../../scripts/image-to-pdf';
+
+  const root = document.getElementById('image-to-pdf-root');
+
+  if (root) {
+    const batchWarning = root.querySelector<HTMLElement>('#pdf-batch-warning')!;
+    const workspaceSection = root.querySelector<HTMLElement>('#pdf-workspace-section')!;
+    const selectedImagesCount = root.querySelector<HTMLElement>('#selected-images-count')!;
+    const selectedImagesTotalSize = root.querySelector<HTMLElement>('#selected-images-total-size')!;
+    const clearAllBtn = root.querySelector<HTMLButtonElement>('#pdf-clear-all-btn')!;
+
+    const pageSizeSelect = root.querySelector<HTMLSelectElement>('#pdf-page-size')!;
+    const orientationSelect = root.querySelector<HTMLSelectElement>('#pdf-orientation')!;
+    const marginsSelect = root.querySelector<HTMLSelectElement>('#pdf-margins')!;
+    const filenameInput = root.querySelector<HTMLInputElement>('#pdf-filename-input')!;
+
+    const imagesList = root.querySelector<HTMLElement>('#pdf-images-list')!;
+    const startPdfBtn = root.querySelector<HTMLButtonElement>('#start-pdf-btn')!;
+    const startPdfBtnText = root.querySelector<HTMLElement>('#start-pdf-btn-text')!;
+
+    const progressContainer = root.querySelector<HTMLElement>('#pdf-progress-container')!;
+    const progressStatusText = root.querySelector<HTMLElement>('#pdf-progress-status-text')!;
+    const progressPercentageText = root.querySelector<HTMLElement>('#pdf-progress-percentage-text')!;
+    const progressBarFill = root.querySelector<HTMLElement>('#pdf-progress-bar-fill')!;
+
+    const resultSection = root.querySelector<HTMLElement>('#pdf-result-section')!;
+    const resultFilename = root.querySelector<HTMLElement>('#pdf-result-filename')!;
+    const resultPageCount = root.querySelector<HTMLElement>('#pdf-result-page-count')!;
+    const resultFileSize = root.querySelector<HTMLElement>('#pdf-result-file-size')!;
+    const downloadBtn = root.querySelector<HTMLButtonElement>('#pdf-download-btn')!;
+    const newBtn = root.querySelector<HTMLButtonElement>('#pdf-new-btn')!;
+
+    let items: ImageToPdfItem[] = [];
+    let isGenerating = false;
+    let currentResult: PdfGenerationResult | null = null;
+    let activeObjectUrls: Set<string> = new Set();
+
+    function revokeUrls() {
+      activeObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      activeObjectUrls.clear();
+    }
+
+    window.addEventListener('beforeunload', revokeUrls);
+
+    // Listen for dropzone files
+    root.addEventListener('file-dropzone:files-selected', (async (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const incomingFiles: File[] = customEvent.detail?.files || [];
+      if (incomingFiles.length === 0) return;
+
+      // If previous generation completed, reset for fresh batch
+      if (currentResult) {
+        resetWorkspace();
+      }
+
+      for (const file of incomingFiles) {
+        const id = `img-${Math.random().toString(36).substring(2, 9)}`;
+
+        if (!isValidImageFile(file)) {
+          items.push({
+            id,
+            file,
+            name: file.name,
+            size: file.size,
+            width: 0,
+            height: 0,
+            thumbnailUrl: '',
+            error: 'Unsupported image format. Please select JPG, PNG, or WebP.',
+          });
+          continue;
+        }
+
+        try {
+          const { width, height, thumbnailUrl } = await inspectImageFile(file);
+          items.push({
+            id,
+            file,
+            name: file.name,
+            size: file.size,
+            width,
+            height,
+            thumbnailUrl,
+          });
+        } catch (err: any) {
+          items.push({
+            id,
+            file,
+            name: file.name,
+            size: file.size,
+            width: 0,
+            height: 0,
+            thumbnailUrl: '',
+            error: err?.message || 'Failed to decode image data.',
+          });
+        }
+      }
+
+      renderList();
+    }) as EventListener);
+
+    function renderList() {
+      imagesList.innerHTML = '';
+
+      if (items.length === 0) {
+        workspaceSection.classList.add('hidden');
+        batchWarning.classList.add('hidden');
+        return;
+      }
+
+      workspaceSection.classList.remove('hidden');
+      selectedImagesCount.textContent = String(items.length);
+
+      const totalBytes = items.reduce((acc, it) => acc + it.size, 0);
+      selectedImagesTotalSize.textContent = `• Total: ${formatBytes(totalBytes)}`;
+
+      if (totalBytes > 50 * 1024 * 1024) {
+        batchWarning.classList.remove('hidden');
+      } else {
+        batchWarning.classList.add('hidden');
+      }
+
+      const validItemsCount = items.filter((it) => !it.error).length;
+      startPdfBtn.disabled = validItemsCount === 0 || isGenerating;
+      startPdfBtnText.textContent =
+        validItemsCount > 1 ? `Convert ${validItemsCount} Images to PDF` : 'Convert to PDF';
+
+      items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className =
+          'flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-3 rounded-xl bg-white border border-surface-200/80 gap-3 text-xs shadow-sm transition-all';
+
+        // Left box: Sequence badge, thumbnail, metadata
+        const leftBox = document.createElement('div');
+        leftBox.className = 'flex items-center gap-3 overflow-hidden min-w-0';
+
+        // Page order badge
+        const badge = document.createElement('div');
+        badge.className =
+          'w-7 h-7 rounded-lg bg-surface-100 text-surface-700 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-surface-200';
+        badge.textContent = String(index + 1);
+        leftBox.appendChild(badge);
+
+        // Thumbnail or error icon
+        if (item.thumbnailUrl) {
+          const img = document.createElement('img');
+          img.src = item.thumbnailUrl;
+          img.alt = item.name;
+          img.className = 'w-12 h-12 object-cover rounded-lg border border-surface-200 flex-shrink-0 bg-surface-50';
+          leftBox.appendChild(img);
+        } else {
+          const fallbackIcon = document.createElement('div');
+          fallbackIcon.className =
+            'w-12 h-12 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center flex-shrink-0';
+          fallbackIcon.innerHTML = `
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          `;
+          leftBox.appendChild(fallbackIcon);
+        }
+
+        // Text details
+        const textCol = document.createElement('div');
+        textCol.className = 'truncate min-w-0';
+
+        const nameEl = document.createElement('p');
+        nameEl.className = 'font-semibold text-surface-900 truncate';
+        nameEl.textContent = item.name;
+        nameEl.title = item.name;
+        textCol.appendChild(nameEl);
+
+        const metaEl = document.createElement('div');
+        metaEl.className = 'flex items-center gap-1.5 text-[11px] text-surface-500 mt-0.5';
+
+        if (item.error) {
+          metaEl.innerHTML = `<span class="text-rose-600 font-medium">${item.error}</span>`;
+        } else {
+          metaEl.textContent = `${item.width} × ${item.height} • ${formatBytes(item.size)}`;
+        }
+        textCol.appendChild(metaEl);
+
+        leftBox.appendChild(textCol);
+        card.appendChild(leftBox);
+
+        // Right box: Move Up, Move Down, Remove actions
+        const actionsBox = document.createElement('div');
+        actionsBox.className = 'flex items-center justify-end gap-1.5 flex-shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0';
+
+        // Move Up Button
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.className =
+          'p-1.5 rounded-lg border border-surface-200 text-surface-600 hover:bg-surface-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:outline-brand-500';
+        upBtn.setAttribute('aria-label', `Move ${item.name} up to page ${index}`);
+        upBtn.disabled = index === 0 || isGenerating;
+        upBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        `;
+        upBtn.addEventListener('click', () => {
+          if (index > 0) {
+            const temp = items[index];
+            items[index] = items[index - 1];
+            items[index - 1] = temp;
+            renderList();
+          }
+        });
+        actionsBox.appendChild(upBtn);
+
+        // Move Down Button
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.className =
+          'p-1.5 rounded-lg border border-surface-200 text-surface-600 hover:bg-surface-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:outline-brand-500';
+        downBtn.setAttribute('aria-label', `Move ${item.name} down to page ${index + 2}`);
+        downBtn.disabled = index === items.length - 1 || isGenerating;
+        downBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        `;
+        downBtn.addEventListener('click', () => {
+          if (index < items.length - 1) {
+            const temp = items[index];
+            items[index] = items[index + 1];
+            items[index + 1] = temp;
+            renderList();
+          }
+        });
+        actionsBox.appendChild(downBtn);
+
+        // Remove Button
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className =
+          'p-1.5 rounded-lg border border-surface-200 text-surface-400 hover:text-rose-600 hover:bg-surface-100 transition-colors focus-visible:outline-brand-500';
+        removeBtn.setAttribute('aria-label', `Remove ${item.name}`);
+        removeBtn.disabled = isGenerating;
+        removeBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        `;
+        removeBtn.addEventListener('click', () => {
+          items = items.filter((it) => it.id !== item.id);
+          renderList();
+        });
+        actionsBox.appendChild(removeBtn);
+
+        card.appendChild(actionsBox);
+        imagesList.appendChild(card);
+      });
+    }
+
+    function resetWorkspace() {
+      revokeUrls();
+      items = [];
+      currentResult = null;
+      isGenerating = false;
+      renderList();
+      resultSection.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      document.dispatchEvent(new CustomEvent('file-dropzone:reset'));
+    }
+
+    clearAllBtn.addEventListener('click', () => {
+      if (!isGenerating) {
+        resetWorkspace();
+      }
+    });
+
+    newBtn.addEventListener('click', () => {
+      resetWorkspace();
+    });
+
+    // Start PDF Generation
+    startPdfBtn.addEventListener('click', async () => {
+      if (isGenerating) return;
+
+      const validItems = items.filter((it) => !it.error);
+      if (validItems.length === 0) return;
+
+      isGenerating = true;
+      startPdfBtn.disabled = true;
+      clearAllBtn.disabled = true;
+      resultSection.classList.add('hidden');
+      progressContainer.classList.remove('hidden');
+
+      const config: PdfConfig = {
+        pageSize: pageSizeSelect.value as PageSizeOption,
+        orientation: orientationSelect.value as OrientationOption,
+        margin: marginsSelect.value as MarginOption,
+        customFilename: filenameInput.value,
+      };
+
+      try {
+        const result = await generatePdfFromImages(
+          validItems,
+          config,
+          (statusText, current, total) => {
+            progressStatusText.textContent = statusText;
+            const pct = Math.round((current / total) * 100);
+            progressPercentageText.textContent = `${pct}%`;
+            progressBarFill.style.width = `${pct}%`;
+          }
+        );
+
+        currentResult = result;
+        activeObjectUrls.add(result.objectUrl);
+
+        // Display results
+        resultFilename.textContent = result.filename;
+        resultPageCount.textContent = result.pageCount === 1 ? '1 Page' : `${result.pageCount} Pages`;
+        resultFileSize.textContent = formatBytes(result.fileSizeBytes);
+
+        progressContainer.classList.add('hidden');
+        resultSection.classList.remove('hidden');
+
+        // Scroll result into view
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (err: any) {
+        console.error('PDF Generation Error:', err);
+        progressStatusText.textContent = `Error: ${err?.message || 'Failed to generate PDF.'}`;
+        progressPercentageText.textContent = 'Failed';
+        progressBarFill.style.backgroundColor = '#e11d48';
+      } finally {
+        isGenerating = false;
+        clearAllBtn.disabled = false;
+        startPdfBtn.disabled = false;
+      }
+    });
+
+    // Download PDF action
+    downloadBtn.addEventListener('click', () => {
+      if (currentResult) {
+        downloadPdfBlob(currentResult.blob, currentResult.filename);
+      }
+    });
+  }
+</script>

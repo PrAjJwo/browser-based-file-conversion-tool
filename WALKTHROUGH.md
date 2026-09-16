@@ -2,26 +2,85 @@
 
 ## Current Project Status
 
-- **Current Phase**: Image Tool Expansion — JPG to HEIC: Complete & Production-Ready
+- **Current Phase**: Tool #3 — Image to PDF — Complete
 - **Current Completed Tools**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Production-Ready, Real Browser Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Production-Ready, Real Browser Verified
   3. JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
-- **Active In-Development Tool**: None (JPG to HEIC complete; ready for Tool #3 — Image to PDF)
-- **Next Planned Work**: Tool #3 — Image to PDF (`/pdf/image-to-pdf`).
+  4. Image to PDF (`/pdf/image-to-pdf`) — Active, Production-Ready, Real Browser Verified
+- **Original Launch Order Status**:
+  - Tool #1 HEIC to JPG — Complete
+  - Tool #2 Video Compressor — Complete
+  - Tool #3 Image to PDF — Complete
+  - Tool #4 Subtitle Converter — Next
+- **Active In-Development Tool**: None (Tool #3 complete; awaiting next tool phase)
+- **Next Planned Work**: Tool #4 — Subtitle Converter (`/pdf/subtitle-converter`).
 - **Active Routes**:
   - `/image/heic-to-jpg` (Tool #1: Active)
   - `/video/video-compressor` (Tool #2: Active)
   - `/image/jpg-to-heic` (Image Expansion: Active)
-  - `/pdf/image-to-pdf` (Tool #3: Coming Soon)
+  - `/pdf/image-to-pdf` (Tool #3: Active)
   - `/pdf/subtitle-converter` (Tool #4: Coming Soon)
   - Category routes: `/image`, `/video`, `/pdf`, `/audio`
   - Homepage: `/`
 - **Build & Static Analysis Status**:
-  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (24 files checked)
-  - `npx astro build`: **0 errors**, 10 static routes built in 3.57s
-  - Development URL: `http://localhost:4321/image/jpg-to-heic` (Server active)
-- **Next Action**: Ready for Tool #3 — Image to PDF (`/pdf/image-to-pdf`)
+  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (27 files checked)
+  - `npx astro build`: **0 errors**, 10 static routes built in 5.58s
+  - Development URL: `http://localhost:4321/pdf/image-to-pdf` (Server active)
+- **Next Action**: Ready for Tool #4 — Subtitle Converter (`/pdf/subtitle-converter`)
+
+---
+
+## Current Tool Progress — Tool #3 Image to PDF
+
+### Milestone 1: PDF Library Selection & Architecture Decision
+- **Library Selected**: `jspdf` (v4.0.0).
+- **Decision Reasoning**:
+  - 100% browser-native PDF binary compilation with zero remote API dependencies.
+  - Native support for custom page dimensions in points (`pt`), multiple orientations, and direct JPEG embedding via `doc.addImage(...)`.
+  - Lazy-loaded dynamically when the user initiates document conversion.
+  - Does not require server-side headless browsers, node runtime shims, or cloud services.
+
+### Milestone 2: Tool Component & Reactive Architecture
+- **Files Created/Modified**:
+  - `src/scripts/image-to-pdf.ts`: Canvas bitmap decoding, white background pre-rendering for transparent PNG/WebP, aspect-ratio preserving bounding box calculations, margin handling, sequential multi-page generation loop, and blob download.
+  - `src/components/tools/ImageToPdfTool.astro`: Dropzone integration, selected image list with thumbnails, filename, dimensions, size, accessible Move Up (↑) / Move Down (↓) buttons, Remove button, settings toolbar (Page Size, Orientation, Margins, Filename), real-time progress bar, and result card.
+  - `src/components/tools/ImageToPdfContent.astro`: Rich educational content covering workflow mechanics, benefits, layout settings, browser memory boundaries, privacy guarantees, and 5 visible FAQs matching schema.
+  - `src/data/tools.ts`: Updated `image-to-pdf` to `status: 'active'`, 145-char meta description, and 5 structured FAQs.
+  - `src/pages/[category]/[tool].astro`: Mounted `ImageToPdfTool` and `ImageToPdfContent`.
+
+### Milestone 3: Real Browser Testing with Genuine Fixtures (CDP Suite)
+- **Fixtures Tested**: `landscape.jpg` (1200×800), `portrait.jpg` (600×900), `transparent_badge.png` (800×800 with alpha channel), `sample.webp` (1000×600), `my photo.jpg`, `PHOTO.JPG`, `旅行写真.png`, and `corrupted.png`.
+- **Automated Test Suite** (`test-fixtures/run-all-pdf-tests.cjs`):
+  - **Single JPG -> 1-Page PDF**: `landscape.jpg` generated 1-page PDF (`30,575 bytes`, header `%PDF-1.3`). Validated direct download.
+  - **Multi-Image Workflow**: Combined `landscape.jpg`, `transparent_badge.png`, and `sample.webp` into a 3-page PDF (`88.98 KB`).
+  - **Reordering**: Moved `landscape.jpg` down and verified `transparent_badge.png` became page 1, followed by `landscape.jpg` and `sample.webp`.
+  - **Settings Customization**: Tested `Fit to Image` with `large` (60 pt) margins and custom filename `custom-fit-doc.pdf`.
+  - **Special Filenames**: Filenames with spaces (`my photo.jpg`), uppercase (`PHOTO.JPG`), and Japanese Unicode (`旅行写真.png`) queued and compiled safely without HTML injection or URI corruption.
+  - **Error Handling & Isolation**: Queued `landscape.jpg` alongside `corrupted.png`. Corrupted file flagged with clear inline error message while valid file converted successfully into a 1-page PDF.
+  - **Responsive Layout**: Viewports 375px, 390px, 768px, 1024px, 1440px audited; **0 horizontal overflow**.
+  - **Accessibility (A11y)**: Accessible labels on all controls, live progress announcements (`role="status"`, `aria-live="polite"`), and keyboard navigation verified.
+  - **Network Privacy**: **0 POST requests and 0 bytes uploaded** during all conversion operations.
+
+### Milestone 4: Content & SEO Verification
+- Script: `test-fixtures/verify-pdf-seo.cjs`
+- Exactly 1 `<h1>Image to PDF Converter</h1>`.
+- 145-char meta description, canonical `https://browserfiletools.com/pdf/image-to-pdf`.
+- 5 visible FAQs matching `FAQPage` JSON-LD schema, plus `SoftwareApplication` and `BreadcrumbList`.
+
+### Milestone 5: Prior Tool Regressions
+- Tool #1 (HEIC to JPG): Converted `autumn_1440x960.heic` to JPG (1440 × 960 preserved) via `lightweight-regression.cjs`.
+- Tool #2 (Video Compressor): Multi-target compression (0.3 MB, 0.2 MB, 0.12 MB), MOV to MP4 conversion, and engine reuse verified passing 100% via `run-all-video-tests.cjs`.
+- Image Expansion (JPG to HEIC): Verified single, batch, Unicode, responsive, and privacy passing 100% via `run-all-jpg-heic-tests.cjs`.
+- Route Statuses: All 4 active tools return HTTP 200 (Active); `/pdf/subtitle-converter` returns HTTP 200 (Coming Soon).
+
+### Milestone 6: Static Analysis & Production Build
+- `npx astro check`: **0 errors, 0 warnings, 0 hints** (27 files checked).
+- `npx astro build`: **0 errors**, 10 static routes generated in 5.58s (`dist/pdf/image-to-pdf/index.html` built).
+
+### Milestone 7: Git Checkpoint
+- Commit: `feat: complete image to PDF converter`
+- Tag: `tool-3-image-to-pdf-complete`
 
 ---
 
@@ -224,7 +283,7 @@ Tool #2 is complete and verified. Next action: Plan and implement JPG to HEIC un
 | **HEIC to JPG** | `/image/heic-to-jpg` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
 | **Video Compressor** | `/video/video-compressor` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
 | **JPG to HEIC** | `/image/jpg-to-heic` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
-| **Image to PDF** | `/pdf/image-to-pdf` | Coming Soon | Foundation Dropzone Shell | Shell Metadata | Coming Soon |
+| **Image to PDF** | `/pdf/image-to-pdf` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
 | **Subtitle Converter** | `/pdf/subtitle-converter` | Coming Soon | Foundation Dropzone Shell | Shell Metadata | Coming Soon |
 
 ---
@@ -343,4 +402,4 @@ Tool #2 is complete and verified. Next action: Plan and implement JPG to HEIC un
 
 ## Next Recommended Tool
 
-Tool #3 — Image to PDF (`/pdf/image-to-pdf`).
+Tool #4 — Subtitle Converter (`/pdf/subtitle-converter`).

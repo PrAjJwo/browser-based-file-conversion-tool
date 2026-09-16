@@ -213,22 +213,28 @@ async function sleep(ms) {
 
   // 5. Route status check
   console.log('\n5. Checking Route Statuses...');
-  // Video Compressor should now be ACTIVE
-  await new Promise((resolve, reject) => {
-    http.get('http://localhost:4321/video/video-compressor', (res) => {
-      let body = '';
-      res.on('data', (c) => (body += c));
-      res.on('end', () => {
-        const isActive = body.includes('video-compressor-root');
-        console.log(`Route /video/video-compressor: Status ${res.statusCode}, Active: ${isActive}`);
-        if (!isActive) reject(new Error('Expected /video/video-compressor to be ACTIVE'));
-        resolve();
-      });
-    }).on('error', reject);
-  });
+  const activeRoutes = [
+    { path: '/video/video-compressor', rootId: 'video-compressor-root' },
+    { path: '/image/jpg-to-heic', rootId: 'jpg-tool-root' },
+    { path: '/pdf/image-to-pdf', rootId: 'image-to-pdf-root' },
+  ];
+
+  for (const r of activeRoutes) {
+    await new Promise((resolve, reject) => {
+      http.get('http://localhost:4321' + r.path, (res) => {
+        let body = '';
+        res.on('data', (c) => (body += c));
+        res.on('end', () => {
+          const isActive = body.includes(r.rootId);
+          console.log(`Route ${r.path}: Status ${res.statusCode}, Active: ${isActive}`);
+          if (!isActive) reject(new Error(`Expected ${r.path} to be ACTIVE`));
+          resolve();
+        });
+      }).on('error', reject);
+    });
+  }
 
   const comingSoonRoutes = [
-    '/pdf/image-to-pdf',
     '/pdf/subtitle-converter',
   ];
 

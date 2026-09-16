@@ -1,0 +1,178 @@
+---
+import { getToolBySlug } from '../../data/tools';
+
+const tool = getToolBySlug('pdf', 'image-to-pdf');
+const faqs = tool?.faqs || [];
+---
+
+<article class="prose prose-slate max-w-none space-y-12">
+  <!-- How does Image to PDF work? -->
+  <section>
+    <h2 class="text-2xl font-bold text-surface-900 tracking-tight flex items-center gap-2">
+      <svg class="w-6 h-6 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      How does Image to PDF work?
+    </h2>
+    <p class="text-surface-600 leading-relaxed mt-4">
+      The Image to PDF converter combines multiple photos, scans, receipts, or screenshots into a single, standardized multi-page PDF document. Unlike legacy cloud converters that transmit confidential scans across external servers, this tool executes 100% inside your client device's web browser using modern WebAssembly and JavaScript PDF rendering engines.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+        <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-sm mb-3">1</div>
+        <h3 class="font-semibold text-surface-900 text-sm">Select & Arrange Images</h3>
+        <p class="text-xs text-surface-600 mt-1 leading-relaxed">
+          Select any mixture of JPG, PNG, or WebP files. Use the reorder buttons to arrange pages in your exact required sequence.
+        </p>
+      </div>
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+        <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-sm mb-3">2</div>
+        <h3 class="font-semibold text-surface-900 text-sm">Configure Layout & Page Fit</h3>
+        <p class="text-xs text-surface-600 mt-1 leading-relaxed">
+          Choose standard international paper sizes (A4, US Letter, Legal) or Fit to Image. Set orientation and margin padding.
+        </p>
+      </div>
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+        <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-sm mb-3">3</div>
+        <h3 class="font-semibold text-surface-900 text-sm">Generate & Download PDF</h3>
+        <p class="text-xs text-surface-600 mt-1 leading-relaxed">
+          The document compiles sequentially in device memory and prompts an immediate download with zero server uploads.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why convert images to PDF? -->
+  <section>
+    <h2 class="text-2xl font-bold text-surface-900 tracking-tight flex items-center gap-2">
+      <svg class="w-6 h-6 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      Why convert images to PDF?
+    </h2>
+    <p class="text-surface-600 leading-relaxed mt-4">
+      Images are great for viewing photos, but distributing multiple individual image files creates friction for recipients. Consolidating images into a unified PDF document offers major advantages:
+    </p>
+    <ul class="space-y-3 mt-4 text-surface-600 text-sm leading-relaxed list-none p-0">
+      <li class="flex items-start gap-2.5">
+        <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span><strong class="text-surface-900">Unified Document Presentation:</strong> Multi-page scans, contract agreements, tax receipts, and homework assignments are much easier to read and file as a single sequential file rather than loose picture attachments.</span>
+      </li>
+      <li class="flex items-start gap-2.5">
+        <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span><strong class="text-surface-900">Universal Form Submission:</strong> Government portals, university applications, accounting systems, and enterprise HR departments frequently mandate PDF submissions and reject raw image formats.</span>
+      </li>
+      <li class="flex items-start gap-2.5">
+        <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span><strong class="text-surface-900">Consistent Printing & Pagination:</strong> Preset paper standards such as ISO A4 and US Letter guarantee that your pictures print with precise page margins and centered layouts across any printer hardware.</span>
+      </li>
+      <li class="flex items-start gap-2.5">
+        <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span><strong class="text-surface-900">Cross-Platform Fidelity:</strong> PDF files render identically across Windows, macOS, iOS, Android, and Linux without relying on proprietary image gallery apps.</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Page size and image quality -->
+  <section>
+    <h2 class="text-2xl font-bold text-surface-900 tracking-tight flex items-center gap-2">
+      <svg class="w-6 h-6 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+      </svg>
+      Page size and image quality
+    </h2>
+    <p class="text-surface-600 leading-relaxed mt-4">
+      Our layout engine provides fine-grained control over document dimensions, orientation, and margin spacing:
+    </p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+      <div class="p-4 rounded-xl border border-surface-200 bg-white shadow-sm">
+        <h3 class="font-semibold text-surface-900 text-sm flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span>
+          Standard Paper Sizes (A4, Letter, Legal)
+        </h3>
+        <p class="text-xs text-surface-600 mt-2 leading-relaxed">
+          Best for printing, physical binders, and formal submissions. Each image is proportional and centered inside the printable margin boundaries without cropping or distortion.
+        </p>
+      </div>
+      <div class="p-4 rounded-xl border border-surface-200 bg-white shadow-sm">
+        <h3 class="font-semibold text-surface-900 text-sm flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          Fit to Image (Dynamic Canvas)
+        </h3>
+        <p class="text-xs text-surface-600 mt-2 leading-relaxed">
+          Creates a custom PDF page exactly matching the aspect ratio and resolution of each source picture. Perfect for wide panoramas, infographics, receipts, or varied mobile screenshots.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Browser and file limitations -->
+  <section>
+    <h2 class="text-2xl font-bold text-surface-900 tracking-tight flex items-center gap-2">
+      <svg class="w-6 h-6 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      Browser and file limitations
+    </h2>
+    <p class="text-surface-600 leading-relaxed mt-4">
+      Because PDF compilation executes entirely inside browser memory rather than a dedicated server farm, several technical boundaries apply:
+    </p>
+    <ul class="space-y-2.5 mt-4 text-surface-600 text-xs leading-relaxed list-disc list-inside">
+      <li><strong>Device RAM Allocation:</strong> Browsers must decode full uncompressed image bitmaps into memory before embedding. Converting batches over 50 MB or containing dozens of high-megapixel photos on low-RAM mobile devices may cause memory pressure.</li>
+      <li><strong>Sequential Safety:</strong> To prevent browser tab crashes on mobile devices, pages are processed sequentially rather than in parallel.</li>
+      <li><strong>Transparent PNG Handling:</strong> Transparent PNG or WebP images are rendered against a solid white background to guarantee clean rendering in standard PDF readers.</li>
+      <li><strong>Metadata Normalization:</strong> Original EXIF metadata, GPS tags, and camera settings are normalized during canvas bitmap rendering and are not embedded into the PDF stream.</li>
+      <li><strong>Encrypted PDFs:</strong> Password encryption and digital signature certificates are not supported in this client-side version.</li>
+    </ul>
+  </section>
+
+  <!-- Client-Side Privacy Guarantee -->
+  <section class="p-6 rounded-2xl bg-emerald-50/60 border border-emerald-200">
+    <h2 class="text-xl font-bold text-emerald-950 flex items-center gap-2">
+      <svg class="w-6 h-6 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+      Client-Side Privacy Guarantee
+    </h2>
+    <p class="text-emerald-900 text-sm leading-relaxed mt-3">
+      Your privacy is absolute. All image parsing, canvas scaling, and PDF binary compilation take place strictly inside your device's browser memory. Zero files, image pixels, or personal data are ever uploaded, saved, or logged to our servers or any third-party infrastructure.
+    </p>
+  </section>
+
+  <!-- Frequently asked questions -->
+  {faqs.length > 0 && (
+    <section>
+      <h2 class="text-2xl font-bold text-surface-900 tracking-tight flex items-center gap-2">
+        <svg class="w-6 h-6 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Frequently asked questions
+      </h2>
+      <div class="mt-6 space-y-4">
+        {faqs.map((faq) => (
+          <details class="group rounded-xl border border-surface-200 bg-surface-50/50 p-4 transition-all duration-200 open:bg-surface-50 open:border-surface-300">
+            <summary class="flex cursor-pointer items-center justify-between font-semibold text-surface-900 text-sm list-none select-none">
+              <span>{faq.question}</span>
+              <span class="ml-4 flex-shrink-0 text-surface-400 transition-transform duration-200 group-open:rotate-180">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </summary>
+            <p class="mt-3 text-xs text-surface-600 leading-relaxed border-t border-surface-200/60 pt-3">
+              {faq.answer}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
+  )}
+</article>
