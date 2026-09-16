@@ -2,7 +2,7 @@
 
 ## Current Project Status
 
-- **Current Phase**: Expansion Tool — Image Format Converter (WebP / PNG / JPG Converter) — Complete
+- **Current Phase**: Expansion Tool — Social Media Image Resizer — Complete
 - **Completed Launch Tools (Original 4)**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Production-Ready, Real Browser Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Production-Ready, Real Browser Verified
@@ -13,193 +13,166 @@
   6. Image Resizer (`/image/image-resizer`) — Active, Production-Ready, Real Browser Verified
   7. Image Compressor (`/image/image-compressor`) — Active, Production-Ready, Real Browser Verified
   8. Image Format Converter (`/image/image-converter`) — Active, Production-Ready, Real Browser Verified
+  9. Social Image Resizer (`/image/social-resizer`) — Active, Production-Ready, Real Browser Verified
 - **Tool Status Summary**:
-  - Image Format Converter: Development Complete, Real Browser Verified (15 automated CDP suites passed), Bidirectional JPG/PNG/WebP Conversions Verified, Solid White Background Transparency Flattening Verified, Quality Monotonicity Verified, ZIP Export Verified, Content/SEO Complete, Zero-Error Production Build.
+  - Social Image Resizer: Development Complete, Real Browser Verified (14/14 automated CDP suites passed), 2026 Verified Presets for 7 Major Platforms, 3x3 Focal Alignment Grid Verified, Crop to Fill & Fit Entire Image (with Solid White Letterboxing) Verified, Multi-Preset Batch Export Verified, Lazy JSZip Packaging Verified, Content/SEO Complete, Zero-Error Production Build.
 - **Physical Device Notice**: Physical iPhone Safari and Android Chrome verification remains pending before production launch.
-- **Active In-Development Tool**: None (Image Format Converter completed; next expansion tool queued)
-- **Active Routes (13 Total)**:
+- **Active In-Development Tool**: None (Social Image Resizer completed; next expansion tool queued)
+- **Active Routes (14 Total)**:
   - `/image/heic-to-jpg` (Tool #1: Active)
   - `/video/video-compressor` (Tool #2: Active)
   - `/image/jpg-to-heic` (Expansion Tool: Active)
   - `/image/image-resizer` (Expansion Tool: Active)
   - `/image/image-compressor` (Expansion Tool: Active)
   - `/image/image-converter` (Expansion Tool: Active)
+  - `/image/social-resizer` (Expansion Tool: Active)
   - `/pdf/image-to-pdf` (Tool #3: Active)
   - `/pdf/subtitle-converter` (Tool #4: Active)
   - Category routes: `/image`, `/video`, `/pdf`, `/audio`
   - Homepage: `/`
 - **Build & Static Analysis Status**:
-  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (39 files checked)
-  - `npx astro build`: **0 errors**, 13 static pages generated in 6.44s
-  - Sitemap: Includes `https://browserfiletools.com/image/image-converter/`
-  - Development URL: `http://localhost:4321/image/image-converter` (Server active)
-- **Next Planned Work**: Expansion tool from category inventory (e.g. Social Image Resizer, Favicon Generator, Audio Converter, or PDF Merge/Split).
+  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (43 files checked)
+  - `npx astro build`: **0 errors**, 14 static pages generated in 5.75s
+  - Sitemap: Includes `https://browserfiletools.com/image/social-resizer/`
+  - Development URL: `http://localhost:4321/image/social-resizer` (Server active)
+- **Next Planned Work**: Expansion tool from category inventory — **Favicon Generator** (`/image/favicon-generator`).
 
 ---
 
-## Current Tool Progress — Expansion Tool: Image Format Converter (WebP / PNG / JPG Converter)
+## Current Tool Progress — Expansion Tool: Social Media Image Resizer
 
-### Milestone 1: Architecture Decision & Pipeline Implementation
+### Milestone 1: Preset Data Architecture & Verified Specifications (2026)
 - **Completed Work**:
-  - Architecture strategy decided: 100% browser-native Canvas API and `createImageBitmap` pipeline (`src/scripts/image-converter.ts`).
-  - Zero heavy external dependencies.
-  - Strict preservation of natural pixel dimensions by default without resizing.
-  - Transparency handling rules:
-    - PNG $\rightarrow$ PNG: preserve alpha.
-    - PNG $\rightarrow$ WebP: preserve alpha.
-    - WebP with alpha $\rightarrow$ PNG: preserve alpha.
-    - WebP / PNG $\rightarrow$ JPG: alpha flattened to solid white (`#FFFFFF`) with zero black-background artifacts.
-    - Clear transparency notice for JPG output.
-  - Truthful PNG encoding: quality slider disabled/hidden for PNG output, explaining lossless Canvas behavior.
-  - Disambiguation & filename transformations: swaps extension without double extensions (`photo.jpg` $\rightarrow$ `photo.png`, `photo.final.webp` $\rightarrow$ `photo.final.jpg`, duplicate `photo.png` $\rightarrow$ `photo-2.png`).
-  - Resource cleanup: `ImageBitmap.close()`, canvas buffer clearing, object URL revocation, lazy-loaded JSZip.
+  - Verified 2026 specifications sourced from official platform documentation for Instagram, Facebook, X / Twitter, LinkedIn, YouTube, Pinterest, and TikTok.
+  - Sourced presets defined with explicit target dimensions, display aspect ratios, platform source attribution, and verified date (`src/data/social-image-presets.ts`).
+  - Implemented grouping utilities (`getPresetsByPlatform`) and lookup functions (`getPresetById`).
 - **Files Changed**:
-  - `src/scripts/image-converter.ts` (created)
-  - `test-fixtures/test-image-converter-unit.mjs` (created)
-- **Actual Test Performed**:
-  - Ran `node test-fixtures/test-image-converter-unit.mjs`.
-- **Actual Result**:
-  - All 18 unit test assertions **PASSED** (formatBytes, getMimeType, getExtensionForMime, getFormatLabel, generateConvertedFilename with special characters, unicode, and collision deduplication).
+  - `src/data/social-image-presets.ts` (created)
 
-### Milestone 2: Tool Registration in tools.ts
+### Milestone 2: Resizing Math & In-Browser Canvas Engine
 - **Completed Work**:
-  - Registered `image-converter` under `category: 'image'`, `group: 'Image Conversion'`.
-  - Title / H1: `WebP, PNG & JPG Converter` (route `/image/image-converter`).
-  - Meta description configured (156 chars): *"Convert JPG, PNG, and WebP images directly in your browser. Batch convert image formats with custom quality settings, full privacy, and zero server uploads."*
-  - Detailed format boundary limitations defined (lossless PNG encoding, solid white background alpha flattening for JPG, stripped EXIF metadata).
+  - Implemented `calculateCropRect` supporting proportional scaling ($s = \max(W_t/W_s, H_t/H_s)$) with all 9 focal alignment positions:
+    - Horizontal: Left (0), Center (excess/2), Right (excess).
+    - Vertical: Top (0), Center (excess/2), Bottom (excess).
+  - Implemented `calculateFitRect` supporting proportional containment ($s = \min(W_t/W_s, H_t/H_s)$) with centered letterboxing/pillarboxing.
+  - Created `renderSocialImage` canvas pipeline supporting:
+    - Decoded bitmaps via `createImageBitmap` with HTMLImageElement fallback.
+    - Solid white background flattening for JPEG output (`#FFFFFF`) or user-configured background for Fit mode.
+    - Format exports (Original, JPG, PNG, WebP) with custom quality factor (50%–100%).
+    - Automatic collision-free filename generation (`generateSocialFilename`).
+  - Implemented lazy-loaded JSZip multi-export packager (`createSocialZip`).
+- **Files Changed**:
+  - `src/scripts/social-image-resizer.ts` (created)
+  - `test-fixtures/test-social-resizer-unit.mjs` (created)
+- **Actual Test Performed**:
+  - Ran `npx tsx test-fixtures/test-social-resizer-unit.mjs`.
+- **Actual Result**:
+  - All unit test assertions **PASSED** (2026 presets integrity, 9-point focal crop math, fit rect letterbox math, filename collision handling, MIME formatting).
+
+### Milestone 3: Tool Registration in tools.ts
+- **Completed Work**:
+  - Registered `social-resizer` under `category: 'image'`, `group: 'Resize & Compress'`.
+  - Title / H1: `Social Media Image Resizer` (route `/image/social-resizer`).
+  - Meta description configured (151 chars): *"Resize and crop images for Instagram, Facebook, X, LinkedIn, YouTube, Pinterest, and TikTok. 100% private in-browser resizing with zero server uploads."*
+  - Detailed format boundary limitations defined (memory usage for 48 MP photos, crop vs fit behavior, solid white alpha flattening for JPG, 2026 platform specifications).
   - 5 structured FAQs added matching `FAQPage` schema.
 - **Files Changed**:
   - `src/data/tools.ts` (modified)
-- **Actual Result**:
-  - Image category renders:
-    - Image Conversion: HEIC to JPG, JPG to HEIC, WebP / PNG / JPG Converter.
-    - Resize & Compress: Image Resizer, Image Compressor.
 
-### Milestone 3: Reactive UI & Editorial Content Components
+### Milestone 4: Reactive UI & Editorial Content Components
 - **Completed Work**:
-  - Created `src/components/tools/ImageConverterTool.astro`:
-    - Dropzone integration supporting JPG, PNG, WebP with multiple file selection.
-    - Output format selector (WebP, JPG, PNG).
-    - Quality slider (10% to 100%, default 90%) with quick presets (50%, 75%, 90%, 100%).
-    - Dynamic lossless notice and slider dimming when PNG output is chosen.
-    - Dynamic transparency warning when JPG output is selected for images containing alpha transparency.
-    - Dynamic same-format re-encode notice (*"Same-format export will re-encode the image."*).
-    - Queue item cards with thumbnail previews, dimensions, source badges, and removal buttons.
-    - File-level progress tracking (*"Converting file 2 of 5..."*).
-    - Per-file result cards with dimensions, before/after sizes, percentage differences, and individual download buttons.
-    - Lazy-loaded "Download All as ZIP" archive packaging.
-    - Memory cleanup handling `beforeunload` and Object URL tracking.
-  - Created `src/components/tools/ImageConverterContent.astro`:
-    - Educational sections: *JPG, PNG and WebP explained*, *Why convert image formats?*, *Step-by-step format conversion workflow*, and *Format boundaries and device memory*.
-    - Dual companion card with cross-links to Image Resizer and Image Compressor.
-  - Mounted in `src/pages/[category]/[tool].astro` for `tool.slug === 'image-converter'`.
-  - Added bidirectional cross-links between Image Resizer, Image Compressor, and Image Format Converter.
+  - Created `src/components/tools/SocialImageResizerTool.astro`:
+    - Dropzone integration with single-source photo workflow and metadata preview (thumbnail, name, dimensions, ratio, size).
+    - Replace photo and clear buttons.
+    - Framing mode toggle: "Crop to Fill" vs "Fit Entire Image".
+    - 3x3 interactive focal alignment grid with 9 anchor points (Top-Left, Top, Top-Right, Left, Center, Right, Bottom-Left, Bottom, Bottom-Right) with active styling and ARIA radiogroup semantics.
+    - Solid white or transparent letterbox options in Fit mode.
+    - Platform filter tabs (All, Instagram, Facebook, X, LinkedIn, YouTube, Pinterest, TikTok, Custom).
+    - Preset selection grid with individual checkboxes, labels, ratios, dimensions, and instant preview triggers.
+    - Custom dimensions panel allowing arbitrary width and height injection into export queue.
+    - Export format selector (Same as source, JPG, PNG, WebP) with quality slider and PNG lossless notice.
+    - Dynamic live preview canvas rendering exact crop window and aspect ratio in real time.
+    - Multi-preset batch exporter with sequential progress tracking.
+    - Individual download cards and lazy-loaded "Download All as ZIP" archive button.
+    - Strict memory cleanup revoking Object URLs and disposing ImageBitmaps on `beforeunload`.
+  - Created `src/components/tools/SocialImageResizerContent.astro`:
+    - 4 distinct H2 sections avoiding layout duplicates:
+      1. *Optimizing images for social media platforms*
+      2. *Crop to Fill vs. Fit Entire Image explained*
+      3. *Mastering the 3x3 focal alignment grid*
+      4. *2026 Social image specifications reference* (with comparative markdown table)
+    - Companion tool cross-link banner pointing to Image Resizer, Image Compressor, and Image Format Converter.
+  - Mounted in `src/pages/[category]/[tool].astro` for `tool.slug === 'social-resizer'`.
+  - Added bidirectional cross-links to Social Resizer across `ImageResizerTool.astro`, `ImageCompressorTool.astro`, and `ImageConverterTool.astro`.
 - **Files Changed**:
-  - `src/components/tools/ImageConverterTool.astro` (created)
-  - `src/components/tools/ImageConverterContent.astro` (created)
+  - `src/components/tools/SocialImageResizerTool.astro` (created)
+  - `src/components/tools/SocialImageResizerContent.astro` (created)
   - `src/pages/[category]/[tool].astro` (modified)
-  - `src/components/tools/ImageCompressorTool.astro` (modified)
-  - `src/components/tools/ImageCompressorContent.astro` (modified)
   - `src/components/tools/ImageResizerTool.astro` (modified)
-  - `src/components/tools/ImageResizerContent.astro` (modified)
+  - `src/components/tools/ImageCompressorTool.astro` (modified)
+  - `src/components/tools/ImageConverterTool.astro` (modified)
 
-### Milestone 4: JPG -> PNG Conversion Test
-- **Work Completed**: Tested `landscape.jpg` (`1200 × 800 px`, 23,117 B original) converted to PNG.
-- **Actual Test Performed**: CDP automated suite Test 2 (`test-fixtures/run-all-image-converter-tests.cjs`).
-- **Actual Result**: Output `landscape.png` (200,301 B), dimensions strictly preserved (`1200 × 800 px`), verified binary PNG signature `89 50 4E 47 0D 0A 1A 0A`. PASS.
-
-### Milestone 5: JPG -> WebP Conversion Test
-- **Work Completed**: Tested `landscape.jpg` converted to WebP at 90% quality.
-- **Actual Test Performed**: CDP automated suite Test 3.
-- **Actual Result**: Output `landscape.webp` (15,910 B), dimensions preserved (`1200 × 800 px`), valid `RIFF....WEBP` container signature. PASS.
-
-### Milestone 6: PNG -> JPG Transparency Handling (Solid White Background)
-- **Work Completed**: Tested `transparent_badge.png` (`800 × 800 px`, alpha corners `[0, 0, 0, 0]`) converted to JPG.
-- **Actual Test Performed**: CDP automated suite Test 4.
-- **Actual Result**: Transparency warning banner was visible. Output `transparent_badge.jpg` (101,134 B), JPEG header `FF D8`, dimensions preserved (`800 × 800 px`), corner pixel verified `[255, 255, 255, 255]` (solid white background, zero black borders). PASS.
-
-### Milestone 7: PNG -> WebP Verification
-- **Work Completed**: Tested `transparent_badge.png` converted to WebP.
-- **Actual Test Performed**: CDP automated suite Test 5.
-- **Actual Result**: Output `transparent_badge.webp` (26,138 B), dimensions preserved (`800 × 800 px`), alpha channel strictly preserved (`cornerPixel[3] === 0`). PASS.
-
-### Milestone 8: WebP -> JPG Verification
-- **Work Completed**: Tested `sample.webp` (`1000 × 600 px`) converted to JPG.
-- **Actual Test Performed**: CDP automated suite Test 6.
-- **Actual Result**: Output `sample.jpg` (22,344 B), valid JPEG header `FF D8`, dimensions preserved (`1000 × 600 px`). PASS.
-
-### Milestone 9: WebP -> PNG Verification
-- **Work Completed**: Tested `sample.webp` (`1000 × 600 px`) converted to PNG.
-- **Actual Test Performed**: CDP automated suite Test 7.
-- **Actual Result**: Output `sample.png` (94,575 B), valid PNG header `89 50 4E 47`, dimensions preserved (`1000 × 600 px`). PASS.
-
-### Milestone 10: Quality Behavior Verified
-- **Work Completed**: Tested WebP output quality levels at 50%, 75%, 90%, 100%.
-- **Actual Test Performed**: CDP automated suite Test 3.
+### Milestone 5: SEO & Schema Validation
+- **Completed Work**:
+  - Validated page title, meta description (151 chars), canonical URL, single H1, clean H2s, and 5 visible FAQs.
+  - Verified 3 JSON-LD schemas: `SoftwareApplication`, `BreadcrumbList`, and `FAQPage`.
+- **Files Changed**:
+  - `test-fixtures/verify-social-resizer-seo.cjs` (created)
+- **Actual Test Performed**:
+  - Ran `node test-fixtures/verify-social-resizer-seo.cjs`.
 - **Actual Result**:
-  - Quality 50%: **7,314 Bytes**
-  - Quality 75%: **8,482 Bytes**
-  - Quality 90%: **15,910 Bytes**
-  - Quality 100%: **57,256 Bytes**
-  - Strictly monotonic scaling verified ($S_{50} < S_{75} < S_{90} < S_{100}$). PASS.
+  - **100% Passed** with 0 errors.
 
-### Milestone 11: Multi-File Processing Verified
-- **Work Completed**: Batched 3 diverse images (`landscape.jpg`, `transparent_badge.png`, `sample.webp`) simultaneously to WebP.
-- **Actual Test Performed**: CDP automated suite Test 9.
-- **Actual Result**: Sequential processing with real progress (*"Converting file 1 of 3..."*), all 3 result cards generated with preserved dimensions. PASS.
+### Milestone 6: Automated Real-Browser CDP Verification Suite
+- **Completed Work**:
+  - Built comprehensive 14-suite headless Chrome CDP test runner (`test-fixtures/run-all-social-resizer-tests.cjs`).
+  - Tested:
+    1. DOM Elements & Dropzone Initial State.
+    2. Invalid / Corrupted File Isolation (`corrupted.png` gracefully caught).
+    3. Valid Source Upload & Metadata Hydration (`landscape.jpg` 1200x800).
+    4. Presets Selection, Filtering & Live Canvas Preview (Instagram Portrait 1080x1350).
+    5. Crop to Fill Single Export (Exact 1080x1350 JPEG dimensions verified).
+    6. 3x3 Focal Positioning Anchor Verification (Top vs. Bottom crop slice differentiation).
+    7. Fit Entire Image Mode with Solid White Letterbox (1280x720 with pure [255, 255, 255, 255] white pillarbox padding).
+    8. Multi-Preset Export (Instagram Square, X Post, LinkedIn Post exported concurrently).
+    9. Lazy JSZip Packaging & Download Verification (`PK\x03\x04` header, 74.6 KB archive).
+    10. Custom Dimensions Mode (950x475 px rendered accurately).
+    11. Format Options (PNG Lossless & WebP Modern with disabled quality slider for PNG).
+    12. Zero Server Upload Privacy Audit (0 POST requests, 0 bytes leaked).
+    13. Responsive Viewport QA (390px, 768px, 1440px with 0 horizontal overflow).
+    14. Accessibility (A11y) & Semantic Structure QA (all focal buttons and checkboxes properly ARIA-labelled).
+- **Files Changed**:
+  - `test-fixtures/run-all-social-resizer-tests.cjs` (created)
+- **Actual Test Performed**:
+  - Ran `node test-fixtures/run-all-social-resizer-tests.cjs`.
+- **Actual Result**:
+  - **ALL 14/14 TEST SUITES PASSED FLAWLESSLY**.
 
-### Milestone 12: ZIP Batch Download Verified
-- **Work Completed**: Verified "Download All as ZIP" on batch results.
-- **Actual Test Performed**: CDP automated suite Test 10.
-- **Actual Result**: Downloaded `converted-images.zip` (**50,266 Bytes**), verified binary PK header `504b0304`. PASS.
+### Milestone 7: Prior Tools Regression Testing
+- **Completed Work**:
+  - Tool 1 (HEIC to JPG): `node test-fixtures/lightweight-regression.cjs` -> **PASSED**.
+  - Tool 2 (Video Compressor): `node test-fixtures/test-video-smoke.cjs` -> **PASSED**.
+  - Expansion (JPG to HEIC): `node test-fixtures/run-all-jpg-heic-tests.cjs` -> **ALL 8 SUITES PASSED**.
+  - Tool 3 (Image to PDF): `node test-fixtures/run-all-pdf-tests.cjs` -> **ALL 10 SUITES PASSED**.
+  - Tool 4 (Subtitle Converter): `node test-fixtures/run-all-subtitle-tests.cjs` -> **ALL 54 TESTS PASSED**.
+  - Expansion (Image Resizer): `node test-fixtures/run-all-image-resizer-tests.cjs` -> **ALL 13 SUITES PASSED**.
+  - Expansion (Image Compressor): `node test-fixtures/run-all-image-compressor-tests.cjs` -> **ALL 14 SUITES PASSED**.
+  - Expansion (Image Format Converter): `node test-fixtures/run-all-image-converter-tests.cjs` -> **ALL 15 SUITES PASSED**.
+- **Actual Result**:
+  - Zero regressions across all 8 prior tools.
 
-### Milestone 13: Bugs Discovered & Fixed
-- **Bug 1 Discovered**: Dropzone event was named `file-dropzone:files-selected` in `FileDropzone.astro`, while initial tool script listened to `files-selected`.
-  - **Fix**: Updated event listener in `ImageConverterTool.astro` to `document.addEventListener('file-dropzone:files-selected', ...)` with `EventListener` type cast.
-- **Bug 2 Discovered**: Test 12 asserted uppercase `FAILED` against `.textContent.trim()`, while DOM status was lowercase `failed`.
-  - **Fix**: Added `.toLowerCase()` mapping in test assertion.
-- **Bug 3 Discovered**: `npx astro check` flagged unused variable `dropzoneRoot` in `ImageConverterTool.astro`.
-  - **Fix**: Removed unused declaration, bringing `astro check` to 0 errors, 0 warnings, 0 hints.
-
-### Milestone 14: Network Privacy Audit
-- **Work Completed**: Monitored browser network traffic across all test runs.
-- **Actual Result**: **0 POST requests, 0 remote API calls, 0 bytes uploaded**. All conversion executed 100% locally in device RAM. PASS.
-
-### Milestone 15: Responsive Viewports & Accessibility QA
-- **Work Completed**:
-  - Responsive audit across 375px, 390px, 768px, 1024px, 1440px.
-  - Accessibility audit for labels, `role="status"`, `aria-live="polite"`, and `role="alert"`.
-- **Actual Test Performed**: CDP automated suite Tests 14 and 15.
-- **Actual Result**: **0 horizontal overflow** across all 5 viewports; 100% compliant a11y attributes. PASS.
-
-### Milestone 16: Content & SEO Audit
-- **Work Completed**: Exactly 1 H1 (`WebP, PNG & JPG Converter`), 156-char meta description, canonical URL `https://browserfiletools.com/image/image-converter`, 5 visible FAQs matching `FAQPage` JSON-LD schema, `SoftwareApplication` and `BreadcrumbList` schemas.
-- **Actual Test Performed**: `test-fixtures/verify-image-converter-seo.cjs`.
-- **Actual Result**: PASS (100%).
-
-### Milestone 17: Previous-Tool Regressions
-- **HEIC to JPG**: Converted Nokia fixture to 1440x960 JPG (`lightweight-regression.cjs`) — **PASS**.
-- **Video Compressor**: Compressed MP4 to 0.3 MB (`test-video-smoke.cjs`) — **PASS**.
-- **JPG to HEIC**: Converted single, batch with error isolation, ZIP download (`run-all-jpg-heic-tests.cjs`) — **PASS**.
-- **Image to PDF**: Multi-page PDF generation with margins and reordering (`run-all-pdf-tests.cjs`) — **PASS**.
-- **Subtitle Converter**: 54/54 automated checks passed (`run-all-subtitle-tests.cjs`) — **PASS**.
-- **Image Resizer**: Dimension scaling, aspect lock, percentage, and ZIP passed (`run-all-image-resizer-tests.cjs`) — **PASS**.
-- **Image Compressor**: Quality scaling, PNG lossless handling, alpha compositing, ZIP passed (`run-all-image-compressor-tests.cjs`) — **PASS**.
-- **All 8 Active Tool Routes**: Returned HTTP 200 OK.
-
-### Milestone 18: Static Analysis & Production Build
-- `npx astro check`: **0 errors, 0 warnings, 0 hints** (39 files checked).
-- `npx astro build`: **0 errors**, 13 static pages generated in 6.44s (`dist/image/image-converter/index.html` built).
-- Sitemap: `dist/sitemap-0.xml` includes `https://browserfiletools.com/image/image-converter/`.
-
-### Milestone 19: Git Checkpoint
-- Commit: `ab6b0fb` (`feat: complete image format converter`)
-- Tag: `image-converter-complete`
-- Working Tree: Clean (All 15 files tracked and committed)
+### Milestone 8: Static Analysis & Production Build
+- `npx astro check`: **0 errors, 0 warnings, 0 hints** (43 files checked).
+- `npx astro build`: **0 errors**, 14 static pages generated in 5.75s (`dist/image/social-resizer/index.html` built).
+- Sitemap: `dist/sitemap-0.xml` includes `https://browserfiletools.com/image/social-resizer/`.
 
 ---
 
 ## Historical Milestone Archives (Completed Tools)
+
+### [Historical Snapshot] Expansion Tool — Image Format Converter (WebP / PNG / JPG Converter)
+- Completed in prior sprint (Git commit `ab6b0fb`, Tag `image-converter-complete`).
+- In-browser canvas converter between JPG, PNG, and WebP with transparency compositing on white for JPGs, natural dimension preservation, and 15/15 automated CDP test suites passed.
 
 ### [Historical Snapshot] Expansion Tool — Image Compressor
 - Completed in prior sprint (Git commit `f54afbe`, Tag `image-compressor-complete`).
@@ -246,7 +219,6 @@
 ## Next Recommended Tool
 
 Based on the original category inventory and logical expansion:
-- **Social Image Resizer** (`/image/social-resizer`), or
 - **Favicon Generator** (`/image/favicon-generator`), or
 - **Audio Converter** (`/audio/audio-converter`), or
 - **PDF Merge / Split / Rotate** (`/pdf/pdf-merger`).

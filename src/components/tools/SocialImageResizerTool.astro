@@ -1,0 +1,1268 @@
+---
+import FileDropzone from '../FileDropzone.astro';
+import type { Tool } from '../../data/tools';
+import { SOCIAL_PRESETS } from '../../data/social-image-presets';
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+---
+
+<div id="social-resizer-root" class="w-full space-y-6">
+  <!-- Interactive Dropzone -->
+  <div id="social-dropzone-container">
+    <FileDropzone
+      toolTitle={tool.title}
+      acceptedFiles={tool.acceptedFiles}
+      acceptedTypesLabel={tool.acceptedTypesLabel}
+      sizeWarningMB={tool.sizeWarningMB}
+      sizeCeilingNote={tool.sizeCeilingNote}
+      status={tool.status}
+      multiple={false}
+      managedExternally={true}
+    />
+  </div>
+
+  <!-- Error Alert Banner -->
+  <div
+    id="social-error-banner"
+    class="hidden p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-start gap-3 transition-all"
+    role="alert"
+  >
+    <svg class="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div>
+      <p class="font-semibold text-rose-950" id="social-error-title">Image Loading Error</p>
+      <p class="mt-0.5 leading-relaxed text-rose-800" id="social-error-message">
+        Unable to decode the image. Please verify that the file is a valid JPG, PNG, or WebP image.
+      </p>
+    </div>
+  </div>
+
+  <!-- Active Workspace Section: Shown once image is loaded -->
+  <div id="social-workspace-section" class="hidden space-y-6">
+    <!-- Source Image Header Bar -->
+    <div class="p-4 rounded-2xl bg-surface-50 border border-surface-200/80 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5 min-w-0">
+        <div class="w-14 h-14 rounded-xl overflow-hidden bg-surface-200 border border-surface-300/80 flex-shrink-0 relative">
+          <img id="source-image-thumb" src="" alt="Source preview" class="w-full h-full object-cover" />
+        </div>
+        <div class="min-w-0">
+          <h3 class="font-bold text-surface-900 text-sm truncate" id="source-image-name">image.jpg</h3>
+          <p class="text-xs text-surface-500 mt-0.5" id="source-image-meta">
+            <span id="source-image-dims">0 × 0 px</span> • <span id="source-image-ratio">1:1</span> • <span id="source-image-size">0 KB</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center flex-wrap gap-2 text-xs">
+        <a
+          href="/image/image-resizer"
+          class="font-semibold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1"
+        >
+          <span>Resize by px/%</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <span class="text-surface-300">|</span>
+        <a
+          href="/image/image-compressor"
+          class="font-semibold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1"
+        >
+          <span>Compress size</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <span class="text-surface-300">|</span>
+        <button
+          id="source-replace-btn"
+          type="button"
+          class="px-3 py-1.5 rounded-lg bg-surface-200 hover:bg-surface-300 text-surface-800 font-semibold transition-colors focus-visible:outline-brand-500"
+        >
+          Replace Photo
+        </button>
+        <button
+          id="source-clear-btn"
+          type="button"
+          class="px-3 py-1.5 rounded-lg bg-transparent hover:bg-rose-50 text-surface-500 hover:text-rose-600 font-semibold transition-colors focus-visible:outline-brand-500"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Resizer Layout: 2 Columns on Desktop -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left Column: Controls & Presets (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        <!-- Framing & Cropping Mode Card -->
+        <div class="p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-5" id="framing-mode-card">
+          <div class="flex items-center justify-between pb-3 border-b border-surface-200/60 flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="text-xs font-bold uppercase tracking-wider text-surface-700">Resize & Crop Behavior</span>
+            </div>
+
+            <!-- Crop vs Fit Toggle Buttons -->
+            <div class="flex items-center rounded-xl bg-surface-200/70 p-0.5 text-xs">
+              <button
+                id="mode-crop-btn"
+                type="button"
+                class="px-3 py-1.5 rounded-lg font-semibold transition-all bg-white text-surface-900 shadow-xs"
+                aria-pressed="true"
+              >
+                Crop to Fill
+              </button>
+              <button
+                id="mode-fit-btn"
+                type="button"
+                class="px-3 py-1.5 rounded-lg font-semibold transition-all text-surface-600 hover:text-surface-900"
+                aria-pressed="false"
+              >
+                Fit Entire Image
+              </button>
+            </div>
+          </div>
+
+          <!-- Panel A: Crop to Fill with 3x3 Focal Alignment Grid -->
+          <div id="crop-controls-panel" class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h4 class="text-xs font-bold text-surface-900">Focal Alignment Grid (3×3)</h4>
+                <p class="text-[11px] text-surface-500">
+                  Select which area of your photo remains anchored when cropping excess borders.
+                </p>
+              </div>
+              <span id="active-focal-label" class="text-xs font-bold text-brand-600 self-start sm:self-auto bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-lg">
+                Center
+              </span>
+            </div>
+
+            <!-- 3x3 Interactive Grid -->
+            <div class="flex justify-center py-1">
+              <div class="grid grid-cols-3 gap-2 w-48 p-2 rounded-2xl bg-surface-200/80 border border-surface-300/70" role="radiogroup" aria-label="Focal Alignment Grid">
+                <!-- Top Row -->
+                <button
+                  id="focal-top-left"
+                  type="button"
+                  data-focal="top-left"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Top-Left"
+                  aria-pressed="false"
+                >↖</button>
+                <button
+                  id="focal-top"
+                  type="button"
+                  data-focal="top"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Top"
+                  aria-pressed="false"
+                >↑</button>
+                <button
+                  id="focal-top-right"
+                  type="button"
+                  data-focal="top-right"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Top-Right"
+                  aria-pressed="false"
+                >↗</button>
+
+                <!-- Middle Row -->
+                <button
+                  id="focal-left"
+                  type="button"
+                  data-focal="left"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Left"
+                  aria-pressed="false"
+                >←</button>
+                <button
+                  id="focal-center"
+                  type="button"
+                  data-focal="center"
+                  class="focal-btn h-12 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold text-lg transition-all border border-brand-700 shadow-xs ring-2 ring-brand-400/40"
+                  aria-label="Focal point: Center"
+                  aria-pressed="true"
+                >•</button>
+                <button
+                  id="focal-right"
+                  type="button"
+                  data-focal="right"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Right"
+                  aria-pressed="false"
+                >→</button>
+
+                <!-- Bottom Row -->
+                <button
+                  id="focal-bottom-left"
+                  type="button"
+                  data-focal="bottom-left"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Bottom-Left"
+                  aria-pressed="false"
+                >↙</button>
+                <button
+                  id="focal-bottom"
+                  type="button"
+                  data-focal="bottom"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Bottom"
+                  aria-pressed="false"
+                >↓</button>
+                <button
+                  id="focal-bottom-right"
+                  type="button"
+                  data-focal="bottom-right"
+                  class="focal-btn h-12 rounded-xl bg-white text-surface-700 hover:bg-surface-100 hover:text-surface-900 flex items-center justify-center font-bold text-base transition-all border border-surface-200/60 shadow-2xs"
+                  aria-label="Focal point: Bottom-Right"
+                  aria-pressed="false"
+                >↘</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel B: Fit Entire Image with Background Color -->
+          <div id="fit-controls-panel" class="hidden space-y-3">
+            <div>
+              <h4 class="text-xs font-bold text-surface-900">Padding & Canvas Fill</h4>
+              <p class="text-[11px] text-surface-500">
+                Fit Entire Image scales your full photo inside the preset boundaries without cropping.
+              </p>
+            </div>
+            <div class="flex items-center gap-4 text-xs pt-1">
+              <label class="flex items-center gap-2 cursor-pointer select-none font-medium text-surface-800">
+                <input
+                  type="radio"
+                  name="fit-bg-color"
+                  value="#FFFFFF"
+                  checked
+                  class="w-4 h-4 text-brand-600 focus:ring-brand-500"
+                />
+                <span>Solid White Letterbox (#FFFFFF)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer select-none font-medium text-surface-800" id="fit-transparent-label">
+                <input
+                  type="radio"
+                  name="fit-bg-color"
+                  value="transparent"
+                  class="w-4 h-4 text-brand-600 focus:ring-brand-500"
+                />
+                <span>Transparent (PNG & WebP only)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media Presets Selector Card -->
+        <div class="p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-4" id="presets-selector-card">
+          <div class="flex items-center justify-between pb-3 border-b border-surface-200/60 flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <span class="text-xs font-bold uppercase tracking-wider text-surface-700">Platform Presets (2026 Verified)</span>
+            </div>
+
+            <!-- Quick Preset Select All / None -->
+            <div class="flex items-center gap-2 text-xs">
+              <button
+                id="select-all-presets-btn"
+                type="button"
+                class="px-2.5 py-1 rounded-lg bg-surface-200 hover:bg-surface-300 text-surface-800 font-semibold transition-colors"
+              >
+                Select All
+              </button>
+              <button
+                id="deselect-all-presets-btn"
+                type="button"
+                class="px-2.5 py-1 rounded-lg bg-surface-200 hover:bg-surface-300 text-surface-800 font-semibold transition-colors"
+              >
+                Deselect All
+              </button>
+            </div>
+          </div>
+
+          <!-- Platform Filter Tabs -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar" id="platform-filter-tabs" role="tablist">
+            <button type="button" data-tab="all" class="platform-tab px-3 py-1.5 rounded-xl font-bold bg-brand-600 text-white whitespace-nowrap transition-colors" role="tab" aria-selected="true">
+              All Platforms
+            </button>
+            <button type="button" data-tab="Instagram" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              Instagram
+            </button>
+            <button type="button" data-tab="Facebook" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              Facebook
+            </button>
+            <button type="button" data-tab="X / Twitter" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              X / Twitter
+            </button>
+            <button type="button" data-tab="LinkedIn" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              LinkedIn
+            </button>
+            <button type="button" data-tab="YouTube" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              YouTube
+            </button>
+            <button type="button" data-tab="Pinterest" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              Pinterest
+            </button>
+            <button type="button" data-tab="TikTok" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              TikTok
+            </button>
+            <button type="button" data-tab="custom" class="platform-tab px-3 py-1.5 rounded-xl font-semibold bg-surface-200/80 hover:bg-surface-300 text-surface-700 whitespace-nowrap transition-colors" role="tab" aria-selected="false">
+              Custom Size
+            </button>
+          </div>
+
+          <!-- Presets Grid -->
+          <div id="presets-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-80 overflow-y-auto pr-1">
+            {SOCIAL_PRESETS.map((preset) => (
+              <div
+                class="preset-item-card p-3 rounded-xl border border-surface-200 bg-white hover:border-brand-300 transition-all flex items-center justify-between gap-2.5 cursor-pointer select-none"
+                data-preset-id={preset.id}
+                data-platform={preset.platform}
+                data-width={preset.width}
+                data-height={preset.height}
+                data-ratio={preset.ratio}
+                data-label={preset.label}
+              >
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <input
+                    type="checkbox"
+                    class="preset-checkbox w-4 h-4 rounded text-brand-600 border-surface-300 focus:ring-brand-500 cursor-pointer flex-shrink-0"
+                    id={`checkbox-${preset.id}`}
+                    data-id={preset.id}
+                    checked={['instagram-square', 'instagram-portrait', 'instagram-story'].includes(preset.id)}
+                    aria-label={`Include ${preset.platform} ${preset.label} in export`}
+                  />
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-surface-500">
+                        {preset.platform}
+                      </span>
+                      <span class="text-[10px] font-semibold text-brand-600 bg-brand-50 px-1.5 py-0.2 rounded">
+                        {preset.ratio}
+                      </span>
+                    </div>
+                    <p class="text-xs font-bold text-surface-900 truncate">
+                      {preset.label}
+                    </p>
+                    <p class="text-[11px] text-surface-500">
+                      {preset.width} × {preset.height} px
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="preset-preview-btn px-2.5 py-1 rounded-lg bg-surface-100 hover:bg-brand-50 hover:text-brand-700 text-surface-600 font-semibold text-[11px] transition-colors flex-shrink-0"
+                  data-preset-target={preset.id}
+                  aria-label={`Preview ${preset.label}`}
+                >
+                  Preview
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <!-- Custom Dimensions Entry Panel -->
+          <div id="custom-size-panel" class="hidden p-4 rounded-xl bg-surface-100/70 border border-surface-200 space-y-3">
+            <h4 class="text-xs font-bold text-surface-900">Custom Dimensions</h4>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <label for="custom-width-input" class="block font-semibold text-surface-700 mb-1">Width (px)</label>
+                <input
+                  id="custom-width-input"
+                  type="number"
+                  min="10"
+                  max="16000"
+                  value="1200"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-surface-300 text-surface-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+              <div>
+                <label for="custom-height-input" class="block font-semibold text-surface-700 mb-1">Height (px)</label>
+                <input
+                  id="custom-height-input"
+                  type="number"
+                  min="10"
+                  max="16000"
+                  value="630"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-surface-300 text-surface-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+            </div>
+            <button
+              id="add-custom-preset-btn"
+              type="button"
+              class="w-full py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold transition-colors"
+            >
+              Add Custom Dimension to Export List
+            </button>
+          </div>
+        </div>
+
+        <!-- Format & Quality Settings Card -->
+        <div class="p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-4" id="format-settings-card">
+          <div class="flex items-center justify-between pb-3 border-b border-surface-200/60">
+            <span class="text-xs font-bold uppercase tracking-wider text-surface-700">Export Format & Quality</span>
+            <span class="text-[11px] text-surface-500 font-medium">100% In-Browser</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <!-- Format Selector -->
+            <div class="space-y-1.5">
+              <label for="social-export-format" class="font-semibold text-surface-900 block">Output Format</label>
+              <select
+                id="social-export-format"
+                class="w-full px-3 py-2 bg-white border border-surface-300 rounded-xl text-xs font-medium text-surface-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="original" selected>Same as Source Image</option>
+                <option value="image/jpeg">JPG / JPEG (Universal)</option>
+                <option value="image/png">PNG (Lossless, Transparent)</option>
+                <option value="image/webp">WebP (Modern, Compact)</option>
+              </select>
+            </div>
+
+            <!-- Quality Slider -->
+            <div id="social-quality-container" class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label for="social-quality-slider" class="font-semibold text-surface-900 block">Quality</label>
+                <span id="social-quality-val" class="text-brand-600 font-bold text-xs">90%</span>
+              </div>
+              <input
+                id="social-quality-slider"
+                type="range"
+                min="50"
+                max="100"
+                value="90"
+                class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                aria-label="Output Quality"
+              />
+              <p id="social-png-note" class="hidden text-[11px] text-brand-700 bg-brand-50 border border-brand-200 p-1.5 rounded-lg">
+                PNG uses lossless compression. Quality slider does not apply.
+              </p>
+            </div>
+          </div>
+
+          <!-- Transparency Warning for JPG -->
+          <div
+            id="social-transparency-note"
+            class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5"
+          >
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>JPG does not support transparency. Transparent areas will be composited cleanly onto solid white.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Aspect Ratio Preview & Export Actions (5 cols) -->
+      <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-6">
+        <!-- Live Preview Canvas Card -->
+        <div class="p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-4" id="live-preview-card">
+          <div class="flex items-center justify-between pb-3 border-b border-surface-200/60">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-surface-700 block">Live Preset Preview</span>
+              <p class="text-xs font-bold text-surface-900 truncate" id="preview-preset-title">Instagram — Square Post</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-brand-600 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-lg" id="preview-preset-ratio">1:1</span>
+              <p class="text-[11px] text-surface-500 mt-0.5" id="preview-preset-dims">1080 × 1080 px</p>
+            </div>
+          </div>
+
+          <!-- Preview Frame & Canvas -->
+          <div class="w-full bg-surface-200/80 rounded-2xl p-3 flex flex-col items-center justify-center min-h-[300px] max-h-[420px] overflow-hidden relative">
+            <canvas
+              id="live-preview-canvas"
+              class="max-w-full max-h-[340px] rounded-xl shadow-md border border-surface-300/80 object-contain"
+              aria-label="Live social image resize preview canvas"
+            ></canvas>
+
+            <div class="absolute bottom-5 left-5 right-5 flex items-center justify-between pointer-events-none">
+              <span id="preview-mode-badge" class="px-2.5 py-1 rounded-lg bg-surface-900/80 text-white text-[10px] font-semibold backdrop-blur-xs shadow">
+                Crop to Fill • Center
+              </span>
+            </div>
+          </div>
+
+          <!-- Export Action Buttons -->
+          <div class="space-y-3 pt-2">
+            <!-- Progress Bar -->
+            <div id="social-progress-container" class="hidden space-y-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span id="social-progress-text" class="font-medium text-surface-700" role="status" aria-live="polite">
+                  Rendering preset 1 of 3...
+                </span>
+                <span id="social-progress-percent" class="font-bold text-brand-600">0%</span>
+              </div>
+              <div class="w-full h-2.5 bg-surface-200 rounded-full overflow-hidden">
+                <div id="social-progress-bar" class="h-full bg-brand-600 transition-all duration-300 w-0"></div>
+              </div>
+            </div>
+
+            <!-- Primary Export Button -->
+            <button
+              id="export-selected-btn"
+              type="button"
+              class="w-full py-3.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white text-xs font-bold tracking-wide shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span id="export-selected-label">Export Selected Presets (3)</span>
+            </button>
+
+            <!-- Quick Export Active Preset Button -->
+            <button
+              id="export-preview-btn"
+              type="button"
+              class="w-full py-2.5 px-4 rounded-xl bg-surface-200 hover:bg-surface-300 text-surface-800 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span>Export Previewed Size Only</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generated Results Section -->
+    <div id="social-results-section" class="hidden space-y-4 pt-4 border-t border-surface-200">
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-surface-200">
+        <div>
+          <h2 class="text-sm font-bold text-surface-900">Exported Social Images</h2>
+          <p class="text-xs text-surface-500" id="social-results-count">0 images ready</p>
+        </div>
+
+        <button
+          id="social-download-zip-btn"
+          type="button"
+          class="hidden px-4 py-2 rounded-xl bg-surface-900 hover:bg-surface-800 text-white text-xs font-semibold transition-colors flex items-center gap-2 shadow-sm focus-visible:outline-brand-500"
+        >
+          <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span>Download All as ZIP</span>
+        </button>
+      </div>
+
+      <!-- Results Grid -->
+      <div id="social-results-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <!-- Dynamically injected cards -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    inspectSocialSourceFile,
+    renderSocialImage,
+    downloadSocialBlob,
+    createSocialZip,
+    formatBytes,
+    calculateCropRect,
+    calculateFitRect,
+    type SourceImageInfo,
+    type SocialTarget,
+    type ResizeMode,
+    type FocalPosition,
+    type SocialExportFormat,
+    type SocialJobResult
+  } from '../../scripts/social-image-resizer';
+
+  import {
+    getPresetById
+  } from '../../data/social-image-presets';
+
+  // State
+  let currentSource: SourceImageInfo | null = null;
+  let activePreset: SocialTarget = {
+    id: 'instagram-square',
+    label: 'Square Post',
+    width: 1080,
+    height: 1080,
+    ratio: '1:1',
+    platform: 'Instagram'
+  };
+  let currentMode: ResizeMode = 'crop';
+  let currentFocal: FocalPosition = 'center';
+  let currentBgColor = '#FFFFFF';
+  let isExporting = false;
+  let customTargets: SocialTarget[] = [];
+  let exportedResults: SocialJobResult[] = [];
+  const registeredUrls: string[] = [];
+
+  function registerUrl(url: string): string {
+    registeredUrls.push(url);
+    return url;
+  }
+
+  function cleanupUrls(): void {
+    while (registeredUrls.length > 0) {
+      const url = registeredUrls.pop();
+      if (url) URL.revokeObjectURL(url);
+    }
+  }
+
+  // DOM Elements
+  const dropzoneContainer = document.getElementById('social-dropzone-container');
+  const errorBanner = document.getElementById('social-error-banner');
+  const errorTitle = document.getElementById('social-error-title');
+  const errorMessage = document.getElementById('social-error-message');
+  const workspaceSection = document.getElementById('social-workspace-section');
+
+  const sourceThumb = document.getElementById('source-image-thumb') as HTMLImageElement;
+  const sourceName = document.getElementById('source-image-name');
+  const sourceDims = document.getElementById('source-image-dims');
+  const sourceRatio = document.getElementById('source-image-ratio');
+  const sourceSize = document.getElementById('source-image-size');
+  const sourceReplaceBtn = document.getElementById('source-replace-btn');
+  const sourceClearBtn = document.getElementById('source-clear-btn');
+
+  const modeCropBtn = document.getElementById('mode-crop-btn');
+  const modeFitBtn = document.getElementById('mode-fit-btn');
+  const cropControlsPanel = document.getElementById('crop-controls-panel');
+  const fitControlsPanel = document.getElementById('fit-controls-panel');
+  const activeFocalLabel = document.getElementById('active-focal-label');
+  const focalButtons = document.querySelectorAll('.focal-btn');
+
+  const presetsListContainer = document.getElementById('presets-list-container');
+  const selectAllBtn = document.getElementById('select-all-presets-btn');
+  const deselectAllBtn = document.getElementById('deselect-all-presets-btn');
+  const platformTabs = document.querySelectorAll('.platform-tab');
+  const customSizePanel = document.getElementById('custom-size-panel');
+  const addCustomPresetBtn = document.getElementById('add-custom-preset-btn');
+  const customWidthInput = document.getElementById('custom-width-input') as HTMLInputElement;
+  const customHeightInput = document.getElementById('custom-height-input') as HTMLInputElement;
+
+  const exportFormatSelect = document.getElementById('social-export-format') as HTMLSelectElement;
+  const qualitySlider = document.getElementById('social-quality-slider') as HTMLInputElement;
+  const qualityVal = document.getElementById('social-quality-val');
+  const pngNote = document.getElementById('social-png-note');
+  const transparencyNote = document.getElementById('social-transparency-note');
+
+  const livePreviewCanvas = document.getElementById('live-preview-canvas') as HTMLCanvasElement;
+  const previewPresetTitle = document.getElementById('preview-preset-title');
+  const previewPresetDims = document.getElementById('preview-preset-dims');
+  const previewPresetRatio = document.getElementById('preview-preset-ratio');
+  const previewModeBadge = document.getElementById('preview-mode-badge');
+
+  const exportSelectedBtn = document.getElementById('export-selected-btn');
+  const exportSelectedLabel = document.getElementById('export-selected-label');
+  const exportPreviewBtn = document.getElementById('export-preview-btn');
+  const progressContainer = document.getElementById('social-progress-container');
+  const progressBar = document.getElementById('social-progress-bar');
+  const progressText = document.getElementById('social-progress-text');
+  const progressPercent = document.getElementById('social-progress-percent');
+
+  const resultsSection = document.getElementById('social-results-section');
+  const resultsCount = document.getElementById('social-results-count');
+  const downloadZipBtn = document.getElementById('social-download-zip-btn');
+  const resultsGrid = document.getElementById('social-results-grid');
+
+  // Helper: Show error
+  function showError(title: string, message: string): void {
+    if (errorBanner && errorTitle && errorMessage) {
+      errorTitle.textContent = title;
+      errorMessage.textContent = message;
+      errorBanner.classList.remove('hidden');
+    }
+  }
+
+  function hideError(): void {
+    if (errorBanner) errorBanner.classList.add('hidden');
+  }
+
+  // Handle source file loaded
+  async function handleSourceFile(file: File): Promise<void> {
+    hideError();
+    try {
+      const info = await inspectSocialSourceFile(file);
+      registerUrl(info.thumbnailUrl);
+      currentSource = info;
+
+      if (sourceThumb) sourceThumb.src = info.thumbnailUrl;
+      if (sourceName) sourceName.textContent = info.filename;
+      if (sourceDims) sourceDims.textContent = `${info.width} × ${info.height} px`;
+      if (sourceRatio) {
+        const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+        const divisor = gcd(info.width, info.height);
+        const rW = info.width / divisor;
+        const rH = info.height / divisor;
+        sourceRatio.textContent = rW < 100 && rH < 100 ? `${rW}:${rH}` : `${(info.width / info.height).toFixed(2)}:1`;
+      }
+      if (sourceSize) sourceSize.textContent = formatBytes(info.sizeBytes);
+
+      if (dropzoneContainer) dropzoneContainer.classList.add('hidden');
+      if (workspaceSection) workspaceSection.classList.remove('hidden');
+
+      updateExportSelectionCount();
+      renderLivePreview();
+    } catch (err: any) {
+      showError('Image Loading Failed', err.message || 'Could not decode image file.');
+    }
+  }
+
+  // Listen for FileDropzone custom event
+  document.addEventListener('file-dropzone:files-selected', (e: any) => {
+    const files: File[] = e.detail?.files || [];
+    if (files.length > 0) {
+      handleSourceFile(files[0]);
+    }
+  });
+
+  // Replace / Clear buttons
+  sourceReplaceBtn?.addEventListener('click', () => {
+    // Find the dropzone file input and click it
+    const fileInput = document.querySelector('#social-dropzone-container input[type="file"]') as HTMLInputElement;
+    if (fileInput) fileInput.click();
+  });
+
+  sourceClearBtn?.addEventListener('click', () => {
+    currentSource = null;
+    cleanupUrls();
+    if (dropzoneContainer) dropzoneContainer.classList.remove('hidden');
+    if (workspaceSection) workspaceSection.classList.add('hidden');
+    if (resultsSection) resultsSection.classList.add('hidden');
+    exportedResults = [];
+    if (resultsGrid) resultsGrid.innerHTML = '';
+  });
+
+  // Mode Toggle (Crop vs Fit)
+  modeCropBtn?.addEventListener('click', () => {
+    currentMode = 'crop';
+    modeCropBtn.classList.add('bg-white', 'text-surface-900', 'shadow-xs');
+    modeCropBtn.classList.remove('text-surface-600');
+    modeCropBtn.setAttribute('aria-pressed', 'true');
+
+    modeFitBtn?.classList.remove('bg-white', 'text-surface-900', 'shadow-xs');
+    modeFitBtn?.classList.add('text-surface-600');
+    modeFitBtn?.setAttribute('aria-pressed', 'false');
+
+    cropControlsPanel?.classList.remove('hidden');
+    fitControlsPanel?.classList.add('hidden');
+    renderLivePreview();
+  });
+
+  modeFitBtn?.addEventListener('click', () => {
+    currentMode = 'fit';
+    modeFitBtn.classList.add('bg-white', 'text-surface-900', 'shadow-xs');
+    modeFitBtn.classList.remove('text-surface-600');
+    modeFitBtn.setAttribute('aria-pressed', 'true');
+
+    modeCropBtn?.classList.remove('bg-white', 'text-surface-900', 'shadow-xs');
+    modeCropBtn?.classList.add('text-surface-600');
+    modeCropBtn?.setAttribute('aria-pressed', 'false');
+
+    cropControlsPanel?.classList.add('hidden');
+    fitControlsPanel?.classList.remove('hidden');
+    renderLivePreview();
+  });
+
+  // Focal Buttons
+  focalButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const focal = btn.getAttribute('data-focal') as FocalPosition;
+      if (!focal) return;
+      currentFocal = focal;
+
+      focalButtons.forEach((b) => {
+        b.classList.remove('bg-brand-600', 'text-white', 'ring-2', 'ring-brand-400/40', 'shadow-xs');
+        b.classList.add('bg-white', 'text-surface-700');
+        b.setAttribute('aria-pressed', 'false');
+      });
+
+      btn.classList.remove('bg-white', 'text-surface-700');
+      btn.classList.add('bg-brand-600', 'text-white', 'ring-2', 'ring-brand-400/40', 'shadow-xs');
+      btn.setAttribute('aria-pressed', 'true');
+
+      if (activeFocalLabel) {
+        activeFocalLabel.textContent = focal.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('-');
+      }
+
+      renderLivePreview();
+    });
+  });
+
+  // Fit BG Color radios
+  document.querySelectorAll('input[name="fit-bg-color"]').forEach((radio) => {
+    radio.addEventListener('change', (e: any) => {
+      currentBgColor = e.target.value;
+      renderLivePreview();
+    });
+  });
+
+  // Platform Filter Tabs
+  platformTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const targetPlatform = tab.getAttribute('data-tab');
+      platformTabs.forEach((t) => {
+        t.classList.remove('bg-brand-600', 'text-white', 'font-bold');
+        t.classList.add('bg-surface-200/80', 'text-surface-700', 'font-semibold');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.remove('bg-surface-200/80', 'text-surface-700', 'font-semibold');
+      tab.classList.add('bg-brand-600', 'text-white', 'font-bold');
+      tab.setAttribute('aria-selected', 'true');
+
+      if (targetPlatform === 'custom') {
+        customSizePanel?.classList.remove('hidden');
+        document.querySelectorAll('.preset-item-card').forEach((card) => card.classList.add('hidden'));
+      } else {
+        customSizePanel?.classList.add('hidden');
+        document.querySelectorAll('.preset-item-card').forEach((el) => {
+          const card = el as HTMLElement;
+          const cardPlatform = card.getAttribute('data-platform');
+          if (targetPlatform === 'all' || cardPlatform === targetPlatform) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      }
+    });
+  });
+
+  // Add Custom Preset
+  addCustomPresetBtn?.addEventListener('click', () => {
+    const w = parseInt(customWidthInput?.value || '1200', 10);
+    const h = parseInt(customHeightInput?.value || '630', 10);
+    if (!w || !h || w <= 0 || h <= 0) return;
+
+    const id = `custom-${w}x${h}-${Date.now()}`;
+    const target: SocialTarget = {
+      id,
+      label: `Custom ${w}×${h}`,
+      width: w,
+      height: h,
+      ratio: `${(w / h).toFixed(2)}:1`,
+      platform: 'Custom',
+      isCustom: true,
+    };
+
+    customTargets.push(target);
+    activePreset = target;
+
+    // Inject custom card into list
+    const div = document.createElement('div');
+    div.className = 'preset-item-card p-3 rounded-xl border-2 border-brand-500 bg-brand-50/40 flex items-center justify-between gap-2.5 cursor-pointer select-none';
+    div.setAttribute('data-preset-id', target.id);
+    div.setAttribute('data-platform', 'Custom');
+    div.innerHTML = `
+      <div class="flex items-center gap-2.5 min-w-0">
+        <input
+          type="checkbox"
+          class="preset-checkbox w-4 h-4 rounded text-brand-600 border-surface-300 focus:ring-brand-500 cursor-pointer flex-shrink-0"
+          id="checkbox-${target.id}"
+          data-id="${target.id}"
+          checked
+          aria-label="Include ${target.label} in export"
+        />
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-surface-500">Custom</span>
+            <span class="text-[10px] font-semibold text-brand-600 bg-brand-50 px-1.5 py-0.2 rounded">${target.ratio}</span>
+          </div>
+          <p class="text-xs font-bold text-surface-900 truncate">${target.label}</p>
+          <p class="text-[11px] text-surface-500">${target.width} × ${target.height} px</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="preset-preview-btn px-2.5 py-1 rounded-lg bg-surface-100 hover:bg-brand-50 hover:text-brand-700 text-surface-600 font-semibold text-[11px] transition-colors flex-shrink-0"
+        data-preset-target="${target.id}"
+      >Preview</button>
+    `;
+
+    presetsListContainer?.prepend(div);
+    attachCardListeners(div);
+    updateExportSelectionCount();
+    renderLivePreview();
+  });
+
+  // Attach card listeners (preview & click)
+  function attachCardListeners(card: HTMLElement): void {
+    const id = card.getAttribute('data-preset-id');
+    if (!id) return;
+
+    card.addEventListener('click', (e) => {
+      // Don't trigger if clicked directly on checkbox
+      if ((e.target as HTMLElement).tagName === 'INPUT') return;
+      setActivePresetById(id);
+    });
+
+    const previewBtn = card.querySelector('.preset-preview-btn');
+    previewBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setActivePresetById(id);
+    });
+
+    const checkbox = card.querySelector('.preset-checkbox');
+    checkbox?.addEventListener('change', () => {
+      updateExportSelectionCount();
+    });
+  }
+
+  document.querySelectorAll('.preset-item-card').forEach((el) => {
+    attachCardListeners(el as HTMLElement);
+  });
+
+  // Set active preview preset
+  function setActivePresetById(id: string): void {
+    let preset: SocialTarget | undefined = getPresetById(id);
+    if (!preset) {
+      preset = customTargets.find((c) => c.id === id);
+    }
+    if (!preset) return;
+
+    activePreset = preset;
+
+    // Highlight active card
+    document.querySelectorAll('.preset-item-card').forEach((el) => {
+      const card = el as HTMLElement;
+      if (card.getAttribute('data-preset-id') === id) {
+        card.classList.add('border-brand-500', 'bg-brand-50/40');
+        card.classList.remove('border-surface-200', 'bg-white');
+      } else {
+        card.classList.remove('border-brand-500', 'bg-brand-50/40');
+        card.classList.add('border-surface-200', 'bg-white');
+      }
+    });
+
+    renderLivePreview();
+  }
+
+  // Select All / Deselect All
+  selectAllBtn?.addEventListener('click', () => {
+    document.querySelectorAll('.preset-checkbox').forEach((el) => {
+      const cb = el as HTMLInputElement;
+      const parentCard = cb.closest('.preset-item-card');
+      if (parentCard && !parentCard.classList.contains('hidden')) {
+        cb.checked = true;
+      }
+    });
+    updateExportSelectionCount();
+  });
+
+  deselectAllBtn?.addEventListener('click', () => {
+    document.querySelectorAll('.preset-checkbox').forEach((el) => {
+      const cb = el as HTMLInputElement;
+      const parentCard = cb.closest('.preset-item-card');
+      if (parentCard && !parentCard.classList.contains('hidden')) {
+        cb.checked = false;
+      }
+    });
+    updateExportSelectionCount();
+  });
+
+  function updateExportSelectionCount(): void {
+    const checked = document.querySelectorAll('.preset-checkbox:checked').length;
+    if (exportSelectedLabel) {
+      exportSelectedLabel.textContent = `Export Selected Presets (${checked})`;
+    }
+    if (exportSelectedBtn) {
+      (exportSelectedBtn as HTMLButtonElement).disabled = checked === 0;
+    }
+  }
+
+  // Format & Quality changes
+  exportFormatSelect?.addEventListener('change', () => {
+    const format = exportFormatSelect.value;
+    const isPng = format === 'image/png';
+    const isJpg = format === 'image/jpeg';
+
+    if (isPng) {
+      pngNote?.classList.remove('hidden');
+      qualitySlider?.classList.add('opacity-40', 'cursor-not-allowed');
+      if (qualitySlider) qualitySlider.disabled = true;
+    } else {
+      pngNote?.classList.add('hidden');
+      qualitySlider?.classList.remove('opacity-40', 'cursor-not-allowed');
+      if (qualitySlider) qualitySlider.disabled = false;
+    }
+
+    if (isJpg) {
+      transparencyNote?.classList.remove('hidden');
+    } else {
+      transparencyNote?.classList.add('hidden');
+    }
+  });
+
+  qualitySlider?.addEventListener('input', () => {
+    if (qualityVal) qualityVal.textContent = `${qualitySlider.value}%`;
+  });
+
+  // Render Live Preview onto #live-preview-canvas
+  let previewImageBitmap: ImageBitmap | HTMLImageElement | null = null;
+
+  async function getPreviewBitmap(): Promise<ImageBitmap | HTMLImageElement | null> {
+    if (!currentSource) return null;
+    if (previewImageBitmap) return previewImageBitmap;
+
+    if (typeof createImageBitmap === 'function') {
+      try {
+        previewImageBitmap = await createImageBitmap(currentSource.file);
+        return previewImageBitmap;
+      } catch {
+        // Fallback
+      }
+    }
+
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        previewImageBitmap = img;
+        resolve(img);
+      };
+      img.onerror = () => resolve(null);
+      img.src = currentSource!.thumbnailUrl;
+    });
+  }
+
+  async function renderLivePreview(): Promise<void> {
+    if (!currentSource || !livePreviewCanvas) return;
+
+    if (previewPresetTitle) {
+      previewPresetTitle.textContent = `${activePreset.platform || 'Social'} — ${activePreset.label}`;
+    }
+    if (previewPresetDims) {
+      previewPresetDims.textContent = `${activePreset.width} × ${activePreset.height} px`;
+    }
+    if (previewPresetRatio) {
+      previewPresetRatio.textContent = activePreset.ratio;
+    }
+    if (previewModeBadge) {
+      const focalName = currentFocal.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('-');
+      previewModeBadge.textContent = currentMode === 'crop'
+        ? `Crop to Fill • ${focalName}`
+        : `Fit Entire Image • Letterbox`;
+    }
+
+    const bitmap = await getPreviewBitmap();
+    if (!bitmap) return;
+
+    // Set canvas dimensions to aspect ratio of preset scaled to preview container
+    const maxPreviewW = 400;
+    const maxPreviewH = 320;
+    const scale = Math.min(maxPreviewW / activePreset.width, maxPreviewH / activePreset.height);
+    const canvasW = Math.max(80, Math.round(activePreset.width * scale));
+    const canvasH = Math.max(80, Math.round(activePreset.height * scale));
+
+    livePreviewCanvas.width = canvasW;
+    livePreviewCanvas.height = canvasH;
+
+    const ctx = livePreviewCanvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvasW, canvasH);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // Draw background
+    if (currentMode === 'fit' && currentBgColor !== 'transparent') {
+      ctx.fillStyle = currentBgColor;
+      ctx.fillRect(0, 0, canvasW, canvasH);
+    } else if (currentMode === 'crop') {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvasW, canvasH);
+    }
+
+    if (currentMode === 'crop') {
+      const { sx, sy, sWidth, sHeight } = calculateCropRect(
+        currentSource.width,
+        currentSource.height,
+        activePreset.width,
+        activePreset.height,
+        currentFocal
+      );
+      ctx.drawImage(bitmap, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
+    } else {
+      const { dx, dy, dWidth, dHeight } = calculateFitRect(
+        currentSource.width,
+        currentSource.height,
+        canvasW,
+        canvasH
+      );
+      ctx.drawImage(bitmap, 0, 0, currentSource.width, currentSource.height, dx, dy, dWidth, dHeight);
+    }
+  }
+
+  // Export Selected Presets
+  exportSelectedBtn?.addEventListener('click', () => {
+    const checkedBoxes = Array.from(document.querySelectorAll('.preset-checkbox:checked')) as HTMLInputElement[];
+    const targets: SocialTarget[] = [];
+
+    checkedBoxes.forEach((cb) => {
+      const id = cb.getAttribute('data-id');
+      if (!id) return;
+      let target: SocialTarget | undefined = getPresetById(id);
+      if (!target) {
+        target = customTargets.find((c) => c.id === id);
+      }
+      if (target) targets.push(target);
+    });
+
+    if (targets.length > 0) {
+      runExport(targets);
+    }
+  });
+
+  // Export Active Preview Only
+  exportPreviewBtn?.addEventListener('click', () => {
+    runExport([activePreset]);
+  });
+
+  // Main Export Runner
+  async function runExport(targets: SocialTarget[]): Promise<void> {
+    if (!currentSource || isExporting || targets.length === 0) return;
+    isExporting = true;
+
+    if (progressContainer) progressContainer.classList.remove('hidden');
+    if (exportSelectedBtn) (exportSelectedBtn as HTMLButtonElement).disabled = true;
+    if (exportPreviewBtn) (exportPreviewBtn as HTMLButtonElement).disabled = true;
+
+    const outputFormat = exportFormatSelect.value as SocialExportFormat;
+    const quality = parseInt(qualitySlider.value, 10) / 100;
+    const existingNames = new Set<string>();
+
+    const results: SocialJobResult[] = [];
+
+    for (let i = 0; i < targets.length; i++) {
+      const target = targets[i];
+      const percent = Math.round(((i) / targets.length) * 100);
+
+      if (progressBar) progressBar.style.width = `${percent}%`;
+      if (progressPercent) progressPercent.textContent = `${percent}%`;
+      if (progressText) {
+        progressText.textContent = `Rendering ${target.platform || ''} ${target.label} (${i + 1} of ${targets.length})...`;
+      }
+
+      // Small async tick to yield to UI
+      await new Promise((r) => setTimeout(r, 16));
+
+      try {
+        const res = await renderSocialImage(
+          currentSource,
+          target,
+          {
+            mode: currentMode,
+            focalPosition: currentFocal,
+            outputFormat,
+            quality,
+            backgroundColor: currentBgColor,
+          },
+          existingNames
+        );
+        registerUrl(res.url);
+        results.push(res);
+      } catch (err: any) {
+        console.error('Export error on target', target, err);
+      }
+    }
+
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressPercent) progressPercent.textContent = '100%';
+    if (progressText) progressText.textContent = `Completed ${results.length} images!`;
+
+    exportedResults = results;
+    displayResults(results);
+
+    setTimeout(() => {
+      if (progressContainer) progressContainer.classList.add('hidden');
+      if (exportSelectedBtn) (exportSelectedBtn as HTMLButtonElement).disabled = false;
+      if (exportPreviewBtn) (exportPreviewBtn as HTMLButtonElement).disabled = false;
+      isExporting = false;
+    }, 600);
+  }
+
+  // Display Export Results
+  function displayResults(results: SocialJobResult[]): void {
+    if (!resultsGrid || !resultsSection) return;
+
+    resultsGrid.innerHTML = '';
+    resultsSection.classList.remove('hidden');
+
+    if (resultsCount) {
+      resultsCount.textContent = `${results.length} image${results.length === 1 ? '' : 's'} exported successfully`;
+    }
+
+    if (downloadZipBtn) {
+      if (results.length >= 2) {
+        downloadZipBtn.classList.remove('hidden');
+      } else {
+        downloadZipBtn.classList.add('hidden');
+      }
+    }
+
+    results.forEach((res) => {
+      const card = document.createElement('div');
+      card.className = 'p-3.5 rounded-2xl bg-surface-50 border border-surface-200 flex flex-col justify-between gap-3 shadow-2xs hover:border-brand-300 transition-all';
+      card.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-xl overflow-hidden bg-surface-200 border border-surface-300/80 flex-shrink-0 relative">
+            <img src="${res.url}" alt="${res.label}" class="w-full h-full object-cover" />
+          </div>
+          <div class="min-w-0">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-surface-500">${res.platform}</span>
+            <h4 class="text-xs font-bold text-surface-900 truncate">${res.label}</h4>
+            <p class="text-[11px] text-surface-500 mt-0.5">
+              ${res.width} × ${res.height} px • ${formatBytes(res.sizeBytes)}
+            </p>
+          </div>
+        </div>
+        <div class="pt-1">
+          <a
+            href="${res.url}"
+            download="${res.filename}"
+            class="w-full py-2 px-3 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Download</span>
+          </a>
+        </div>
+      `;
+      resultsGrid.appendChild(card);
+    });
+
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ZIP Download handler
+  downloadZipBtn?.addEventListener('click', async () => {
+    if (exportedResults.length === 0) return;
+    const btn = downloadZipBtn as HTMLButtonElement;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span>Creating ZIP...</span>`;
+
+    try {
+      const zipBlob = await createSocialZip(exportedResults);
+      const zipName = currentSource
+        ? `${currentSource.filename.replace(/\.[^.]+$/, '')}-social-pack.zip`
+        : 'social-images.zip';
+      downloadSocialBlob(zipBlob, zipName);
+    } catch (err: any) {
+      console.error('ZIP packaging failed', err);
+      alert('Could not generate ZIP archive: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  });
+
+  // Memory cleanup on page unload
+  window.addEventListener('beforeunload', () => {
+    cleanupUrls();
+    if (previewImageBitmap && 'close' in previewImageBitmap) {
+      (previewImageBitmap as ImageBitmap).close();
+    }
+  });
+</script>

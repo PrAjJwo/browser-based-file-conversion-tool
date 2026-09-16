@@ -379,6 +379,66 @@ export const TOOLS: Tool[] = [
     ],
   },
   {
+    slug: 'social-resizer',
+    category: 'image',
+    group: 'Resize & Compress',
+    title: 'Social Media Image Resizer',
+    metaTitle: 'Social Media Image Resizer — Resize for Instagram, X & LinkedIn',
+    metaDescription: 'Resize and crop images for Instagram, Facebook, X, LinkedIn, YouTube, Pinterest, and TikTok. 100% private in-browser resizing with zero server uploads.',
+    shortBlurb: 'Resize and crop images to fit Instagram, Facebook, X, LinkedIn, YouTube, TikTok, and Pinterest presets with focal control and zero server uploads.',
+    acceptedFiles: '.jpg, .jpeg, .png, .webp, image/jpeg, image/png, image/webp',
+    acceptedTypesLabel: 'JPG, PNG, or WebP images',
+    sizeWarningMB: 50,
+    sizeCeilingNote: 'High-resolution source photos process locally in browser memory. Sequential multi-export ensures smooth performance.',
+    status: 'active',
+    howItWorks: [
+      {
+        step: 1,
+        title: 'Upload your photo',
+        description: 'Select or drop a high-resolution JPG, PNG, or WebP photo to resize. It loads instantly in your browser.',
+      },
+      {
+        step: 2,
+        title: 'Select social presets & focal point',
+        description: 'Choose presets for Instagram, Facebook, X, LinkedIn, YouTube, Pinterest, TikTok, or custom dimensions. Adjust Crop or Fit mode and 3x3 focal alignment.',
+      },
+      {
+        step: 3,
+        title: 'Export and download',
+        description: 'Review the live aspect ratio preview, generate your social images locally, and download single files or package all selected presets into a ZIP.',
+      },
+    ],
+    limitations: [
+      'Client-side canvas rendering decodes full source image bitmaps into device RAM; large source images (such as 48 MP photos) consume temporary browser memory.',
+      'Crop to Fill mode discards pixels outside the target aspect ratio; use the 3x3 focal position grid to anchor critical subjects.',
+      'Fit Entire Image mode letterboxes or pillarboxes images onto a solid white background (or transparent canvas for PNG and WebP) to prevent stretching.',
+      'When exporting to JPG, transparent source pixels are automatically flattened onto solid white because the JPEG specification does not support an alpha channel.',
+      'Social media platforms periodically adjust recommended aspect ratios and upload compression algorithms; all presets are verified against current 2026 platform documentation.',
+    ],
+    faqs: [
+      {
+        question: 'What social media platforms and presets are supported?',
+        answer: 'Our tool supports verified 2026 specifications for Instagram (Square 1:1, Portrait 4:5, Landscape 1.91:1, Story/Reels 9:16, Profile), Facebook (Feed 1200x630, Square, Cover 820x312, Story), X/Twitter (Post 16:9, Header 3:1, Profile), LinkedIn (Post 1200x627, Square, Personal & Company Cover, Profile), YouTube (Thumbnail 16:9, Banner, Profile), Pinterest (Standard Pin 2:3, Square, Story), TikTok (Story/Cover 9:16, Profile), plus custom pixel dimensions.',
+      },
+      {
+        question: 'What is the difference between Crop to Fill and Fit Entire Image?',
+        answer: 'Crop to Fill scales your photo to cover the entire preset area without distortion and trims excess borders according to your chosen 3x3 focal alignment point (Center, Top, Bottom, Left, Right, or corners). Fit Entire Image scales your full photo to fit completely inside the dimensions without cropping, padding extra space with solid white (or transparent background for PNG/WebP).',
+      },
+      {
+        question: 'How does the 3x3 focal alignment grid work?',
+        answer: 'When your source photo does not match the target aspect ratio, cropping is required. The 3x3 focal grid lets you decide which part of the photo stays visible—for example, selecting Top-Center preserves faces in vertical portraits, while selecting Left or Right preserves off-center subjects.',
+      },
+      {
+        question: 'Can I export multiple social sizes at once?',
+        answer: 'Yes. You can select multiple platform presets (or all presets for a platform) simultaneously. The tool generates all selected variants locally and lets you download them individually or package them into a single convenient ZIP archive.',
+      },
+      {
+        question: 'Are my images uploaded to any remote server?',
+        answer: 'No. All image loading, canvas drawing, focal cropping, and file compression occur 100% locally inside your web browser using HTML5 Canvas APIs. Zero image data or metadata is ever transmitted over the network.',
+      },
+    ],
+  },
+  {
     slug: 'video-compressor',
     category: 'video',
     title: 'Video Compressor',
