@@ -1,20 +1,20 @@
-# Browser File Tools — Project Walkthrough
+# PureFile — Project Walkthrough
 
 ## Current Project Status
 
-- **Current Phase**: Homepage Redesign — Complete
+- **Current Phase**: Brand Identity + Design System — Complete
 - **Status Summary**:
-  - Converter expansion remains frozen as requested. No new converters added.
-  - Successfully redesigned the homepage (`src/pages/index.astro`) around the real working product.
-  - Replaced oversized generic hero with a tight, high-density hero featuring a compact trust badge, single concise H1, one supporting sentence, and an instant quick-launcher search bar.
-  - Added live client-side search filtering (`#tool-search-input`) with keyboard shortcut (`/`) and popular tool pills.
-  - Transformed plain category buttons into meaningful category cards with dynamic active tool counts derived from `tools.ts` (`Image Tools: 6`, `Video Tools: 1`, `PDF & Documents: 2`, `Audio Tools: In Development`).
-  - Unified active tool directory into a clean responsive 3-column grid with category filter tabs and distinct custom icons per tool.
-  - Replaced 20+ repetitive privacy callouts with ONE authoritative visual 3-step privacy flow (1. Local Memory Read $\rightarrow$ 2. Client CPU/Wasm Execution $\rightarrow$ 3. Direct Blob Export) plus a real-time DevTools (F12) verification callout.
-  - Replaced exaggerated marketing fluff ("say goodbye to sketchy upload websites", "position in queue #42", "WebAssembly Power") with 4 mature, technical value propositions.
-  - Verified performance: 0 heavy converter libraries (WASM, FFmpeg, heic2any, jsPDF) loaded on homepage.
-  - Passed responsive QA with 0 horizontal overflow across 5 viewports (375px, 390px, 768px, 1024px, 1440px).
-  - Passed full lightweight regression and verified all 14 site routes return status 200.
+  - Final brand selected: **PureFile** (*"Clean, private file conversions. Zero uploads. Zero tracking."*).
+  - Selected visual direction: **Direction A: Clean Professional Utility** (Linear / Raycast inspired; precision Zinc neutrals, Electric Cobalt accent, restrained radii, high-density layout).
+  - Replaced temporary "Browser File Tools" branding across layout, header, footer, homepage, and metadata.
+  - Built custom **PureFile Logo System** (`src/components/BrandLogo.astro` and `public/favicon.svg`) with carbon monogram and conversion vector.
+  - Implemented comprehensive design token system in `tailwind.config.mjs` and `src/styles/global.css` with CSS variables, safelisted component utilities, and restrained typography.
+  - Created standardized **Button System** (`.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-icon`, `.btn-sm/md/lg`).
+  - Created standardized **Form System** (`.input-base`, `.select-base`, `.slider-base`, `.checkbox-base`, `.dropzone-base`).
+  - Created standardized **Card System** (`.card-base`, `.card-interactive`, `.card-elevated`, `.card-inset`).
+  - Redesigned **Privacy & Trust System** (`src/components/PrivacyBadge.astro`) featuring a quiet, confident header status indicator (`● Local Sandbox • 0 Bytes Uploaded`).
+  - Verified via headless Chrome CDP: brand replacement, logo rendering, token evaluation, component styles, and 0 horizontal overflow across 5 responsive viewports.
+  - Verified lightweight regression: HEIC conversion and all 14 site routes return 200 OK.
 - **Completed Active Converters (9 Total — Frozen & Stable)**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Verified
@@ -30,13 +30,51 @@
   - Category routes: `/image`, `/video`, `/pdf`, `/audio`
   - Active tool routes: `/image/heic-to-jpg`, `/video/video-compressor`, `/image/jpg-to-heic`, `/image/image-resizer`, `/image/image-compressor`, `/image/image-converter`, `/image/social-resizer`, `/pdf/image-to-pdf`, `/pdf/subtitle-converter`
 - **Build & Static Analysis Status**:
-  - `npm.cmd run build`: **0 errors**, 14 static pages generated in 5.78s
-  - Homepage JS bundle: **3.11 kB** (zero WASM / zero FFmpeg / zero jsPDF)
-- **Exact Next Action**: Category & Tool Page Consistency Overhaul (Align category pages `/image`, `/video`, `/pdf`, `/audio` and individual tool pages with the upgraded design system and privacy tone).
+  - `npm.cmd run build`: **0 errors**, 14 static pages generated in 5.77s
+- **Exact Next Action**: Category & Tool Page Consistency Overhaul (Align individual tool workspaces and category hubs with the PureFile design system tokens, button classes, and form styles).
 
 ---
 
-## Current Phase: Homepage Redesign
+## Current Phase: Brand Identity & Design System
+
+### Milestone 1: Brand Replacement
+- Replaced visible brand strings from "Browser File Tools" to **PureFile** in `BaseLayout.astro`, `Header.astro`, `Footer.astro`, `index.astro`, and metadata schemas.
+- Set canonical base domain to `https://purefile.tools`.
+- Verified title pattern: `${title} | PureFile`.
+
+### Milestone 2: Logo System & Favicon
+- Created `src/components/BrandLogo.astro` with an original geometric monogram: a carbon slate base (`#09090B`) with an Electric Cobalt (`#2563EB`) folding "P" facet and an Electric Sky (`#38BDF8`) conversion vector.
+- Created `public/favicon.svg` matching the brand mark, verified at 16x16 and 32x32 px with 0 fuzzy artifacts.
+
+### Milestone 3: Design Tokens (Direction A)
+- Updated `tailwind.config.mjs` and `src/styles/global.css`:
+  - **Brand**: Electric Cobalt (`brand-600: #2563eb`, `brand-700: #1d4ed8`, `brand-50: #eff6ff`).
+  - **Surfaces**: Zinc neutrals (`surface-950: #09090b`, `surface-900: #18181b`, `surface-200: #e4e4e7`, `surface-50: #fafafa`).
+  - **Status**: Emerald success (`#10b981`), Amber warning (`#f59e0b`), Rose danger (`#f43f5e`).
+  - **Radii**: Restrained 6px (`rounded-md`), 8px (`rounded-lg`), 12px (`rounded-xl`).
+  - **Shadows**: Crisp 1px borders paired with subtle, tight shadows (`shadow-2xs`, `shadow-xs`, `shadow-focus`).
+
+### Milestone 4: Reusable Component Systems
+- **Button System**: Built `.btn-base`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-icon` across sizes `.btn-sm`, `.btn-md` (38px), `.btn-lg`.
+- **Form System**: Standardized `.input-base` (40px, zinc border, cobalt focus ring), `.select-base`, `.slider-base`, `.checkbox-base`, and `.dropzone-base`.
+- **Card System**: Standardized `.card-base`, `.card-interactive`, `.card-elevated`, and `.card-inset`.
+- Safelisted all design system utility classes in `tailwind.config.mjs` to ensure zero purging.
+
+### Milestone 5: Privacy Messaging Refinement
+- Redesigned `src/components/PrivacyBadge.astro`:
+  - `variant="header"`: Quiet, confident status pill (`● Local Sandbox • 0 Bytes Uploaded`).
+  - `variant="tool-proof"`: Single-line trust confirmation for tool dropzones.
+  - `variant="architecture"`: Footer technical block explaining browser RAM isolation.
+
+### Milestone 6: Automated Verification & Regression
+- Executed `test-fixtures/verify-brand-identity.cjs` via Chrome DevTools Protocol:
+  - Brand name replacement: **Passed**
+  - Logo SVG & Favicon HTTP status 200: **Passed**
+  - CSS variables evaluation (`--color-brand: #2563eb`): **Passed**
+  - Component system computed styles: **Passed**
+  - Responsive viewports (375, 390, 768, 1024, 1440): **Passed (0 overflow)**
+- Executed `test-fixtures/lightweight-regression.cjs`: HEIC conversion + 7 route checks **Passed**.
+
 
 ### Milestone 1: Hero & Quick Tool Finder
 - Replaced the 120px+ generic hero with a compact container (`py-10 sm:py-14`) featuring:

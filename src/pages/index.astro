@@ -17,8 +17,8 @@ const schema = [
   {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Browser File Tools',
-    url: 'https://browserfiletools.com',
+    name: 'PureFile',
+    url: 'https://purefile.tools',
     description: 'Fast, private client-side file conversion utilities running entirely in your browser with zero server uploads.',
   },
   {
@@ -30,14 +30,14 @@ const schema = [
       position: idx + 1,
       name: t.title,
       description: t.shortBlurb,
-      url: `https://browserfiletools.com/${t.category}/${t.slug}`,
+      url: `https://purefile.tools/${t.category}/${t.slug}`,
     })),
   },
 ];
 ---
 
 <BaseLayout
-  title="Browser File Tools — Fast, Private On-Device File Utilities"
+  title="PureFile — Fast, Private On-Device File Utilities"
   metaDescription="Convert, compress, and edit images, videos, and PDFs locally in your browser. 100% private client-side utilities with zero file uploads or cloud queues."
   schemaJson={schema}
 >

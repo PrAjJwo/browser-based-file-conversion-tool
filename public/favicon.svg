@@ -1,5 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#4F46E5"/>
-  <path d="M22 18v-3a4 4 0 00-4-4h-2a1.5 1.5 0 01-1.5-1.5V8a4 4 0 00-4-4H9a2 2 0 00-2 2v20a2 2 0 002 2h14a2 2 0 002-2V18z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M12 18l3 3 5-5" stroke="#34D399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- PureFile Mark: Precision Geometric Conversion Prism -->
+  <rect width="32" height="32" rx="7" fill="#09090B"/>
+  
+  <!-- Left/Top Facet (Stem & Top Fold) -->
+  <path d="M7 8C7 7.44772 7.44772 7 8 7H17.5C20.5376 7 23 9.46243 23 12.5C23 15.5376 20.5376 18 17.5 18H12V24C12 24.5523 11.5523 25 11 25H8C7.44772 25 7 24.5523 7 24V8Z" fill="#2563EB"/>
+  
+  <!-- Pure Center Negative Space & Transformation Prism -->
+  <rect x="12" y="11" width="5.5" height="3.5" rx="1" fill="#09090B"/>
+  
+  <!-- Right Forward Vector / Output Node -->
+  <path d="M19 19.5L25 19.5M25 19.5L22 16.5M25 19.5L22 22.5" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -1,0 +1,84 @@
+---
+interface Props {
+  size?: 'sm' | 'md' | 'lg';
+  showWordmark?: boolean;
+  showTagline?: boolean;
+  class?: string;
+  isDark?: boolean;
+}
+
+const {
+  size = 'md',
+  showWordmark = true,
+  showTagline = false,
+  class: className = '',
+  isDark = false,
+} = Astro.props;
+
+// Dimension mapping
+const sizeClasses = {
+  sm: {
+    mark: 'w-6 h-6',
+    wordmark: 'text-sm',
+    tagline: 'text-[9px]',
+  },
+  md: {
+    mark: 'w-8 h-8',
+    wordmark: 'text-base',
+    tagline: 'text-[10px]',
+  },
+  lg: {
+    mark: 'w-10 h-10',
+    wordmark: 'text-lg',
+    tagline: 'text-xs',
+  },
+}[size];
+---
+
+<div class={`inline-flex items-center gap-2.5 select-none ${className}`}>
+  <!-- Precision Vector Mark -->
+  <div class={`relative flex-shrink-0 flex items-center justify-center rounded-lg shadow-2xs overflow-hidden ${sizeClasses.mark}`}>
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-full h-full"
+      aria-hidden="true"
+    >
+      <!-- Base Carbon Slate Square -->
+      <rect width="32" height="32" rx="7" fill="#09090B" />
+      
+      <!-- Left Stem & Top Loop of Monogram P -->
+      <path
+        d="M7 8C7 7.44772 7.44772 7 8 7H17.5C20.5376 7 23 9.46243 23 12.5C23 15.5376 20.5376 18 17.5 18H12V24C12 24.5523 11.5523 25 11 25H8C7.44772 25 7 24.5523 7 24V8Z"
+        fill="#2563EB"
+      />
+      
+      <!-- Negative Space Aperture -->
+      <rect x="12" y="11" width="5.5" height="3.5" rx="1" fill="#09090B" />
+      
+      <!-- Output / Conversion Vector -->
+      <path
+        d="M19 19.5L25 19.5M25 19.5L22 16.5M25 19.5L22 22.5"
+        stroke="#38BDF8"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </div>
+
+  <!-- Typographic Wordmark -->
+  {showWordmark && (
+    <div class="flex flex-col">
+      <span class={`font-extrabold tracking-tight leading-none ${sizeClasses.wordmark} ${isDark ? 'text-white' : 'text-surface-950'}`}>
+        Pure<span class="text-brand-600">File</span>
+      </span>
+      {showTagline && (
+        <span class={`font-mono text-surface-500 uppercase tracking-widest mt-0.5 leading-none ${sizeClasses.tagline}`}>
+          Local Engine
+        </span>
+      )}
+    </div>
+  )}
+</div>

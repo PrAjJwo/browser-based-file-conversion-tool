@@ -19,11 +19,11 @@ const {
   schemaJson,
 } = Astro.props;
 
-const siteName = 'Browser File Tools';
+const siteName = 'PureFile';
 const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
 // Always resolve canonical URL to production domain
-const siteOrigin = Astro.site ? Astro.site.origin : (process.env.SITE_URL || 'https://browserfiletools.com');
+const siteOrigin = Astro.site ? Astro.site.origin : (process.env.SITE_URL || 'https://purefile.tools');
 const canonicalUrl = customCanonical || new URL(Astro.url.pathname, siteOrigin).href;
 const schemas = schemaJson ? (Array.isArray(schemaJson) ? schemaJson : [schemaJson]) : [];
 ---
