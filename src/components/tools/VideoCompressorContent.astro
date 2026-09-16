@@ -1,0 +1,116 @@
+---
+/**
+ * Supporting Editorial Content for Video Compressor
+ *
+ * Provides educational context on video compression principles, bitrate budgets,
+ * real-world sharing limits, and verified client-side WebAssembly privacy assurances.
+ */
+---
+
+<div class="space-y-14 mb-14">
+  <!-- 1. What is Video Compression? -->
+  <section aria-labelledby="what-is-video-compression-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          i
+        </div>
+        <h2 id="what-is-video-compression-heading" class="text-xl font-bold text-surface-900">
+          What is video compression?
+        </h2>
+      </div>
+
+      <div class="space-y-3.5 text-xs sm:text-sm text-surface-600 leading-relaxed max-w-none">
+        <p>
+          Video compression is the process of reducing the digital storage footprint of a video file by removing redundant data and re-encoding visual frames and audio channels into an efficient container format. Raw, uncompressed video recorded by smartphone cameras or screen capture tools can consume hundreds of megabytes per minute. Through modern codecs such as H.264 (AVC) and AAC, video compression allows rich multimedia to be stored and shared with minimal visible loss in quality.
+        </p>
+        <p>
+          Compressing a video involves recalculating its <strong>bitrate</strong>—the amount of data processed per second of playback. By adjusting the bitrate to match a specific target size over the video's total duration, our engine precisely shrinks files to fit under messaging caps. If desired, resolution scaling (such as downscaling 4K or 1080p footage to 720p) can further preserve per-pixel sharpness when working with very small file budgets.
+        </p>
+        <p>
+          Because video compression is inherently lossy, selecting an appropriate target size is important. Moderate compression levels (such as 50% to 70% of original size) preserve crisp detail and vibrant color, while extremely aggressive targets force the encoder to prioritize file size over fine fidelity. Explore our full catalog of <a href="/video" class="text-brand-600 font-medium underline decoration-brand-300 underline-offset-2 hover:text-brand-700 transition-colors">browser-based video tools</a> for related media utilities.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Why compress a video? -->
+  <section aria-labelledby="why-compress-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          ⇄
+        </div>
+        <div>
+          <h2 id="why-compress-heading" class="text-xl font-bold text-surface-900">
+            Why compress a video?
+          </h2>
+          <p class="text-xs text-surface-500 mt-0.5">Everyday scenarios where smaller video files are essential</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/70">
+          <h3 class="text-xs sm:text-sm font-semibold text-surface-900 mb-1.5 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+            Chat & Messaging Attachment Limits
+          </h3>
+          <p class="text-xs text-surface-600 leading-relaxed">
+            Popular messaging apps impose strict file ceilings: Discord free tier limits uploads to 25 MB (formerly 8 MB), WhatsApp caps documents at 16 MB–100 MB, and Slack free accounts limit uploads. Compressing to a target ensures your clip sends instantly.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/70">
+          <h3 class="text-xs sm:text-sm font-semibold text-surface-900 mb-1.5 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+            Email File Size Boundaries
+          </h3>
+          <p class="text-xs text-surface-600 leading-relaxed">
+            Major email providers including Gmail, Outlook, and Apple Mail reject message attachments larger than 20 MB to 25 MB. Shrinking your video allows seamless inline attachment without relying on expiring third-party download links.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/70">
+          <h3 class="text-xs sm:text-sm font-semibold text-surface-900 mb-1.5 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Storage & Bandwidth Conservation
+          </h3>
+          <p class="text-xs text-surface-600 leading-relaxed">
+            Uncompressed video libraries quickly consume phone storage and laptop hard drives. Compressing archives and screen recordings saves gigabytes of local and cloud backup space while speeding up future uploads and downloads.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/70">
+          <h3 class="text-xs sm:text-sm font-semibold text-surface-900 mb-1.5 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            Faster Web & Portal Submissions
+          </h3>
+          <p class="text-xs text-surface-600 leading-relaxed">
+            School portals, job application video introductions, and customer support ticket systems frequently mandate small video uploads. A compact MP4 uploads in seconds even over mobile or metered internet connections.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. In-Browser Privacy Guarantee -->
+  <section aria-labelledby="privacy-guarantee-heading">
+    <div class="p-5 sm:p-6 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-emerald-950 shadow-xs">
+      <div class="flex items-start gap-3.5">
+        <div class="p-2 rounded-xl bg-emerald-100 text-emerald-700 flex-shrink-0 mt-0.5">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+        </div>
+        <div>
+          <h3 id="privacy-guarantee-heading" class="text-sm sm:text-base font-bold text-emerald-950">
+            100% Client-Side Privacy Guarantee
+          </h3>
+          <p class="text-xs sm:text-sm text-emerald-800/90 mt-1 leading-relaxed">
+            Unlike cloud-based conversion platforms that upload your personal screen recordings and camera footage to remote server farms, Browser File Tools executes the FFmpeg encoding engine directly inside your browser using WebAssembly. Your video data is processed locally in memory on your CPU and is never stored, logged, or transmitted across the network.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

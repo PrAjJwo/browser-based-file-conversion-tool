@@ -1,0 +1,136 @@
+{
+  "multiTargetAccuracy": [
+    {
+      "format": "MP4",
+      "requestedTargetMB": 0.3,
+      "requestedBytes": 314573,
+      "outputBytes": 271029,
+      "actualSizeText": "264.7 KB",
+      "diffPct": "-13.8%",
+      "reduction": "29% smaller",
+      "passes": "1 pass",
+      "validMp4": true,
+      "duration": 5.568,
+      "resolution": "560x320"
+    },
+    {
+      "format": "MP4",
+      "requestedTargetMB": 0.2,
+      "requestedBytes": 209715,
+      "outputBytes": 196367,
+      "actualSizeText": "191.8 KB",
+      "diffPct": "-6.4%",
+      "reduction": "49% smaller",
+      "passes": "1 pass",
+      "validMp4": true,
+      "duration": 5.568,
+      "resolution": "560x320"
+    },
+    {
+      "format": "MP4",
+      "requestedTargetMB": 0.12,
+      "requestedBytes": 125829,
+      "outputBytes": 196367,
+      "actualSizeText": "191.8 KB",
+      "diffPct": "+56.1%",
+      "reduction": "49% smaller",
+      "passes": "1 pass",
+      "validMp4": true,
+      "duration": 5.568,
+      "resolution": "560x320"
+    }
+  ],
+  "testA_MP4": {
+    "format": "MP4",
+    "requestedTargetMB": 0.2,
+    "requestedBytes": 209715,
+    "outputBytes": 196367,
+    "actualSizeText": "191.8 KB",
+    "diffPct": "-6.4%",
+    "reduction": "49% smaller",
+    "passes": "1 pass",
+    "validMp4": true,
+    "duration": 5.568,
+    "resolution": "560x320"
+  },
+  "testB_MOV": {
+    "byteLength": 253646,
+    "hasFtyp": true,
+    "duration": 5.570998,
+    "videoWidth": 1280,
+    "videoHeight": 731,
+    "downloadFilename": "sample-compressed.mp4",
+    "actualSizeText": "247.7 KB",
+    "targetSizeText": "0.3 MB",
+    "reductionText": "46% smaller",
+    "passesText": "1 pass"
+  },
+  "testC_AggressiveTarget": {
+    "inputValue": "0.05",
+    "warningVisible": true,
+    "warningText": "Target size is very small for this video duration. Visual quality will be significantly reduced.",
+    "bitrateDisplay": "~45 kbps video (64 kbps audio)"
+  },
+  "testD_TargetLarger": {
+    "inputValue": "10",
+    "warningVisible": true,
+    "warningText": "Target size is larger than the original video. Compression may not reduce file size.",
+    "bitrateDisplay": "~14,335 kbps video (128 kbps audio)"
+  },
+  "testE_ResetAndReuse": {
+    "byteLength": 196367,
+    "hasFtyp": true,
+    "duration": 5.568,
+    "videoWidth": 560,
+    "videoHeight": 320,
+    "downloadFilename": "sample-compressed.mp4",
+    "actualSizeText": "191.8 KB",
+    "targetSizeText": "0.2 MB",
+    "reductionText": "49% smaller",
+    "passesText": "1 pass"
+  },
+  "responsive": {
+    "375": {
+      "innerWidth": 375,
+      "scrollWidth": 375,
+      "hasOverflow": false,
+      "isRootVisible": true
+    },
+    "390": {
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "hasOverflow": false,
+      "isRootVisible": true
+    },
+    "768": {
+      "innerWidth": 768,
+      "scrollWidth": 753,
+      "hasOverflow": false,
+      "isRootVisible": true
+    },
+    "1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1009,
+      "hasOverflow": false,
+      "isRootVisible": true
+    },
+    "1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1425,
+      "hasOverflow": false,
+      "isRootVisible": true
+    }
+  },
+  "accessibility": {
+    "targetInputAriaLabel": "Target file size in megabytes",
+    "resSelectAriaLabel": "Video Resolution Scaling",
+    "progressRole": "status",
+    "progressAriaLive": "polite",
+    "hasSkipLink": true
+  },
+  "networkPrivacy": {
+    "postRequestCount": 0,
+    "postRequests": [],
+    "totalBytesUploaded": 0
+  }
+}

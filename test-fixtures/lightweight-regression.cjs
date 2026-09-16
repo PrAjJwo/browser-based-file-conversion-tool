@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const DEV_URL = 'http://127.0.0.1:4321/image/heic-to-jpg';
+const DEV_URL = 'http://localhost:4321/image/heic-to-jpg';
 const TEMP_USER_DATA = path.join(process.env.TEMP, 'chrome_reg_test_' + Date.now());
 
 class CDPClient {
@@ -182,22 +182,36 @@ async function sleep(ms) {
   cdp.close();
   chrome.kill();
 
-  // 5. Coming soon routes check
-  console.log('\n5. Checking Coming Soon routes...');
+  // 5. Route status check
+  console.log('\n5. Checking Route Statuses...');
+  // Video Compressor should now be ACTIVE
+  await new Promise((resolve, reject) => {
+    http.get('http://localhost:4321/video/video-compressor', (res) => {
+      let body = '';
+      res.on('data', (c) => (body += c));
+      res.on('end', () => {
+        const isActive = body.includes('video-compressor-root');
+        console.log(`Route /video/video-compressor: Status ${res.statusCode}, Active: ${isActive}`);
+        if (!isActive) reject(new Error('Expected /video/video-compressor to be ACTIVE'));
+        resolve();
+      });
+    }).on('error', reject);
+  });
+
   const comingSoonRoutes = [
-    '/video/video-compressor',
     '/pdf/image-to-pdf',
     '/pdf/subtitle-converter',
   ];
 
   for (const r of comingSoonRoutes) {
     await new Promise((resolve, reject) => {
-      http.get('http://127.0.0.1:4321' + r, (res) => {
+      http.get('http://localhost:4321' + r, (res) => {
         let body = '';
         res.on('data', (c) => (body += c));
         res.on('end', () => {
           const isComingSoon = body.includes('Foundation Stage: Coming Soon') || body.includes('Coming Soon');
           console.log(`Route ${r}: Status ${res.statusCode}, Coming Soon: ${isComingSoon}`);
+          if (!isComingSoon) reject(new Error(`Expected ${r} to be Coming Soon`));
           resolve();
         });
       }).on('error', reject);

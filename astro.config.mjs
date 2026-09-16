@@ -11,4 +11,12 @@ export default defineConfig({
     }),
     sitemap(),
   ],
+  vite: {
+    optimizeDeps: {
+      exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+    },
+    worker: {
+      format: 'es',
+    },
+  },
 });

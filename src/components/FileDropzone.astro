@@ -265,6 +265,7 @@ const fileInputId = `file-input-${uniqueId}`;
 
     function handleFiles(files: FileList | File[]) {
       const fileArray = Array.from(files);
+      console.log('[FileDropzone] handleFiles called with', fileArray.length, 'files:', fileArray.map(f => f.name));
       if (fileArray.length === 0) return;
 
       validationError?.classList.add('hidden');
@@ -280,6 +281,7 @@ const fileInputId = `file-input-${uniqueId}`;
           invalidFiles.push(file);
         }
       }
+      console.log('[FileDropzone] validFiles:', validFiles.length, 'isManagedExternally:', isManagedExternally);
 
       // Notify about invalid files without blocking valid files
       if (invalidFiles.length > 0 && errorMessage && validationError) {
@@ -383,6 +385,9 @@ const fileInputId = `file-input-${uniqueId}`;
     }) as EventListener);
 
     container.addEventListener('file-dropzone:reset', () => {
+      resetDropzone();
+    });
+    document.addEventListener('file-dropzone:reset', () => {
       resetDropzone();
     });
 

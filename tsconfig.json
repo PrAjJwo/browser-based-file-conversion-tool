@@ -7,5 +7,5 @@
       "@/*": ["src/*"]
     }
   },
-  "exclude": ["dist", "test-fixtures"]
+  "exclude": ["dist", "test-fixtures", "public"]
 }
