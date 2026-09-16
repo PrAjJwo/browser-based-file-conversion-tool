@@ -259,6 +259,66 @@ export const TOOLS: Tool[] = [
     ],
   },
   {
+    slug: 'image-compressor',
+    category: 'image',
+    group: 'Resize & Compress',
+    title: 'Image Compressor',
+    metaTitle: 'Image Compressor — Compress JPG, PNG & WebP Images',
+    metaDescription: 'Compress JPG, PNG, and WebP images directly in your browser. Reduce file sizes with customizable quality settings, batch processing, and zero server uploads.',
+    shortBlurb: 'Compress JPG, PNG, and WebP images directly in your browser with customizable quality settings, batch processing, and 100% private local processing.',
+    acceptedFiles: '.jpg, .jpeg, .png, .webp, image/jpeg, image/png, image/webp',
+    acceptedTypesLabel: 'JPG, PNG, or WebP images',
+    sizeWarningMB: 50,
+    sizeCeilingNote: 'Batch processing large photos may consume significant browser memory on mobile devices.',
+    status: 'active',
+    howItWorks: [
+      {
+        step: 1,
+        title: 'Choose or drop images',
+        description: 'Select one or more JPG, PNG, or WebP images from your device, or drag and drop them into the compressor.',
+      },
+      {
+        step: 2,
+        title: 'Choose quality or format',
+        description: 'Set your preferred compression quality (10% to 100%) or select an output format such as WebP for optimal size reduction.',
+      },
+      {
+        step: 3,
+        title: 'Compress and download',
+        description: 'Process single photos or full batches locally in memory, then download individually or package into a ZIP archive.',
+      },
+    ],
+    limitations: [
+      'In-browser compression decodes source images into device RAM; large batches of 48 MP+ camera images may cause memory pressure on mobile devices.',
+      'PNG compression uses lossless encoding; converting photographic PNGs to WebP or JPG offers dramatically greater file size savings.',
+      'When converting transparent PNG or WebP images to JPG, transparent areas are composited onto a solid white background because JPEG does not support transparency.',
+      'Lower compression quality settings reduce file size significantly but may introduce visual artifacts or softness.',
+      'Damaged or corrupted image files are isolated and flagged without stopping valid files in the batch.',
+    ],
+    faqs: [
+      {
+        question: 'How much can I compress an image?',
+        answer: 'Compression savings depend on source format and visual content. For standard JPGs and WebP images, quality settings between 60% and 80% typically reduce file size by 40% to 80% with minimal visual degradation. Converting high-resolution PNG photos to modern WebP often achieves 70% to 90% size reductions.',
+      },
+      {
+        question: 'Does image compression reduce quality?',
+        answer: 'JPEG and WebP use lossy compression algorithms that discard subtle high-frequency color variations that the human eye rarely perceives. At the default 80% balanced setting, images look virtually identical to the original while occupying significantly less storage.',
+      },
+      {
+        question: 'Can I compress PNG and WebP files?',
+        answer: 'Yes. The compressor fully supports PNG and WebP files. WebP images can be compressed lossily using the quality slider. For PNG files, browser canvas re-encoding is lossless; converting PNG images to WebP or JPG provides maximum file size reduction while preserving transparency or compositing cleanly onto white.',
+      },
+      {
+        question: 'Can I compress multiple images at once?',
+        answer: 'Yes. You can select multiple images simultaneously. The compressor processes items sequentially in device memory to prevent browser crashes, and provides a "Download All as ZIP" option when two or more images are completed.',
+      },
+      {
+        question: 'Are my images uploaded anywhere?',
+        answer: 'No. All image loading, canvas drawing, and compression happen entirely on your computer or phone using HTML5 Canvas APIs. Zero image bytes, filenames, or metadata are ever transmitted over the network.',
+      },
+    ],
+  },
+  {
     slug: 'video-compressor',
     category: 'video',
     title: 'Video Compressor',

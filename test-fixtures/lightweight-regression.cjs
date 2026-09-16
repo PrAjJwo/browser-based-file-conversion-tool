@@ -219,6 +219,7 @@ async function sleep(ms) {
     { path: '/pdf/image-to-pdf', rootId: 'image-to-pdf-root' },
     { path: '/pdf/subtitle-converter', rootId: 'subtitle-converter-root' },
     { path: '/image/image-resizer', rootId: 'image-resizer-root' },
+    { path: '/image/image-compressor', rootId: 'image-compressor-root' },
   ];
 
   for (const r of activeRoutes) {

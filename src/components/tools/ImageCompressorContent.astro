@@ -1,0 +1,119 @@
+---
+---
+
+<div class="space-y-12 text-surface-700 leading-relaxed text-sm sm:text-base">
+  <!-- Section 1 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      How does image compression work?
+    </h2>
+    <p>
+      Digital images captured by smartphone cameras, DSLRs, or graphic software store millions of individual color coordinates. Uncompressed, a typical 12-megapixel photo contains roughly 36 megabytes of raw RGB data. Image compression dramatically shrinks that footprint by analyzing spatial patterns and eliminating visual redundancies while preserving the original pixel dimensions.
+    </p>
+    <p>
+      Compression algorithms fall into two broad categories: <strong>lossless</strong> and <strong>lossy</strong>. Lossless compression (such as standard PNG) acts like a ZIP file for pixels, reorganizing data without altering color values. Lossy compression (such as JPEG and WebP) uses mathematical transforms like the Discrete Cosine Transform (DCT) to discard subtle color variations and high-frequency noise that the human eye cannot perceive under normal viewing conditions.
+    </p>
+  </section>
+
+  <!-- Section 2 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      JPG, PNG and WebP compression
+    </h2>
+    <p>
+      Different file formats respond to compression in distinct ways:
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <h3 class="font-bold text-surface-900 text-sm flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          JPG / JPEG
+        </h3>
+        <p class="text-xs text-surface-600 leading-relaxed">
+          The global standard for digital photography. Uses lossy DCT compression. Lowering the quality slider directly decreases file size. Does not support transparency.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <h3 class="font-bold text-surface-900 text-sm flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          WebP
+        </h3>
+        <p class="text-xs text-surface-600 leading-relaxed">
+          Google’s modern web image format. Delivers 25% to 35% smaller file sizes than comparable JPEGs at identical perceived visual quality, while maintaining full alpha channel transparency.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <h3 class="font-bold text-surface-900 text-sm flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          PNG
+        </h3>
+        <p class="text-xs text-surface-600 leading-relaxed">
+          Lossless format designed for graphics, screenshots, and icons with crisp edges and alpha transparency. Re-encoding PNGs losslessly yields modest savings; converting PNG photos to WebP yields massive savings.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      Quality versus file size
+    </h2>
+    <p>
+      Choosing a compression setting is always a trade-off between byte size and visual fidelity. Here is how different quality tiers behave:
+    </p>
+    <ul class="list-disc pl-5 space-y-2 text-xs sm:text-sm text-surface-600">
+      <li>
+        <strong>High Quality (90%–95%):</strong> Preserves microscopic texture and smooth gradients. Minimal compression artifacts, producing file sizes roughly 20% to 40% smaller than camera originals.
+      </li>
+      <li>
+        <strong>Balanced Quality (75%–85% — Recommended):</strong> The ideal sweet spot for web publishing, email attachments, and messaging apps. Cuts file size by 50% to 75% with zero perceptible quality loss on standard screens.
+      </li>
+      <li>
+        <strong>Low File Size (40%–60%):</strong> Extreme size reduction (75% to 90% smaller). Best suited for thumbnails, quick previews, or strict forum upload limits where small file size is paramount.
+      </li>
+    </ul>
+  </section>
+
+  <!-- Section 4 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      Compression boundaries and device memory
+    </h2>
+    <p>
+      Because all compression executes strictly on your device using client-side HTML5 Canvas and browser image codecs:
+    </p>
+    <ul class="list-disc pl-5 space-y-2 text-xs sm:text-sm text-surface-600">
+      <li>
+        <strong>Device Memory:</strong> Ultra-high-resolution images (such as 48 MP RAW exports) decompress into large memory buffers. We process batches sequentially to prevent mobile browser memory warnings.
+      </li>
+      <li>
+        <strong>Lossless PNG Behavior:</strong> Browser Canvas export does not apply lossy compression to PNG. If you have a photographic PNG, selecting <em>WebP</em> or <em>JPG</em> output will yield substantial size reductions.
+      </li>
+      <li>
+        <strong>Transparency Handling:</strong> When converting transparent PNG or WebP images to JPG, transparent areas are cleanly composited over white rather than leaving unexpected black borders.
+      </li>
+      <li>
+        <strong>Already Compressed Images:</strong> Compressing an image that has already been heavily compressed may yield minimal further savings and can degrade image clarity.
+      </li>
+    </ul>
+  </section>
+
+  <!-- Cross-link Box -->
+  <section class="p-5 rounded-2xl bg-brand-50/60 border border-brand-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div class="space-y-1">
+      <h3 class="font-bold text-brand-950 text-sm sm:text-base">Need to change pixel dimensions too?</h3>
+      <p class="text-xs sm:text-sm text-brand-800">
+        Use our companion Image Resizer tool to scale width and height with aspect-ratio locking.
+      </p>
+    </div>
+    <a
+      href="/image/image-resizer"
+      class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold whitespace-nowrap transition-colors shadow-xs"
+    >
+      Open Image Resizer
+    </a>
+  </section>
+</div>
