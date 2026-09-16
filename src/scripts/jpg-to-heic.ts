@@ -153,7 +153,8 @@ export function downloadBlob(blob: Blob, filename: string): void {
 export async function downloadAllAsZip(results: ConvertedResult[]): Promise<void> {
   if (results.length === 0) return;
 
-  const JSZip = (await import('jszip')).default;
+  const JSZipModule = await import('jszip');
+  const JSZip = (JSZipModule.default || JSZipModule) as any;
   const zip = new JSZip();
 
   const nameCounts: Record<string, number> = {};

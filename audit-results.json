@@ -1,0 +1,227 @@
+{
+  "timestamp": "2026-09-16T11:40:11.063Z",
+  "tools": {
+    "heic-to-jpg": {
+      "name": "HEIC to JPG Converter",
+      "route": "/image/heic-to-jpg",
+      "features": {
+        "firstConversion": {
+          "count": 1,
+          "hasImg": true,
+          "naturalWidth": 1440,
+          "naturalHeight": 960,
+          "hasDl": true
+        },
+        "download": {
+          "filename": "autumn_1440x960.jpg",
+          "isJpeg": true,
+          "header": {
+            "byteLength": 492814,
+            "hex": "ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 01",
+            "ascii": "......JFIF......"
+          }
+        },
+        "resetClean": true,
+        "secondConversionSuccess": true,
+        "errorStateHandled": true
+      },
+      "controls": {
+        "sliderExists": true,
+        "sliderInitialVal": "0.9",
+        "badgeText": "90%",
+        "dropzoneAccepts": ".heic, .heif, image/heic, image/heif"
+      },
+      "status": "PASSED"
+    },
+    "jpg-to-heic": {
+      "name": "JPG to HEIC Converter",
+      "route": "/image/jpg-to-heic",
+      "features": {
+        "firstConversion": {
+          "count": 1,
+          "hasDl": true
+        },
+        "download": {
+          "filename": "landscape.heic",
+          "isHeic": true,
+          "header": {
+            "byteLength": 66377,
+            "hex": "00 00 00 1c 66 74 79 70 68 65 69 63 00 00 00 00",
+            "ascii": "....ftypheic...."
+          }
+        },
+        "secondConversionSuccess": true
+      },
+      "controls": {
+        "sliderExists": true,
+        "val": "85",
+        "badge": "85%"
+      },
+      "status": "PASSED"
+    },
+    "image-converter": {
+      "name": "WebP, PNG & JPG Converter",
+      "route": "/image/image-converter",
+      "features": {
+        "firstConversion": {
+          "count": 1,
+          "hasDl": true
+        },
+        "download": {
+          "filename": "transparent_badge.webp",
+          "isWebp": true,
+          "header": {
+            "byteLength": 26138,
+            "hex": "52 49 46 46 12 66 00 00 57 45 42 50 56 50 38 58",
+            "ascii": "RIFF.f..WEBPVP8X"
+          }
+        },
+        "secondConversionSuccess": true
+      },
+      "controls": {},
+      "status": "PASSED"
+    },
+    "image-resizer": {
+      "name": "Image Resizer",
+      "route": "/image/image-resizer",
+      "features": {
+        "firstConversion": {
+          "count": 1,
+          "hasDl": true,
+          "naturalWidth": 500,
+          "naturalHeight": 333
+        },
+        "resizeExactDimensions": true,
+        "download": {
+          "filename": "landscape-resized.jpg",
+          "isJpeg": true,
+          "header": {
+            "byteLength": 9153,
+            "hex": "ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 01",
+            "ascii": "......JFIF......"
+          }
+        },
+        "percentageModeSecondConversion": true
+      },
+      "controls": {
+        "aspectRatioCalculatedHeight": "333"
+      },
+      "status": "PASSED"
+    },
+    "image-compressor": {
+      "name": "Image Compressor",
+      "route": "/image/image-compressor",
+      "features": {
+        "compressionSucceeded": true,
+        "savingsReported": "43.34 KB → 26.77 KB (38% smaller)",
+        "download": {
+          "filename": "large_photo-compressed.jpg",
+          "isJpeg": true,
+          "header": {
+            "byteLength": 27413,
+            "hex": "ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 01",
+            "ascii": "......JFIF......"
+          }
+        },
+        "secondConversionSuccess": true
+      },
+      "controls": {},
+      "status": "PASSED"
+    },
+    "social-resizer": {
+      "name": "Social Media Image Resizer",
+      "route": "/image/social-resizer",
+      "features": {
+        "firstConversion": {
+          "count": 3,
+          "hasDl": true,
+          "naturalWidth": 1080,
+          "naturalHeight": 1080
+        },
+        "instagramSquareGenerated": true,
+        "download": {
+          "filename": "landscape-instagram-square.jpg",
+          "isJpeg": true,
+          "header": {
+            "byteLength": 31819,
+            "hex": "ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 01",
+            "ascii": "......JFIF......"
+          }
+        },
+        "secondConversionSuccess": true
+      },
+      "controls": {},
+      "status": "PASSED"
+    },
+    "video-compressor": {
+      "name": "Video Compressor",
+      "route": "/video/video-compressor",
+      "features": {
+        "firstConversion": {
+          "isComplete": true,
+          "hasDlBtn": true,
+          "sizeText": "374.6 KB → 173.9 KB"
+        },
+        "download": {
+          "filename": "sample-compressed.mp4",
+          "isMp4": true,
+          "header": {
+            "byteLength": 178114,
+            "hex": "00 00 00 20 66 74 79 70 69 73 6f 6d 00 00 02 00",
+            "ascii": "... ftypisom...."
+          }
+        },
+        "secondConversionSuccess": true
+      },
+      "controls": {},
+      "status": "PASSED"
+    },
+    "image-to-pdf": {
+      "name": "Image to PDF Converter",
+      "route": "/pdf/image-to-pdf",
+      "features": {
+        "pdfGenerated": true,
+        "download": {
+          "filename": "images-to-pdf.pdf",
+          "isPdf": true,
+          "header": {
+            "byteLength": 52045,
+            "hex": "25 50 44 46 2d 31 2e 33 0a 25 ba df ac e0 0a 33",
+            "ascii": "%PDF-1.3.%.....3"
+          }
+        },
+        "secondConversionSuccess": true
+      },
+      "controls": {},
+      "status": "PASSED"
+    },
+    "subtitle-converter": {
+      "name": "Subtitle Converter",
+      "route": "/pdf/subtitle-converter",
+      "features": {
+        "subtitleConverted": true,
+        "download": {
+          "filename": "sample.vtt",
+          "isVtt": true,
+          "header": {
+            "byteLength": 246,
+            "hex": "57 45 42 56 54 54 0a 0a 31 0a 30 30 3a 30 30 3a",
+            "ascii": "WEBVTT..1.00:00:"
+          }
+        },
+        "secondConversionSuccess": true
+      },
+      "controls": {},
+      "status": "PASSED"
+    }
+  },
+  "summary": {
+    "totalTools": 9,
+    "passedTools": 9,
+    "failedTools": 0,
+    "totalFeaturesChecked": 60
+  },
+  "claims": [],
+  "publicUxGaps": [],
+  "crossBrowserRisks": []
+}

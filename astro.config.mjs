@@ -13,6 +13,7 @@ export default defineConfig({
   ],
   vite: {
     optimizeDeps: {
+      include: ['jspdf', 'jszip'],
       exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@pbk20191/icodec'],
     },
     worker: {

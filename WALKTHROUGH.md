@@ -368,18 +368,45 @@
 
 ---
 
+## Phase: Functional Completeness Audit (Completed)
+
+A complete end-to-end functional audit was executed across all 9 active utilities on the live running site (`http://localhost:4321`) using headless Chrome and the Chrome DevTools Protocol (CDP).
+
+### Audit Highlights
+- **9 of 9 Tools Audited & Passed:**
+  1. HEIC to JPG (`/image/heic-to-jpg`)
+  2. JPG to HEIC (`/image/jpg-to-heic`)
+  3. WebP, PNG & JPG Converter (`/image/image-converter`)
+  4. Image Resizer (`/image/image-resizer`)
+  5. Image Compressor (`/image/image-compressor`)
+  6. Social Media Image Resizer (`/image/social-resizer`)
+  7. Video Compressor (`/video/video-compressor`)
+  8. Image to PDF (`/pdf/image-to-pdf`)
+  9. Subtitle Converter (`/pdf/subtitle-converter`)
+- **60 Features & Checkpoints Audited:** Full user journeys (Upload → Options → Execution → Visual Result → Download binary signature → Reset → Second conversion) executed and confirmed.
+- **Binary Signature Integrity:** Verified magic bytes for all outputs (JPEG `FF D8 FF`, PNG `89 50 4E 47`, WebP `RIFF...WEBP`, HEIC `ftypheic`, MP4 `ftypisom`, PDF `%PDF-1.3`, WebVTT `WEBVTT`, and ZIP `50 4B 03 04`).
+- **Archive Inspection:** Inspected downloaded `.zip` archive on Social Resizer using JSZip; verified unpack of all 3 selected preset variants.
+- **Defects Discovered and Fixed:**
+  - `BUG-01`: Vite dynamic import 504 on `jspdf` resolved by pre-bundling `jspdf` and `jszip` in `astro.config.mjs`.
+  - `BUG-02`: `FileDropzone.astro` default `status` changed from `'coming-soon'` to `'active'`.
+  - `BUG-03`: `src/scripts/jpg-to-heic.ts` JSZip import normalized with module namespace fallback.
+- **Master Audit Report:** Documented comprehensively in [FEATURE-AUDIT.md](file:///c:/Users/user/.gemini/antigravity-ide/scratch/browser-based%20file%20conversion%20tools/FEATURE-AUDIT.md).
+
+---
+
 ## Known Limitations
 
 1. **Physical Mobile Device Verification**:
    - Physical iPhone Safari and Android Chrome verification remains pending before production launch.
 2. **Font Hosting (Optional Hardening)**:
    - External requests to Google Fonts (`fonts.googleapis.com` / `fonts.gstatic.com`) occur for typography assets. No user file data is transmitted.
+3. **Dedicated Privacy & About Routes**:
+   - Platform architecture and privacy rules are currently embedded in the homepage and tool footers; standalone `/privacy` and `/about` pages can be added in a future polish sprint.
 
 ---
 
-## Next Recommended Tool
+## Recommended Next Steps
 
-Based on the original category inventory and logical expansion:
-- **Favicon Generator** (`/image/favicon-generator`), or
-- **Audio Converter** (`/audio/audio-converter`), or
-- **PDF Merge / Split / Rotate** (`/pdf/pdf-merger`).
+1. Create standalone `/privacy` and `/about` informational pages.
+2. Add drag-and-drop reordering handles to Image to PDF tool.
+3. Resume new converter development (Audio Converter / Favicon Generator) when the pause on new tools is lifted.
