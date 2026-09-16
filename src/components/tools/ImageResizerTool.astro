@@ -1,0 +1,839 @@
+---
+import FileDropzone from '../FileDropzone.astro';
+import type { Tool } from '../../data/tools';
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+---
+
+<div id="image-resizer-root" class="w-full space-y-6">
+  <!-- Interactive Dropzone -->
+  <FileDropzone
+    toolTitle={tool.title}
+    acceptedFiles={tool.acceptedFiles}
+    acceptedTypesLabel={tool.acceptedTypesLabel}
+    sizeWarningMB={tool.sizeWarningMB}
+    sizeCeilingNote={tool.sizeCeilingNote}
+    status={tool.status}
+    multiple={true}
+    managedExternally={true}
+  />
+
+  <!-- Large Batch / Memory Warning Banner -->
+  <div
+    id="resizer-batch-warning"
+    class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3 transition-all"
+    role="alert"
+  >
+    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <div>
+      <p class="font-semibold text-amber-950">Large image batch detected</p>
+      <p class="mt-0.5 leading-relaxed text-amber-800">
+        You have selected over 50 MB of photos. Processing executes sequentially in device memory to guarantee mobile browser stability.
+      </p>
+    </div>
+  </div>
+
+  <!-- Active Workspace Section: Hidden until images are selected -->
+  <div id="resizer-workspace-section" class="hidden space-y-6">
+    <!-- Queue Header Bar: Count & Clear -->
+    <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-surface-50 border border-surface-200/80">
+      <div class="flex items-center gap-2 text-xs text-surface-700">
+        <span class="font-bold text-surface-900 text-sm" id="queue-images-count">0</span>
+        <span>Images Selected</span>
+        <span class="text-surface-400" id="queue-images-total-size">• Total: 0 Bytes</span>
+      </div>
+      <button
+        id="resizer-clear-all-btn"
+        type="button"
+        class="text-xs font-semibold text-surface-500 hover:text-rose-600 transition-colors focus-visible:outline-brand-500"
+      >
+        Clear All
+      </button>
+    </div>
+
+    <!-- Resize Configuration Settings Card -->
+    <div class="p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-5" id="resizer-config-card">
+      <div class="flex items-center justify-between pb-3 border-b border-surface-200/60 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          <span class="text-xs font-bold uppercase tracking-wider text-surface-700">Resize Controls</span>
+        </div>
+
+        <!-- Mode Toggle: Dimensions vs Percentage -->
+        <div class="flex items-center rounded-xl bg-surface-200/70 p-0.5 text-xs">
+          <button
+            id="mode-dimensions-btn"
+            type="button"
+            class="px-3 py-1.5 rounded-lg font-semibold transition-all bg-white text-surface-900 shadow-xs"
+            aria-pressed="true"
+          >
+            By Dimensions
+          </button>
+          <button
+            id="mode-percentage-btn"
+            type="button"
+            class="px-3 py-1.5 rounded-lg font-semibold transition-all text-surface-600 hover:text-surface-900"
+            aria-pressed="false"
+          >
+            By Percentage
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel 1: Dimensions Mode -->
+      <div id="panel-dimensions" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+          <!-- Width Input -->
+          <div class="space-y-1.5">
+            <label for="resize-width-input" class="font-semibold text-surface-900 block">Width (px)</label>
+            <input
+              id="resize-width-input"
+              type="number"
+              min="1"
+              max="16000"
+              placeholder="e.g. 1200"
+              class="w-full px-3 py-2 rounded-xl bg-white border border-surface-200 text-surface-800 focus:border-brand-500 focus:outline-none transition-colors"
+              aria-label="Target Width in Pixels"
+            />
+          </div>
+
+          <!-- Height Input -->
+          <div class="space-y-1.5">
+            <label for="resize-height-input" class="font-semibold text-surface-900 block">Height (px)</label>
+            <input
+              id="resize-height-input"
+              type="number"
+              min="1"
+              max="16000"
+              placeholder="e.g. 800"
+              class="w-full px-3 py-2 rounded-xl bg-white border border-surface-200 text-surface-800 focus:border-brand-500 focus:outline-none transition-colors"
+              aria-label="Target Height in Pixels"
+            />
+          </div>
+
+          <!-- Aspect Ratio Toggle -->
+          <div class="flex items-end pb-1">
+            <label class="flex items-center gap-2.5 cursor-pointer select-none text-xs font-semibold text-surface-800">
+              <input
+                id="aspect-ratio-toggle"
+                type="checkbox"
+                checked
+                class="w-4 h-4 rounded text-brand-600 border-surface-300 focus:ring-brand-500 cursor-pointer"
+                aria-label="Lock aspect ratio"
+              />
+              <span class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Lock Aspect Ratio
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Percentage Mode -->
+      <div id="panel-percentage" class="space-y-4 hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div class="space-y-1.5">
+            <label for="resize-percentage-input" class="font-semibold text-surface-900 block flex items-center justify-between">
+              <span>Scale Percentage</span>
+              <span id="percentage-val-label" class="text-brand-600 font-bold text-sm">100%</span>
+            </label>
+            <input
+              id="resize-percentage-input"
+              type="range"
+              min="1"
+              max="500"
+              value="100"
+              class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+              aria-label="Resize scale percentage"
+            />
+          </div>
+
+          <!-- Percentage Quick Presets -->
+          <div class="space-y-1.5">
+            <span class="font-semibold text-surface-900 block">Quick Presets</span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button type="button" class="preset-btn px-2.5 py-1.5 rounded-lg border border-surface-200 bg-white hover:bg-brand-50 text-surface-700 text-xs font-semibold transition-colors" data-pct="25">25%</button>
+              <button type="button" class="preset-btn px-2.5 py-1.5 rounded-lg border border-surface-200 bg-white hover:bg-brand-50 text-surface-700 text-xs font-semibold transition-colors" data-pct="50">50%</button>
+              <button type="button" class="preset-btn px-2.5 py-1.5 rounded-lg border border-surface-200 bg-white hover:bg-brand-50 text-surface-700 text-xs font-semibold transition-colors" data-pct="75">75%</button>
+              <button type="button" class="preset-btn px-2.5 py-1.5 rounded-lg border border-brand-500 bg-brand-50 text-brand-700 text-xs font-semibold transition-colors" data-pct="100">100%</button>
+              <button type="button" class="preset-btn px-2.5 py-1.5 rounded-lg border border-surface-200 bg-white hover:bg-brand-50 text-surface-700 text-xs font-semibold transition-colors" data-pct="200">200%</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upscale Warning Banner -->
+        <div id="upscale-warning" class="hidden p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center gap-2">
+          <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Enlarging an image does not add new detail and may make it look softer.</span>
+        </div>
+      </div>
+
+      <!-- Format & Quality Options -->
+      <div class="pt-3 border-t border-surface-200/60 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+        <!-- Output Format -->
+        <div class="space-y-1.5">
+          <label for="resize-output-format" class="font-semibold text-surface-900 block">Output Format</label>
+          <select
+            id="resize-output-format"
+            class="w-full px-3 py-2 rounded-xl bg-white border border-surface-200 text-surface-800 font-medium focus:border-brand-500 focus:outline-none transition-colors"
+            aria-label="Output Image Format"
+          >
+            <option value="original" selected>Same as source (Preserve format)</option>
+            <option value="image/jpeg">JPG / JPEG (Standard photo)</option>
+            <option value="image/png">PNG (Lossless & transparent)</option>
+            <option value="image/webp">WebP (Modern web efficient)</option>
+          </select>
+        </div>
+
+        <!-- Quality Slider (JPG & WebP) -->
+        <div id="quality-slider-container" class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="resize-quality-slider" class="font-semibold text-surface-900">Output Quality</label>
+            <span id="quality-val-label" class="text-brand-600 font-bold text-xs">90%</span>
+          </div>
+          <input
+            id="resize-quality-slider"
+            type="range"
+            min="50"
+            max="100"
+            value="90"
+            class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+            aria-label="Image Quality Percentage"
+          />
+        </div>
+
+        <!-- Format Explanatory Note -->
+        <div class="flex items-center text-[11px] text-surface-500 leading-relaxed pt-2 sm:pt-4">
+          <p id="format-hint-text">
+            PNG preserves alpha transparency. Converting transparent images to JPG composites over clean white.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Images Queue List -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-surface-700">Image Queue</h2>
+        <span class="text-[11px] text-surface-500" id="queue-count-sub">0 images</span>
+      </div>
+
+      <div id="resizer-queue-items" class="space-y-2.5 max-h-[28rem] overflow-y-auto pr-1">
+        <!-- Dynamically injected queue cards -->
+      </div>
+    </div>
+
+    <!-- Action Bar: Resize All & Real Progress -->
+    <div class="space-y-4 pt-2">
+      <!-- Progress Bar (Visible during batch processing) -->
+      <div id="resizer-progress-container" class="hidden space-y-2 p-4 rounded-2xl bg-surface-50 border border-surface-200" role="status" aria-live="polite">
+        <div class="flex items-center justify-between text-xs font-semibold text-surface-700">
+          <span id="resizer-progress-phase">Resizing images...</span>
+          <span id="resizer-progress-percentage" class="text-brand-600 font-bold">0%</span>
+        </div>
+        <div class="w-full h-2.5 bg-surface-200 rounded-full overflow-hidden">
+          <div id="resizer-progress-bar" class="h-full bg-brand-600 transition-all duration-200 rounded-full" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <button
+          id="resize-all-btn"
+          type="button"
+          class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-2 focus-visible:outline-brand-500"
+        >
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          <span id="resize-btn-label">Resize Images</span>
+        </button>
+
+        <span id="resizer-status-msg" class="text-xs text-surface-500 font-medium" role="status" aria-live="polite">
+          Ready to resize
+        </span>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resizer-results-section" class="hidden space-y-4 pt-4 border-t border-surface-200/80">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <h2 class="text-sm font-bold text-surface-900">Resized Images</h2>
+          <span id="results-count-badge" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">0 Completed</span>
+        </div>
+
+        <!-- Download All as ZIP Button (Shown if >= 2 successes) -->
+        <button
+          id="download-zip-btn"
+          type="button"
+          class="hidden px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-xs shadow-xs transition-all flex items-center gap-2 focus-visible:outline-emerald-500"
+        >
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download All as ZIP
+        </button>
+      </div>
+
+      <!-- Result Cards List -->
+      <div id="resizer-results-list" class="space-y-3">
+        <!-- Dynamically injected result cards -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    inspectImageFile,
+    calculateTargetDimensions,
+    resizeImageItem,
+    downloadResizedBlob,
+    createResizedZip,
+    generateItemId,
+    formatBytes,
+    type ImageResizerItem,
+    type ResizeConfig,
+    type ResizeMode,
+    type OutputFormat,
+  } from '../../scripts/image-resizer';
+
+  const root = document.getElementById('image-resizer-root');
+
+  if (root) {
+    const batchWarning = root.querySelector<HTMLElement>('#resizer-batch-warning')!;
+    const workspaceSection = root.querySelector<HTMLElement>('#resizer-workspace-section')!;
+    const queueImagesCount = root.querySelector<HTMLElement>('#queue-images-count')!;
+    const queueImagesTotalSize = root.querySelector<HTMLElement>('#queue-images-total-size')!;
+    const queueCountSub = root.querySelector<HTMLElement>('#queue-count-sub')!;
+    const queueItemsContainer = root.querySelector<HTMLElement>('#resizer-queue-items')!;
+    const clearAllBtn = root.querySelector<HTMLButtonElement>('#resizer-clear-all-btn')!;
+
+    const modeDimensionsBtn = root.querySelector<HTMLButtonElement>('#mode-dimensions-btn')!;
+    const modePercentageBtn = root.querySelector<HTMLButtonElement>('#mode-percentage-btn')!;
+    const panelDimensions = root.querySelector<HTMLElement>('#panel-dimensions')!;
+    const panelPercentage = root.querySelector<HTMLElement>('#panel-percentage')!;
+
+    const widthInput = root.querySelector<HTMLInputElement>('#resize-width-input')!;
+    const heightInput = root.querySelector<HTMLInputElement>('#resize-height-input')!;
+    const aspectRatioToggle = root.querySelector<HTMLInputElement>('#aspect-ratio-toggle')!;
+
+    const percentageInput = root.querySelector<HTMLInputElement>('#resize-percentage-input')!;
+    const percentageValLabel = root.querySelector<HTMLElement>('#percentage-val-label')!;
+    const upscaleWarning = root.querySelector<HTMLElement>('#upscale-warning')!;
+    const presetButtons = root.querySelectorAll<HTMLButtonElement>('.preset-btn');
+
+    const outputFormatSelect = root.querySelector<HTMLSelectElement>('#resize-output-format')!;
+    const qualitySliderContainer = root.querySelector<HTMLElement>('#quality-slider-container')!;
+    const qualitySlider = root.querySelector<HTMLInputElement>('#resize-quality-slider')!;
+    const qualityValLabel = root.querySelector<HTMLElement>('#quality-val-label')!;
+    const formatHintText = root.querySelector<HTMLElement>('#format-hint-text')!;
+
+    const resizeAllBtn = root.querySelector<HTMLButtonElement>('#resize-all-btn')!;
+    const resizeBtnLabel = root.querySelector<HTMLElement>('#resize-btn-label')!;
+    const statusMsg = root.querySelector<HTMLElement>('#resizer-status-msg')!;
+
+    const progressContainer = root.querySelector<HTMLElement>('#resizer-progress-container')!;
+    const progressPhase = root.querySelector<HTMLElement>('#resizer-progress-phase')!;
+    const progressPercentage = root.querySelector<HTMLElement>('#resizer-progress-percentage')!;
+    const progressBar = root.querySelector<HTMLElement>('#resizer-progress-bar')!;
+
+    const resultsSection = root.querySelector<HTMLElement>('#resizer-results-section')!;
+    const resultsCountBadge = root.querySelector<HTMLElement>('#results-count-badge')!;
+    const downloadZipBtn = root.querySelector<HTMLButtonElement>('#download-zip-btn')!;
+    const resultsList = root.querySelector<HTMLElement>('#resizer-results-list')!;
+
+    // State
+    let items: ImageResizerItem[] = [];
+    let currentMode: ResizeMode = 'dimensions';
+    let isProcessing = false;
+
+    function getConfig(): ResizeConfig {
+      const mode = currentMode;
+      const w = parseInt(widthInput.value, 10);
+      const h = parseInt(heightInput.value, 10);
+      const lock = aspectRatioToggle.checked;
+      const pct = parseInt(percentageInput.value, 10) || 100;
+      const format = outputFormatSelect.value as OutputFormat;
+      const quality = parseInt(qualitySlider.value, 10) / 100;
+
+      return {
+        mode,
+        targetWidth: isNaN(w) ? undefined : w,
+        targetHeight: isNaN(h) ? undefined : h,
+        lockAspectRatio: lock,
+        percentage: pct,
+        outputFormat: format,
+        quality,
+      };
+    }
+
+    function updateModeDisplay(mode: ResizeMode) {
+      currentMode = mode;
+      if (mode === 'dimensions') {
+        modeDimensionsBtn.className = 'px-3 py-1.5 rounded-lg font-semibold transition-all bg-white text-surface-900 shadow-xs';
+        modeDimensionsBtn.setAttribute('aria-pressed', 'true');
+        modePercentageBtn.className = 'px-3 py-1.5 rounded-lg font-semibold transition-all text-surface-600 hover:text-surface-900';
+        modePercentageBtn.setAttribute('aria-pressed', 'false');
+        panelDimensions.classList.remove('hidden');
+        panelPercentage.classList.add('hidden');
+      } else {
+        modePercentageBtn.className = 'px-3 py-1.5 rounded-lg font-semibold transition-all bg-white text-surface-900 shadow-xs';
+        modePercentageBtn.setAttribute('aria-pressed', 'true');
+        modeDimensionsBtn.className = 'px-3 py-1.5 rounded-lg font-semibold transition-all text-surface-600 hover:text-surface-900';
+        modeDimensionsBtn.setAttribute('aria-pressed', 'false');
+        panelPercentage.classList.remove('hidden');
+        panelDimensions.classList.add('hidden');
+      }
+      renderQueue();
+    }
+
+    function updateQualityDisplay() {
+      const format = outputFormatSelect.value;
+      if (format === 'image/png') {
+        qualitySliderContainer.classList.add('opacity-40', 'pointer-events-none');
+        formatHintText.textContent = 'PNG uses lossless compression. Quality factor setting is not applicable.';
+      } else {
+        qualitySliderContainer.classList.remove('opacity-40', 'pointer-events-none');
+        if (format === 'image/jpeg') {
+          formatHintText.textContent = 'JPEG does not support alpha channels. Transparent areas are composited onto white.';
+        } else if (format === 'image/webp') {
+          formatHintText.textContent = 'WebP offers efficient lossy or lossless compression with full alpha transparency support.';
+        } else {
+          formatHintText.textContent = 'Original file format is preserved. Lossy images use the quality slider.';
+        }
+      }
+    }
+
+    async function handleAddedFiles(fileList: File[]) {
+      const newItems: ImageResizerItem[] = [];
+
+      for (const file of fileList) {
+        const id = generateItemId();
+        try {
+          const inspected = await inspectImageFile(file);
+          newItems.push({
+            id,
+            file,
+            filename: file.name,
+            originalWidth: inspected.width,
+            originalHeight: inspected.height,
+            originalSizeBytes: file.size,
+            aspectRatio: inspected.width / inspected.height,
+            thumbnailUrl: inspected.thumbnailUrl,
+            status: 'ready',
+          });
+        } catch (err: any) {
+          // File decoding failure isolation
+          newItems.push({
+            id,
+            file,
+            filename: file.name,
+            originalWidth: 0,
+            originalHeight: 0,
+            originalSizeBytes: file.size,
+            aspectRatio: 1,
+            thumbnailUrl: '',
+            status: 'failed',
+            errorMessage: err?.message || 'Unsupported image file.',
+          });
+        }
+      }
+
+      items = [...items, ...newItems];
+
+      // If dimensions inputs are empty and we have valid items, populate default dimensions from first valid item
+      if (!widthInput.value && !heightInput.value) {
+        const firstValid = items.find((i) => i.status === 'ready');
+        if (firstValid) {
+          widthInput.value = String(firstValid.originalWidth);
+          heightInput.value = String(firstValid.originalHeight);
+        }
+      }
+
+      updateWorkspace();
+    }
+
+    function updateWorkspace() {
+      if (items.length === 0) {
+        workspaceSection.classList.add('hidden');
+        batchWarning.classList.add('hidden');
+        return;
+      }
+
+      workspaceSection.classList.remove('hidden');
+
+      const totalBytes = items.reduce((acc, i) => acc + i.originalSizeBytes, 0);
+      const totalMB = totalBytes / (1024 * 1024);
+
+      queueImagesCount.textContent = String(items.length);
+      queueImagesTotalSize.textContent = `• Total: ${formatBytes(totalBytes)}`;
+      queueCountSub.textContent = `${items.length} image${items.length === 1 ? '' : 's'}`;
+      resizeBtnLabel.textContent = `Resize ${items.length} Image${items.length === 1 ? '' : 's'}`;
+
+      if (totalMB > 50) {
+        batchWarning.classList.remove('hidden');
+      } else {
+        batchWarning.classList.add('hidden');
+      }
+
+      renderQueue();
+    }
+
+    function renderQueue() {
+      queueItemsContainer.innerHTML = '';
+      const config = getConfig();
+
+      items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-white border border-surface-200 shadow-xs transition-all';
+        card.setAttribute('data-id', item.id);
+
+        let targetText = '';
+        if (item.status !== 'failed' && item.originalWidth > 0) {
+          const dims = calculateTargetDimensions(item.originalWidth, item.originalHeight, config);
+          targetText = `→ ${dims.width} × ${dims.height} px`;
+        }
+
+        let statusBadge = '';
+        if (item.status === 'completed') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Completed</span>';
+        } else if (item.status === 'resizing') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full bg-brand-100 text-brand-800 text-[10px] font-bold animate-pulse">Resizing...</span>';
+        } else if (item.status === 'failed') {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold" title="${item.errorMessage || 'Failed'}">Failed</span>`;
+        } else {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full bg-surface-100 text-surface-700 text-[10px] font-semibold">Ready</span>';
+        }
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-12 h-12 rounded-lg bg-surface-100 border border-surface-200 overflow-hidden flex items-center justify-center flex-shrink-0">
+              ${
+                item.thumbnailUrl
+                  ? `<img src="${item.thumbnailUrl}" alt="${item.filename}" class="w-full h-full object-cover" />`
+                  : `<svg class="w-6 h-6 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`
+              }
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs sm:text-sm font-semibold text-surface-900 truncate">${item.filename}</p>
+              <div class="flex items-center gap-2 text-[11px] text-surface-500 mt-0.5">
+                ${
+                  item.status === 'failed'
+                    ? `<span class="text-rose-600 font-medium">${item.errorMessage || 'Invalid Image'}</span>`
+                    : `<span>${item.originalWidth} × ${item.originalHeight}</span>
+                       <span class="text-brand-600 font-semibold">${targetText}</span>
+                       <span>• ${formatBytes(item.originalSizeBytes)}</span>`
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-shrink-0">
+            ${statusBadge}
+            <button
+              type="button"
+              class="remove-item-btn p-1.5 rounded-lg text-surface-400 hover:text-rose-600 hover:bg-rose-50 transition-colors focus-visible:outline-brand-500"
+              data-index="${index}"
+              aria-label="Remove ${item.filename}"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        `;
+
+        const removeBtn = card.querySelector<HTMLButtonElement>('.remove-item-btn')!;
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeItem(index);
+        });
+
+        queueItemsContainer.appendChild(card);
+      });
+    }
+
+    function removeItem(index: number) {
+      const removed = items.splice(index, 1)[0];
+      if (removed && removed.thumbnailUrl) {
+        URL.revokeObjectURL(removed.thumbnailUrl);
+      }
+      if (removed && removed.resultUrl) {
+        URL.revokeObjectURL(removed.resultUrl);
+      }
+      updateWorkspace();
+    }
+
+    function clearAll() {
+      items.forEach((i) => {
+        if (i.thumbnailUrl) URL.revokeObjectURL(i.thumbnailUrl);
+        if (i.resultUrl) URL.revokeObjectURL(i.resultUrl);
+      });
+      items = [];
+      resultsSection.classList.add('hidden');
+      resultsList.innerHTML = '';
+      progressContainer.classList.add('hidden');
+      updateWorkspace();
+    }
+
+    async function processBatch() {
+      if (isProcessing || items.length === 0) return;
+      isProcessing = true;
+      resizeAllBtn.disabled = true;
+      resizeAllBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      progressContainer.classList.remove('hidden');
+      statusMsg.textContent = 'Processing batch...';
+      statusMsg.className = 'text-xs text-brand-600 font-semibold';
+
+      const config = getConfig();
+      const existingNames = new Set<string>();
+
+      let completedCount = 0;
+      let failedCount = 0;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        if (item.status === 'failed') {
+          failedCount++;
+          continue;
+        }
+
+        item.status = 'resizing';
+        renderQueue();
+
+        const progressPct = Math.round(((i + 1) / items.length) * 100);
+        progressPhase.textContent = `Resizing file ${i + 1} of ${items.length}: ${item.filename}`;
+        progressPercentage.textContent = `${progressPct}%`;
+        progressBar.style.width = `${progressPct}%`;
+
+        try {
+          const result = await resizeImageItem(item, config, existingNames);
+          item.status = 'completed';
+          item.resultBlob = result.blob;
+          item.resultUrl = URL.createObjectURL(result.blob);
+          item.resultWidth = result.width;
+          item.resultHeight = result.height;
+          item.resultSizeBytes = result.blob.size;
+          item.resultFilename = result.filename;
+          item.resultMime = result.mimeType;
+          completedCount++;
+        } catch (err: any) {
+          item.status = 'failed';
+          item.errorMessage = err?.message || 'Resize failed.';
+          failedCount++;
+        }
+
+        renderQueue();
+      }
+
+      isProcessing = false;
+      resizeAllBtn.disabled = false;
+      resizeAllBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      progressPhase.textContent = `Batch finished (${completedCount} succeeded${failedCount > 0 ? `, ${failedCount} failed` : ''})`;
+      statusMsg.textContent = `Completed ${completedCount} of ${items.length} images`;
+      statusMsg.className = 'text-xs text-emerald-600 font-semibold';
+
+      renderResults();
+    }
+
+    function renderResults() {
+      const successful = items.filter((i) => i.status === 'completed' && i.resultBlob);
+      if (successful.length === 0) {
+        resultsSection.classList.add('hidden');
+        return;
+      }
+
+      resultsSection.classList.remove('hidden');
+      resultsCountBadge.textContent = `${successful.length} Completed`;
+
+      if (successful.length >= 2) {
+        downloadZipBtn.classList.remove('hidden');
+      } else {
+        downloadZipBtn.classList.add('hidden');
+      }
+
+      resultsList.innerHTML = '';
+
+      successful.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 rounded-xl bg-white border border-surface-200/90 shadow-xs flex flex-wrap items-center justify-between gap-4';
+
+        const sizeDiff = item.resultSizeBytes! - item.originalSizeBytes;
+        const diffPct = Math.round((sizeDiff / item.originalSizeBytes) * 100);
+        const diffText =
+          sizeDiff <= 0
+            ? `${formatBytes(item.originalSizeBytes)} → ${formatBytes(item.resultSizeBytes!)} (${Math.abs(diffPct)}% smaller)`
+            : `${formatBytes(item.originalSizeBytes)} → ${formatBytes(item.resultSizeBytes!)} (+${diffPct}% larger)`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-14 h-14 rounded-lg bg-surface-100 border border-surface-200 overflow-hidden flex items-center justify-center flex-shrink-0">
+              <img src="${item.resultUrl}" alt="${item.resultFilename}" class="w-full h-full object-cover" />
+            </div>
+            <div class="min-w-0">
+              <p class="font-bold text-xs sm:text-sm text-surface-900 truncate">${item.resultFilename}</p>
+              <p class="text-[11px] text-surface-500 mt-0.5">
+                <span class="font-semibold text-surface-800">${item.originalWidth} × ${item.originalHeight}</span>
+                <span class="text-surface-400">→</span>
+                <span class="font-bold text-emerald-700">${item.resultWidth} × ${item.resultHeight} px</span>
+              </p>
+              <p class="text-[11px] text-surface-500 mt-0.5">${diffText}</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="download-single-btn px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-xs shadow-xs transition-all flex items-center gap-1.5 focus-visible:outline-emerald-500"
+          >
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download Image
+          </button>
+        `;
+
+        const dlBtn = card.querySelector<HTMLButtonElement>('.download-single-btn')!;
+        dlBtn.addEventListener('click', () => {
+          if (item.resultBlob && item.resultFilename) {
+            downloadResizedBlob(item.resultBlob, item.resultFilename);
+          }
+        });
+
+        resultsList.appendChild(card);
+      });
+
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function downloadAllZip() {
+      const successful = items.filter((i) => i.status === 'completed' && i.resultBlob);
+      if (successful.length === 0) return;
+
+      downloadZipBtn.disabled = true;
+      downloadZipBtn.classList.add('opacity-50');
+      statusMsg.textContent = 'Generating ZIP archive...';
+
+      try {
+        const zipBlob = await createResizedZip(successful);
+        downloadResizedBlob(zipBlob, 'resized-images.zip');
+        statusMsg.textContent = 'Downloaded resized-images.zip';
+        statusMsg.className = 'text-xs text-emerald-600 font-semibold';
+      } catch (err: any) {
+        statusMsg.textContent = `ZIP generation failed: ${err?.message || 'Unknown error'}`;
+        statusMsg.className = 'text-xs text-rose-600 font-semibold';
+      } finally {
+        downloadZipBtn.disabled = false;
+        downloadZipBtn.classList.remove('opacity-50');
+      }
+    }
+
+    // Event Listeners
+    document.addEventListener('file-dropzone:files-selected', ((e: Event) => {
+      const customEvent = e as CustomEvent<{ files: File[] }>;
+      if (customEvent.detail.files && customEvent.detail.files.length > 0) {
+        handleAddedFiles(customEvent.detail.files);
+      }
+    }) as EventListener);
+
+    modeDimensionsBtn.addEventListener('click', () => updateModeDisplay('dimensions'));
+    modePercentageBtn.addEventListener('click', () => updateModeDisplay('percentage'));
+
+    widthInput.addEventListener('input', () => {
+      if (aspectRatioToggle.checked) {
+        const w = parseInt(widthInput.value, 10);
+        const firstValid = items.find((i) => i.status === 'ready' || i.status === 'completed');
+        const ratio = firstValid ? firstValid.aspectRatio : 1.5;
+        if (!isNaN(w) && w > 0) {
+          heightInput.value = String(Math.round(w / ratio));
+        }
+      }
+      renderQueue();
+    });
+
+    aspectRatioToggle.addEventListener('change', () => {
+      if (aspectRatioToggle.checked) {
+        const w = parseInt(widthInput.value, 10);
+        const firstValid = items.find((i) => i.status === 'ready' || i.status === 'completed');
+        const ratio = firstValid ? firstValid.aspectRatio : 1.5;
+        if (!isNaN(w) && w > 0) {
+          heightInput.value = String(Math.round(w / ratio));
+        }
+      }
+      renderQueue();
+    });
+
+    heightInput.addEventListener('input', () => {
+      if (aspectRatioToggle.checked) {
+        const h = parseInt(heightInput.value, 10);
+        const firstValid = items.find((i) => i.status === 'ready' || i.status === 'completed');
+        const ratio = firstValid ? firstValid.aspectRatio : 1.5;
+        if (!isNaN(h) && h > 0) {
+          widthInput.value = String(Math.round(h * ratio));
+        }
+      }
+      renderQueue();
+    });
+
+    percentageInput.addEventListener('input', () => {
+      const pct = parseInt(percentageInput.value, 10);
+      percentageValLabel.textContent = `${pct}%`;
+      if (pct > 100) {
+        upscaleWarning.classList.remove('hidden');
+      } else {
+        upscaleWarning.classList.add('hidden');
+      }
+      presetButtons.forEach((btn) => {
+        const bPct = parseInt(btn.getAttribute('data-pct') || '0', 10);
+        if (bPct === pct) {
+          btn.className = 'preset-btn px-2.5 py-1.5 rounded-lg border border-brand-500 bg-brand-50 text-brand-700 text-xs font-semibold transition-colors';
+        } else {
+          btn.className = 'preset-btn px-2.5 py-1.5 rounded-lg border border-surface-200 bg-white hover:bg-brand-50 text-surface-700 text-xs font-semibold transition-colors';
+        }
+      });
+      renderQueue();
+    });
+
+    presetButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pct = btn.getAttribute('data-pct');
+        if (pct) {
+          percentageInput.value = pct;
+          percentageInput.dispatchEvent(new Event('input'));
+        }
+      });
+    });
+
+    outputFormatSelect.addEventListener('change', () => {
+      updateQualityDisplay();
+    });
+
+    qualitySlider.addEventListener('input', () => {
+      qualityValLabel.textContent = `${qualitySlider.value}%`;
+    });
+
+    clearAllBtn.addEventListener('click', clearAll);
+    resizeAllBtn.addEventListener('click', processBatch);
+    downloadZipBtn.addEventListener('click', downloadAllZip);
+  }
+</script>

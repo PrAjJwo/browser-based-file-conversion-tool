@@ -199,6 +199,66 @@ export const TOOLS: Tool[] = [
     ],
   },
   {
+    slug: 'image-resizer',
+    category: 'image',
+    group: 'Resize & Compress',
+    title: 'Image Resizer',
+    metaTitle: 'Image Resizer — Resize JPG, PNG & WebP Images',
+    metaDescription: 'Resize JPG, PNG, and WebP images by exact pixel dimensions or percentage directly in your browser. Fast, 100% private local processing with zero server uploads.',
+    shortBlurb: 'Resize JPG, PNG, and WebP images by exact pixel dimensions or percentage directly in your browser with complete privacy and zero server uploads.',
+    acceptedFiles: '.jpg, .jpeg, .png, .webp, image/jpeg, image/png, image/webp',
+    acceptedTypesLabel: 'JPG, PNG, or WebP images',
+    sizeWarningMB: 50,
+    sizeCeilingNote: 'Batch processing large photos may consume significant browser memory on mobile devices.',
+    status: 'active',
+    howItWorks: [
+      {
+        step: 1,
+        title: 'Choose or drop images',
+        description: 'Select one or more JPG, PNG, or WebP images from your device, or drag and drop them into the resize area.',
+      },
+      {
+        step: 2,
+        title: 'Set dimensions or percentage',
+        description: 'Specify target width and height with aspect-ratio lock, or choose a percentage scaling factor and select your output format.',
+      },
+      {
+        step: 3,
+        title: 'Resize and download',
+        description: 'Process single images or full batches instantly in device memory, then download individually or package into a ZIP archive.',
+      },
+    ],
+    limitations: [
+      'In-browser resizing decodes full uncompressed pixel bitmaps into client device RAM; very large batches or 48 MP+ camera images may cause memory pressure on mobile devices.',
+      'Upscaling images beyond 100% does not recreate lost camera detail and may result in softer or blurred images.',
+      'When converting transparent PNG or WebP images to JPG, transparent areas are automatically flattened onto a solid white background because JPEG lacks alpha support.',
+      'PNG export uses lossless compression and does not support lossy quality factor adjustments.',
+      'Animated WebP and GIF animations are resized to their first frame when exported to static canvas targets.',
+    ],
+    faqs: [
+      {
+        question: 'Can I resize multiple images at once?',
+        answer: 'Yes. You can select multiple JPG, PNG, and WebP photos at once. Batch resizing processes images sequentially in your browser, and you can download all resized files as a single ZIP archive.',
+      },
+      {
+        question: 'How do I resize without stretching the image?',
+        answer: 'Keep the "Lock aspect ratio" toggle enabled. When you enter a new width, the height is automatically calculated based on the original image proportions (and vice versa) to prevent stretching or distortion.',
+      },
+      {
+        question: 'Does resizing reduce image quality?',
+        answer: 'Downscaling an image reduces pixel dimensions while preserving high visual sharpness using bicubic canvas smoothing. Upscaling beyond 100% enlarges existing pixels and does not add new detail. For JPG and WebP, you can adjust the quality slider between 50% and 100%.',
+      },
+      {
+        question: 'Can I resize PNG and WebP images?',
+        answer: 'Yes. The resizer fully supports PNG and WebP formats. Transparency channels are preserved when exporting to PNG or WebP, and transparent areas are cleanly composited on white when converting to JPG.',
+      },
+      {
+        question: 'Are my images uploaded anywhere?',
+        answer: 'No. All image loading, canvas scaling, and file compression execute 100% locally inside your web browser using HTML5 Canvas APIs. No images or files are ever sent to an external server.',
+      },
+    ],
+  },
+  {
     slug: 'video-compressor',
     category: 'video',
     title: 'Video Compressor',

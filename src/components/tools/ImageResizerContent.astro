@@ -1,0 +1,134 @@
+---
+/**
+ * Supporting Editorial Content for Image Resizer
+ *
+ * Explains bicubic pixel interpolation, aspect-ratio preservation,
+ * percentage vs dimension workflows, format choices, and verified privacy guarantees.
+ */
+---
+
+<article class="prose prose-slate max-w-none space-y-12 mb-14">
+  <!-- 1. How does image resizing work? -->
+  <section aria-labelledby="how-resizing-works-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          i
+        </div>
+        <h2 id="how-resizing-works-heading" class="text-xl font-bold text-surface-900">
+          How does image resizing work?
+        </h2>
+      </div>
+
+      <div class="space-y-3.5 text-xs sm:text-sm text-surface-600 leading-relaxed max-w-none">
+        <p>
+          Every digital photograph consists of a fixed grid of color pixels. <strong>Image resizing</strong> modifies the total width and height of this grid to match specific display dimensions, email limits, or website requirements.
+        </p>
+        <p>
+          Our in-browser resizer uses HTML5 Canvas with high-quality <strong>bicubic interpolation</strong> (<code class="text-brand-700 bg-brand-50 px-1 py-0.5 rounded">imageSmoothingQuality = 'high'</code>). When downscaling, the algorithm calculates a weighted mathematical average of surrounding pixel clusters to produce sharp, crisp results without jagged staircase edges or moiré patterns.
+        </p>
+        <p>
+          Keeping the <strong>aspect ratio locked</strong> ensures that horizontal and vertical proportions scale symmetrically. For example, reducing a 1200 × 800 photo to 600 pixels wide automatically sets the height to 400 pixels, preventing unnatural stretching or squishing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Resize by pixels or percentage -->
+  <section aria-labelledby="pixels-vs-percentage-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          ⇄
+        </div>
+        <div>
+          <h2 id="pixels-vs-percentage-heading" class="text-xl font-bold text-surface-900">
+            Resize by pixels or percentage
+          </h2>
+          <p class="text-xs text-surface-500 mt-0.5">Choosing the right sizing method for your workflow</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 not-prose">
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200 space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-brand-100 text-brand-800 font-bold text-xs uppercase tracking-wider">By Dimensions (Pixels)</span>
+          </div>
+          <p class="text-xs text-surface-600 leading-relaxed">
+            Ideal when you must satisfy strict platform specifications. Examples include social media cover banners (e.g. 1200 × 630 px), marketplace product thumbnails (e.g. 800 × 800 px), or passport upload forms requiring exact pixel bounds.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200 space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-brand-100 text-brand-800 font-bold text-xs uppercase tracking-wider">By Percentage (%)</span>
+          </div>
+          <p class="text-xs text-surface-600 leading-relaxed">
+            Best for batches containing mixed orientations and varying dimensions. Setting a scale factor like <strong>50%</strong> shrinks each photo to half its original width and height, preserving unique aspect ratios across every image in the batch.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Image formats and quality -->
+  <section aria-labelledby="formats-and-quality-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          ✦
+        </div>
+        <h2 id="formats-and-quality-heading" class="text-xl font-bold text-surface-900">
+          Image formats and quality
+        </h2>
+      </div>
+
+      <div class="space-y-3.5 text-xs sm:text-sm text-surface-600 leading-relaxed max-w-none">
+        <p>
+          You can output resized images in their original format or convert between standard web formats:
+        </p>
+        <ul class="space-y-2 list-disc list-inside">
+          <li><strong>JPG / JPEG:</strong> The universal format for camera photographs. Adjust the quality slider (50% to 100%) to balance file weight against detail. Note: Because JPEG lacks an alpha channel, transparent PNG or WebP images are composited over a clean white background.</li>
+          <li><strong>PNG:</strong> Lossless format ideal for logos, screenshots, diagrams, and illustrations requiring transparent backgrounds. PNG compression is lossless, so the lossy quality slider is automatically disabled.</li>
+          <li><strong>WebP:</strong> Modern web standard developed by Google that delivers superior compression compared to JPG at equivalent visual quality while supporting full alpha transparency.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Client-Side Privacy Guarantee -->
+  <section aria-labelledby="privacy-guarantee-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          ✓
+        </div>
+        <div>
+          <h2 id="privacy-guarantee-heading" class="text-xl font-bold text-surface-900">
+            Client-Side Privacy Guarantee
+          </h2>
+          <p class="text-xs text-surface-500 mt-0.5">Your personal photos, scans, and graphic designs never leave your device</p>
+        </div>
+      </div>
+
+      <p class="text-surface-600 leading-relaxed mt-3 text-xs sm:text-sm">
+        Many online image resizers upload your photos to third-party cloud servers where they may be logged, analyzed, or stored. Our resizer executes <strong>100% in your browser's local memory</strong>:
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-xs not-prose">
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+          <strong class="text-surface-900 block font-semibold mb-1">Zero Server Uploads</strong>
+          <p class="text-surface-600">Pixel data is decoded and scaled directly on your GPU/CPU via HTML5 Canvas. Zero bytes are uploaded.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+          <strong class="text-surface-900 block font-semibold mb-1">Confidential Images</strong>
+          <p class="text-surface-600">Private contracts, family pictures, and confidential prototypes remain entirely on your device.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+          <strong class="text-surface-900 block font-semibold mb-1">Offline Capability</strong>
+          <p class="text-surface-600">After page load, the resizer continues to function reliably even without an internet connection.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</article>

@@ -218,6 +218,7 @@ async function sleep(ms) {
     { path: '/image/jpg-to-heic', rootId: 'jpg-tool-root' },
     { path: '/pdf/image-to-pdf', rootId: 'image-to-pdf-root' },
     { path: '/pdf/subtitle-converter', rootId: 'subtitle-converter-root' },
+    { path: '/image/image-resizer', rootId: 'image-resizer-root' },
   ];
 
   for (const r of activeRoutes) {

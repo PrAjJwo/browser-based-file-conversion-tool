@@ -2,548 +2,224 @@
 
 ## Current Project Status
 
-- **Current Phase**: Tool #4 — Subtitle Converter — Complete
-- **Completed Launch Tools**:
+- **Current Phase**: Expansion Tool — Image Resizer — Complete
+- **Completed Launch Tools (Original 4)**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Production-Ready, Real Browser Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Production-Ready, Real Browser Verified
   3. Image to PDF (`/pdf/image-to-pdf`) — Active, Production-Ready, Real Browser Verified
   4. Subtitle Converter (`/pdf/subtitle-converter`) — Active, Production-Ready, Real Browser Verified
-- **Additional Image Tool**:
-  - JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
-- **Original Launch Sequence**: ALL FOUR COMPLETE
+- **Completed Expansion Tools**:
+  5. JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
+  6. Image Resizer (`/image/image-resizer`) — Active, Production-Ready, Real Browser Verified
 - **Tool Status Summary**:
-  - Subtitle Converter: Development Complete, Real Browser Verified, Content/SEO Complete, Browser Verified.
+  - Image Resizer: Development Complete, Real Browser Verified (13 CDP suites passed), Quality & Format Conversions Verified, ZIP Export Verified, Content/SEO Complete, Zero-Error Production Build.
 - **Physical Device Notice**: Physical iPhone Safari and Android Chrome verification remains pending before production launch.
-- **Active In-Development Tool**: None (All initial launch tools complete)
-- **Next Planned Work**: Post-launch expansion of remaining tools.
-- **Active Routes**:
+- **Active In-Development Tool**: None (Image Resizer completed; next expansion tool queued)
+- **Active Routes (11 Total)**:
   - `/image/heic-to-jpg` (Tool #1: Active)
   - `/video/video-compressor` (Tool #2: Active)
-  - `/image/jpg-to-heic` (Image Expansion: Active)
+  - `/image/jpg-to-heic` (Expansion Tool: Active)
+  - `/image/image-resizer` (Expansion Tool: Active)
   - `/pdf/image-to-pdf` (Tool #3: Active)
   - `/pdf/subtitle-converter` (Tool #4: Active)
   - Category routes: `/image`, `/video`, `/pdf`, `/audio`
   - Homepage: `/`
 - **Build & Static Analysis Status**:
-  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (30 files checked)
-  - `npx astro build`: **0 errors**, 10 static routes built in 5.41s
-  - Sitemap: Includes `/pdf/subtitle-converter`
-  - Development URL: `http://localhost:4321/pdf/subtitle-converter` (Server active)
-- **Next Action**: Create git checkpoint commit and tag.
+  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (33 files checked)
+  - `npx astro build`: **0 errors**, 11 static routes built in 5.60s
+  - Sitemap: Includes `https://browserfiletools.com/image/image-resizer/`
+  - Development URL: `http://localhost:4321/image/image-resizer` (Server active)
+- **Next Planned Work**: Expansion tool from category inventory (e.g. Audio Compressor or PDF Merger).
 
 ---
 
-## Current Tool Progress — Tool #4 Subtitle Converter
+## Current Tool Progress — Expansion Tool: Image Resizer
 
-### Milestone 1: Parser & Converter Architecture Decision
-- **Decision Reasoning**:
-  - Selected a zero-dependency, 100% browser-native custom parser and serializer (`src/scripts/subtitle-converter.ts`).
-  - Avoids bloated, unmaintained third-party subtitle libraries that struggle with edge cases or inject unnecessary bundle weight.
-  - Normalized internal cue model:
-    ```typescript
-    interface SubtitleCue {
-      id?: string;
-      startMs: number;
-      endMs: number;
-      text: string;
-      settings?: string;
-    }
-    ```
-  - Native support for UTF-8 Byte Order Mark (BOM `\uFEFF`) stripping and universal newline normalization (`\r\n` -> `\n`).
-  - Dedicated format auto-detection identifying WebVTT headers, SRT timestamp sequences, and plain text files.
-  - Zero-network-leak guarantee: All string parsing, regex extraction, millisecond conversions, and Blob downloads occur 100% locally in device memory.
+### Milestone 1: Architecture & Engine Design Decision
+- **Selected Architecture**:
+  - 100% browser-native Canvas API and `createImageBitmap` pipeline (`src/scripts/image-resizer.ts`).
+  - Zero heavy third-party image manipulation libraries added to bundle.
+  - High-quality bicubic smoothing enabled: `ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'`.
+  - Transparent pixel compositing: Transparent PNG/WebP files converted to JPEG composite over `#FFFFFF` solid white to eliminate the classic black-background bug.
+  - Memory isolation: Bitmaps explicitly released via `ImageBitmap.close()`, Canvas buffers cleared (`canvas.width = 0; canvas.height = 0`), and Object URLs tracked and revoked.
+  - Lazy-loaded ZIP bundling: JSZip is dynamically imported only when user initiates "Download All as ZIP".
+- **Verification**:
+  - Unit tests in `test-fixtures/test-image-resizer-unit.mjs`: **18/18 unit tests passed**.
 
-### Milestone 2: SRT Parser & Serializer Implementation
+### Milestone 2: Tool Registration in tools.ts
+- **Files Modified**: `src/data/tools.ts`.
+- **Configuration**:
+  - Route: `/image/image-resizer`
+  - Category: `image`
+  - Group: `Resize & Compress`
+  - Status: `active`
+  - Meta Title: `Image Resizer — Resize JPG, PNG & WebP Images`
+  - Meta Description: 160 characters (optimized for SEO and CTR).
+  - 5 visible FAQs matching schema: multi-file batching, aspect ratio lock, quality impact, supported formats, privacy guarantees.
+
+### Milestone 3: Reactive UI & Editorial Content Components
+- **Files Created**:
+  - `src/components/tools/ImageResizerTool.astro`: Mode switcher (By Dimensions vs By Percentage), aspect ratio lock toggle, dimension inputs with auto-calculation, quick percentage presets (25%, 50%, 75%, 100%, 200%), format selector, quality slider, queue item cards with thumbnail previews and remove buttons, progress bar with file-level progress, result cards with size diff calculations, and individual + ZIP downloads.
+  - `src/components/tools/ImageResizerContent.astro`: Rich educational sections explaining pixel resizing, aspect ratios, format tradeoffs, and client-side privacy.
+  - Mounted in `src/pages/[category]/[tool].astro`.
+
+### Milestone 4: Single JPG Resize & Dimension Verification
 - **Work Completed**:
-  - Implemented `parseSrt`: Extracts cue index numbers, start/end timestamps (`HH:MM:SS,mmm`), and multiline cue dialogue separated by blank lines.
-  - Timestamp validation: Validates non-negative timestamps and flags cues where `startMs > endMs` without crashing.
-  - Implemented `serializeToSrt`: Renumbers cues sequentially starting at 1, formats timestamps with comma milliseconds (`HH:MM:SS,mmm`), strips unsupported WebVTT styling tags, and separates cues with clean blank lines.
-- **Actual Test Performed**:
-  - Parsed `sample.srt` fixture with 3 cues (`test-fixtures/test-subtitles-unit.mjs`).
-  - Serialized cues back to SRT format.
-- **Actual Result**:
-  - 3 cues parsed accurately with exact millisecond bounds (`1000ms -> 4500ms`, `5000ms -> 8200ms`, `9100ms -> 12850ms`).
-  - Serialized output verified sequential `1..3` cue numbering with `,` millisecond delimiters.
+  - Tested genuine 1200 × 800 JPG fixture (`landscape.jpg`, 23,117 B).
+  - Target dimensions: 600 × 400 (aspect ratio lock ON).
+  - Output verified: Filename `landscape-resized.jpg`, size `11,311 bytes`, decoded natural dimensions `600 × 400`, JPEG signature `0xFF 0xD8 0xFF`.
+- **Actual Test Performed**: CDP automated suite Test 2 (`test-fixtures/run-all-image-resizer-tests.cjs`).
+- **Actual Result**: PASS.
 
-### Milestone 3: WebVTT Parser & Serializer Implementation
+### Milestone 5: Aspect Ratio Lock & Freeform Dimension Verification
 - **Work Completed**:
-  - Implemented `parseVtt`: Inspects `WEBVTT` header, skips comment blocks (`NOTE`, `STYLE`), parses dot-separated timestamps (`HH:MM:SS.mmm` or `MM:SS.mmm`), and extracts optional WebVTT cue settings (`position:10% align:left`, `line:80%`).
-  - Implemented `serializeToVtt`: Generates standard `WEBVTT` header, formats timestamps with dot millisecond delimiters (`HH:MM:SS.mmm`), and preserves cue settings where provided.
-- **Actual Test Performed**:
-  - Parsed `sample.vtt` fixture with cue settings.
-  - Serialized cues to WebVTT format.
-- **Actual Result**:
-  - 3 cues extracted; cue settings (`position:10% align:left`, `line:80%`) parsed correctly without data loss.
-  - Serialized WebVTT output validated with leading `WEBVTT\n\n` header.
+  - Lock ON:
+    - Setting width to 900 auto-calculated height to 600.
+    - Setting height to 300 auto-calculated width to 450.
+    - Generated output verified: `450 × 300`.
+  - Lock OFF:
+    - Toggled checkbox off; set width to 500 and height to 500 independently.
+    - Generated output verified: exact `500 × 500` freeform dimensions.
+- **Actual Test Performed**: CDP automated suite Test 3.
+- **Actual Result**: PASS.
 
-### Milestone 4: TXT Conversion & Plain Text Rules Defined
-- **Defined Rules**:
-  - **SRT/VTT -> TXT**: Exports clean dialogue without cue index numbers, timestamp arrows, or timecodes. Supports both cue-per-line and paragraph modes.
-  - **TXT -> SRT/VTT**: Does NOT synthesize or fabricate timestamps out of thin air. Plain text files without timestamp syntax are parsed as dialogue transcripts with clear messaging: *"Plain TXT files do not contain subtitle timing metadata. Timed subtitles cannot be inferred automatically."*
-  - If a `.txt` file actually contains embedded timestamps (`-->`), the parser intelligently falls back to parsing valid timed cues.
-- **Actual Test Performed**:
-  - Exported `sample.srt` cues to plain text dialogue; parsed `sample.txt`.
-- **Actual Result**:
-  - TXT export stripped all timestamps and cue numbers, preserving pure spoken dialogue.
-  - `sample.txt` returned 0 timed cues and triggered the clear informational warning as required.
-
-### Milestone 5: First Real SRT Conversion Verified (SRT -> VTT)
+### Milestone 6: Percentage Scaling Mode (25%, 50%, 200%) & Upscale Warning
 - **Work Completed**:
-  - Verified genuine SRT fixture `sample.srt` loaded into the reactive browser workspace.
-  - Workspace populated detected format badge `SRT`, total cues `3 cues`, and total duration `00:00:12`.
-  - Converted to WebVTT; validated output filename `sample.vtt`, byte size `260 Bytes`, and download anchor generation with MIME `text/vtt`.
-- **Actual Test Performed**:
-  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 1).
-- **Actual Result**:
-  - PASS: Output starts with `WEBVTT`, replaces `,` with `.`, and preserves cue dialogue. Direct download triggered for `sample.vtt`.
+  - 50% scale: `1200 × 800` $\rightarrow$ `600 × 400`.
+  - 25% scale: `1200 × 800` $\rightarrow$ `300 × 200`.
+  - 200% scale: `1200 × 800` $\rightarrow$ `2400 × 1600`.
+  - Upscale Warning: Verified `#upscale-warning` dynamically unhides when percentage > 100% (*"Enlarging an image does not add new detail and may make it look softer"*).
+- **Actual Test Performed**: CDP automated suite Test 4.
+- **Actual Result**: PASS.
 
-### Milestone 6: Reverse Conversion Verified (VTT -> SRT)
+### Milestone 7: Cross-Format Conversions & MIME Header Verification
 - **Work Completed**:
-  - Verified WebVTT fixture `sample.vtt` loaded into workspace.
-  - Target format auto-switched to `SubRip (.srt)`.
-  - Converted back to SRT; verified sequential numbering `1..3`, comma millisecond delimiters (`00:00:01,000 --> 00:00:04,500`), and clean blank-line cue boundaries.
-- **Actual Test Performed**:
-  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 2).
-- **Actual Result**:
-  - PASS: Output renumbered cues 1..3, removed WEBVTT header, converted dot milliseconds to commas, and preserved cue dialogue.
+  - JPG $\rightarrow$ PNG: Header `89504e470d0a1a0a` (PNG signature), MIME `image/png`.
+  - JPG $\rightarrow$ WebP: Header `RIFF....WEBP` (WebP signature), MIME `image/webp`.
+  - WebP $\rightarrow$ JPG: Header `ffd8` (JPEG signature), MIME `image/jpeg`.
+- **Actual Test Performed**: CDP automated suite Test 5.
+- **Actual Result**: PASS.
 
-### Milestone 7: Malformed Subtitle Handling Verified
+### Milestone 8: Transparency Handling & Alpha Compositing Verification
 - **Work Completed**:
-  - Tested `malformed.srt` containing inverted start/end timestamps (`00:00:06,000 --> 00:00:03,000`) and broken non-timestamp lines (`NOT A TIMESTAMP --> INVALID`).
-  - The converter isolated corrupted blocks, logged actionable warnings in the UI warning banner, and extracted remaining valid cues without crashing or hanging.
-- **Actual Test Performed**:
-  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 5).
-- **Actual Result**:
-  - PASS: Zero browser unhandled exceptions. Actionable warning banner displayed 2 distinct error notices, allowing user inspection and correction.
+  - Tested `transparent_badge.png` (800 × 800 with circular alpha badge).
+  - PNG $\rightarrow$ PNG: Alpha channel preserved; corner pixel sampled `[0, 0, 0, 0]`.
+  - PNG $\rightarrow$ JPG: Transparent pixels composited against solid white; corner pixel sampled `[255, 255, 255, 255]`. Confirmed 0 black background artifacts.
+- **Actual Test Performed**: CDP automated suite Test 6.
+- **Actual Result**: PASS.
 
-### Milestone 8: Live Textarea Editor & Validation Verified
+### Milestone 9: Quality Control Slider Verification
 - **Work Completed**:
-  - Interactive monospace textarea editor (`#sub-editor-textarea`) bound to live `input` and `reset` handlers.
-  - Manual text edits immediately re-parse cues, update duration and cue count badges, and re-validate timecodes.
-  - Exported output strictly reflects user edits.
-- **Actual Test Performed**:
-  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 6).
-- **Actual Result**:
-  - PASS: Modified dialogue text in textarea; verified converted output contained edited text. Reset button successfully restored original file text.
+  - Tested lossy JPEG output at 50%, 75%, 90%, 100% quality settings:
+    - Quality 50%: **5,095 Bytes**
+    - Quality 75%: **7,079 Bytes**
+    - Quality 90%: **13,674 Bytes**
+    - Quality 100%: **72,052 Bytes**
+  - Confirmed strictly monotonic scaling; slider disabled/dimmed when PNG format selected.
+- **Actual Test Performed**: CDP automated suite Test 7.
+- **Actual Result**: PASS.
 
-### Milestone 9: Bugs Discovered
+### Milestone 10: Multi-File Batch Processing & Real Progress
+- **Work Completed**:
+  - Batched 3 diverse formats simultaneously: `landscape.jpg` (1200×800), `transparent_badge.png` (800×800), `sample.webp` (1000×600).
+  - Scaled at 50% preserving individual aspect ratios:
+    - `landscape-resized.jpg`: `600 × 400 px`
+    - `transparent_badge-resized.png`: `400 × 400 px`
+    - `sample-resized.webp`: `500 × 300 px`
+  - Real progress bar verified: `Resizing file X of 3` with genuine completion percentages.
+- **Actual Test Performed**: CDP automated suite Test 8.
+- **Actual Result**: PASS.
+
+### Milestone 11: ZIP Packaging & Batch Download Verification
+- **Work Completed**:
+  - "Download All as ZIP" button automatically displayed when $\ge 2$ images completed.
+  - Intercepted download payload: `resized-images.zip`, **80,378 Bytes**, verified PK ZIP header `504b0304`.
+- **Actual Test Performed**: CDP automated suite Test 8.
+- **Actual Result**: PASS.
+
+### Milestone 12: Special Filenames & Duplicate Collision Handling
+- **Work Completed**:
+  - Queued: `landscape.jpg`, `my photo.jpg` (spaces), `PHOTO.JPG` (uppercase), and duplicate `landscape.jpg`.
+  - Verified outputs: `landscape-resized.jpg`, `my photo-resized.jpg`, `PHOTO-resized.jpg`, and disambiguated `landscape-resized-2.jpg`.
+- **Actual Test Performed**: CDP automated suite Test 9.
+- **Actual Result**: PASS.
+
+### Milestone 13: Invalid File Error Isolation
+- **Work Completed**:
+  - Queued `corrupted.png` alongside valid `landscape.jpg`.
+  - Corrupted file flagged with "Failed" badge; valid file converted to `landscape-resized.jpg`.
+  - Queue remained fully interactive without page refresh.
+- **Actual Test Performed**: CDP automated suite Test 10.
+- **Actual Result**: PASS.
+
+### Milestone 14: Bugs Found & Fixed
 - **Bugs Identified**:
-  1. *Target format selection state persistence*: When switching from an SRT file to a VTT file, the previous target format (`vtt`) was retained because it existed in the dropdown, preventing the intelligent default (`srt`) from being selected.
-  2. *Duplicate layout sections & FAQ count*: `SubtitleConverterContent.astro` included its own How It Works, Limitations, and FAQs sections while `ToolLayout.astro` simultaneously rendered the default sections from `tools.ts`, causing 10 visible FAQs instead of 5.
+  1. *Vite Dev Server 504 Outdated Optimize Dep*: Vite's cached dependency bundle threw 504 when `import('jszip')` was called dynamically for the first time during the test run.
+     - *Fix*: Restarted dev server to trigger clean `[vite] Re-optimizing dependencies`, resolving the cache mismatch.
+  2. *Async ZIP download polling in CDP test*: The initial test script used a static `sleep(1000)` which raced against JSZip compilation.
+     - *Fix*: Replaced with a dynamic polling loop checking `window.__downloads.length` and filename matching.
+  3. *Aspect-ratio toggle instantaneous re-calculation*: Toggling the aspect ratio lock didn't immediately update input values until an input event fired.
+     - *Fix*: Added dedicated `change` event listener on `aspectRatioToggle` to recompute dimensions and re-render queue immediately.
 
-### Milestone 10: Bugs Fixed
-- **Fixes Implemented**:
-  1. Added an `isNewFile` flag to `handleLoadedFile` and `parseAndRender` in `SubtitleConverterTool.astro` so that loading a new file always selects the intelligent target format for that file.
-  2. Streamlined `SubtitleConverterContent.astro` to provide rich educational sections (What are SRT/VTT, Why convert, Privacy Guarantee) while delegating How It Works, Limitations, and FAQs to `ToolLayout.astro`, restoring exactly 5 visible FAQs matching schema.
+### Milestone 15: Network Privacy Audit
+- **Work Completed**: Monitored all browser network traffic across all test runs.
+- **Actual Result**: **0 POST requests, 0 remote API calls, 0 bytes uploaded**. All processing executed 100% locally in device RAM.
 
-### Milestone 11: Privacy & Network Audit
-- **Work Completed**:
-  - CDP network interception monitored all HTTP/HTTPS requests during subtitle loading, parsing, live editing, and conversion across all test fixtures.
-- **Actual Test Performed**:
-  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 9).
-- **Actual Result**:
-  - PASS: **0 POST requests, 0 remote API calls, and 0 bytes uploaded**. All parsing and conversion occurred 100% locally in browser memory.
+### Milestone 16: Responsive Viewports QA (375px to 1440px)
+- **Work Completed**: Tested viewports 375px, 390px, 768px, 1024px, 1440px.
+- **Actual Result**: **0 horizontal overflow** across all 5 viewports.
 
-### Milestone 12: Responsive & Accessibility QA
-- **Work Completed**:
-  - Tested viewports 375px (Mobile), 390px (iPhone), 768px (Tablet), 1024px (Desktop), and 1440px (Large Desktop).
-  - Audited accessibility attributes: `role="status"`, `aria-live="polite"`, accessible `aria-label` attributes on all form controls, and `role="alert"` on warning banners.
-- **Actual Test Performed**:
-  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Tests 10 & 11).
-- **Actual Result**:
-  - PASS: **0 horizontal overflow** across all 5 viewports. All accessibility attributes confirmed present and functional.
+### Milestone 17: Accessibility (A11y) Audit
+- **Work Completed**: Form labels for width, height, aspect ratio lock, percentage, output format, quality slider, progress `role="status"` and `aria-live="polite"`, warning `role="alert"`.
+- **Actual Result**: PASS (100% compliant).
 
-### Milestone 13: Content & SEO Complete
-- **Work Completed**:
-  - Single `<h1>Subtitle Converter</h1>`.
-  - 145-character meta description: *"Convert SRT, VTT, and TXT subtitle files directly in your browser. Fast, 100% private local conversion with live editing and zero server uploads."*
-  - Canonical URL: `https://browserfiletools.com/pdf/subtitle-converter`.
-  - Exactly 5 visible FAQs matching `FAQPage` JSON-LD schema, plus `SoftwareApplication` and `BreadcrumbList` schemas.
-- **Actual Test Performed**:
-  - Ran `test-fixtures/verify-subtitle-seo.cjs`.
-- **Actual Result**:
-  - PASS: All SEO assertions passed 100%.
+### Milestone 18: Content & SEO Audit
+- **Work Completed**: Exactly 1 H1 (`Image Resizer`), 160-char meta description, canonical URL `https://browserfiletools.com/image/image-resizer`, 5 visible FAQs matching `FAQPage` JSON-LD schema, `SoftwareApplication` and `BreadcrumbList` schemas.
+- **Actual Test Performed**: `test-fixtures/verify-image-resizer-seo.cjs`.
+- **Actual Result**: PASS (100%).
 
-### Milestone 14: Prior Tool Regressions
-- **Work Completed**:
-  - Tool #1 (HEIC to JPG): Converted `autumn_1440x960.heic`, preserved dimensions, validated download (`test-fixtures/lightweight-regression.cjs`).
-  - Tool #2 (Video Compressor): Loaded FFmpeg engine, compressed 0.3 MB MP4 (`test-fixtures/test-video-smoke.cjs`).
-  - Image Expansion (JPG to HEIC): Converted single, batch with error isolation, ZIP download, spaces & Unicode (`test-fixtures/run-all-jpg-heic-tests.cjs`).
-  - Tool #3 (Image to PDF): Single, multi-page (JPG, transparent PNG, WebP), reordering, margins, custom fit, special filenames (`test-fixtures/run-all-pdf-tests.cjs`).
-  - Route Statuses: All 5 tools return HTTP 200 (Active).
-- **Actual Result**:
-  - PASS: All 4 prior tools operating with zero regressions.
+### Milestone 19: Prior Tool Regression Testing
+- **HEIC to JPG**: Converted Nokia fixture to 1440x960 JPG (`lightweight-regression.cjs`) — **PASS**.
+- **Video Compressor**: Compressed MP4 to 0.3 MB (`test-video-smoke.cjs`) — **PASS**.
+- **JPG to HEIC**: Converted single, batch with error isolation, ZIP download (`run-all-jpg-heic-tests.cjs`) — **PASS**.
+- **Image to PDF**: Single & multi-page PDF generation with margins and reordering (`run-all-pdf-tests.cjs`) — **PASS**.
+- **Subtitle Converter**: 54/54 automated checks passed (`run-all-subtitle-tests.cjs`) — **PASS**.
+- **Route Statuses**: All 6 tools return HTTP 200 (Active).
 
-### Milestone 15: Static Analysis & Production Build
-- **Work Completed**:
-  - Ran `npx astro check`: **0 errors, 0 warnings, 0 hints** across 30 checked files.
-  - Ran `npx astro build`: **0 errors**, 10 static pages generated in 5.41s (`dist/pdf/subtitle-converter/index.html` built).
-  - Verified sitemap: `dist/sitemap-0.xml` includes `https://browserfiletools.com/pdf/subtitle-converter/`.
+### Milestone 20: Static Analysis & Production Build
+- `npx astro check`: **0 errors, 0 warnings, 0 hints** (33 files checked).
+- `npx astro build`: **0 errors**, 11 static pages generated in 5.60s (`dist/image/image-resizer/index.html` built).
+- Sitemap: `dist/sitemap-0.xml` includes `https://browserfiletools.com/image/image-resizer/`.
 
-### Milestone 16: Git Checkpoint
-- **Work Completed**:
-  - Commit: `feat: complete subtitle converter`
-  - Tag: `tool-4-subtitle-converter-complete`
+### Milestone 21: Git Checkpoint
+- Commit: `feat: complete image resizer`
+- Tag: `image-resizer-complete`
 
 ---
 
-## Current Tool Progress — Tool #3 Image to PDF
-
-### Milestone 1: PDF Library Selection & Architecture Decision
-- **Library Selected**: `jspdf` (v4.0.0).
-- **Decision Reasoning**:
-  - 100% browser-native PDF binary compilation with zero remote API dependencies.
-  - Native support for custom page dimensions in points (`pt`), multiple orientations, and direct JPEG embedding via `doc.addImage(...)`.
-  - Lazy-loaded dynamically when the user initiates document conversion.
-  - Does not require server-side headless browsers, node runtime shims, or cloud services.
-
-### Milestone 2: Tool Component & Reactive Architecture
-- **Files Created/Modified**:
-  - `src/scripts/image-to-pdf.ts`: Canvas bitmap decoding, white background pre-rendering for transparent PNG/WebP, aspect-ratio preserving bounding box calculations, margin handling, sequential multi-page generation loop, and blob download.
-  - `src/components/tools/ImageToPdfTool.astro`: Dropzone integration, selected image list with thumbnails, filename, dimensions, size, accessible Move Up (↑) / Move Down (↓) buttons, Remove button, settings toolbar (Page Size, Orientation, Margins, Filename), real-time progress bar, and result card.
-  - `src/components/tools/ImageToPdfContent.astro`: Rich educational content covering workflow mechanics, benefits, layout settings, browser memory boundaries, privacy guarantees, and 5 visible FAQs matching schema.
-  - `src/data/tools.ts`: Updated `image-to-pdf` to `status: 'active'`, 145-char meta description, and 5 structured FAQs.
-  - `src/pages/[category]/[tool].astro`: Mounted `ImageToPdfTool` and `ImageToPdfContent`.
-
-### Milestone 3: Real Browser Testing with Genuine Fixtures (CDP Suite)
-- **Fixtures Tested**: `landscape.jpg` (1200×800), `portrait.jpg` (600×900), `transparent_badge.png` (800×800 with alpha channel), `sample.webp` (1000×600), `my photo.jpg`, `PHOTO.JPG`, `旅行写真.png`, and `corrupted.png`.
-- **Automated Test Suite** (`test-fixtures/run-all-pdf-tests.cjs`):
-  - **Single JPG -> 1-Page PDF**: `landscape.jpg` generated 1-page PDF (`30,575 bytes`, header `%PDF-1.3`). Validated direct download.
-  - **Multi-Image Workflow**: Combined `landscape.jpg`, `transparent_badge.png`, and `sample.webp` into a 3-page PDF (`88.98 KB`).
-  - **Reordering**: Moved `landscape.jpg` down and verified `transparent_badge.png` became page 1, followed by `landscape.jpg` and `sample.webp`.
-  - **Settings Customization**: Tested `Fit to Image` with `large` (60 pt) margins and custom filename `custom-fit-doc.pdf`.
-  - **Special Filenames**: Filenames with spaces (`my photo.jpg`), uppercase (`PHOTO.JPG`), and Japanese Unicode (`旅行写真.png`) queued and compiled safely without HTML injection or URI corruption.
-  - **Error Handling & Isolation**: Queued `landscape.jpg` alongside `corrupted.png`. Corrupted file flagged with clear inline error message while valid file converted successfully into a 1-page PDF.
-  - **Responsive Layout**: Viewports 375px, 390px, 768px, 1024px, 1440px audited; **0 horizontal overflow**.
-  - **Accessibility (A11y)**: Accessible labels on all controls, live progress announcements (`role="status"`, `aria-live="polite"`), and keyboard navigation verified.
-  - **Network Privacy**: **0 POST requests and 0 bytes uploaded** during all conversion operations.
-
-### Milestone 4: Content & SEO Verification
-- Script: `test-fixtures/verify-pdf-seo.cjs`
-- Exactly 1 `<h1>Image to PDF Converter</h1>`.
-- 145-char meta description, canonical `https://browserfiletools.com/pdf/image-to-pdf`.
-- 5 visible FAQs matching `FAQPage` JSON-LD schema, plus `SoftwareApplication` and `BreadcrumbList`.
-
-### Milestone 5: Prior Tool Regressions
-- Tool #1 (HEIC to JPG): Converted `autumn_1440x960.heic` to JPG (1440 × 960 preserved) via `lightweight-regression.cjs`.
-- Tool #2 (Video Compressor): Multi-target compression (0.3 MB, 0.2 MB, 0.12 MB), MOV to MP4 conversion, and engine reuse verified passing 100% via `run-all-video-tests.cjs`.
-- Image Expansion (JPG to HEIC): Verified single, batch, Unicode, responsive, and privacy passing 100% via `run-all-jpg-heic-tests.cjs`.
-- Route Statuses: All 4 active tools return HTTP 200 (Active); `/pdf/subtitle-converter` returns HTTP 200 (Coming Soon).
-
-### Milestone 6: Static Analysis & Production Build
-- `npx astro check`: **0 errors, 0 warnings, 0 hints** (27 files checked).
-- `npx astro build`: **0 errors**, 10 static routes generated in 5.58s (`dist/pdf/image-to-pdf/index.html` built).
-
-### Milestone 7: Git Checkpoint
-- Commit: `feat: complete image to PDF converter`
-- Tag: `tool-3-image-to-pdf-complete`
-
----
-
-## Current Tool Progress — JPG to HEIC Converter
-
-### Milestone 1: HEIC Encoder Feasibility Decision
-- **Feasibility Investigation**:
-  - Investigated maintained in-browser HEIC/HEIF encoding packages on npm: `elheif` (kvazaar+libheif) and `@pbk20191/icodec` (x265+libheif).
-  - Selected `@pbk20191/icodec`: Provides genuine ISO BMFF HEIF output container with `ftypheic` signature and `mif1`, `heic`, `miaf` compatible brands.
-  - Crucial roundtrip verification test performed: Generated HEIC fixture (`test-gen.heic`) was fed into the existing `heic2any` decoder in a headless Google Chrome session via CDP. The file decoded back into a crisp JPEG without errors, proving 100% genuine HEIC compliance.
-- **Decision Reasoning**:
-  - 100% client-side WebAssembly execution; zero server calls or telemetry.
-  - Exposes fine-grained quality control (`quality: 0..100` mapped to x265 `--crf`), lossless mode, and encoder speed presets (`fast`, `medium`, `slow`).
-  - Single-threaded execution via Emscripten fibers avoids `SharedArrayBuffer` and COOP/COEP isolation headers, maintaining complete compatibility with Google Fonts and mobile Safari.
-
-### Milestone 2: Dependency & Architecture Selection
-- **Dependencies Installed**: `@pbk20191/icodec` (v0.9.3) added to `package.json`.
-- **Local Asset Isolation**:
-  - Self-hosted `heic-enc.wasm` (6.8 MB) in `public/heic/heic-enc.wasm` to ensure 100% offline, zero-network-leak conversion.
-- **Vite Optimization**: Configured `optimizeDeps.exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@pbk20191/icodec']` in `astro.config.mjs`.
-
-### Milestone 3: Data, Routing & Image Category Grouping
-- **Registry & Data**:
-  - Updated `src/data/tools.ts`: Added `group: 'Image Conversion'` property to group both `heic-to-jpg` and `jpg-to-heic`. Registered `jpg-to-heic` as `status: 'active'`, 156-character meta description, software metadata, and 5 structured FAQs.
-  - Updated `src/pages/[category]/index.astro`: Dynamic category layout supports tool groups; groups render under sub-headings (`Image Conversion`) with clean card grids.
-  - Cross-linked `HeicToJpgTool.astro` to `/image/jpg-to-heic` and `JpgToHeicTool.astro` to `/image/heic-to-jpg`.
-
-### Milestone 4: Client Conversion Engine & Reactive UI
-- **Script & UI Implementation**:
-  - `src/scripts/jpg-to-heic.ts`: Implemented canvas-based bitmap rendering, pixel extraction, lazy dynamic loading of `@pbk20191/icodec`, sequential queue processing, error isolation, deduplicated output filenames, and lazy-loaded JSZip batch packaging.
-  - `src/components/tools/JpgToHeicTool.astro`: Reactive UI with file dropzone, quality slider (50%–100%), batch queue table, real-time progress bar, responsive results card list with dimensions and size comparison, individual download buttons, and batch ZIP download.
-  - `src/components/tools/JpgToHeicContent.astro`: Educational and practical editorial content detailing HEIC benefits, device compatibility, step-by-step instructions, browser limitations, privacy guarantees, and 5 visible FAQs matching `FAQPage` schema.
-  - Mounted tool into dynamic route `src/pages/[category]/[tool].astro`.
-
-### Milestone 5: Real Browser Testing with Genuine Fixtures (CDP Suite)
-- **Fixtures Tested**: `landscape.jpg` (1200×800, 22.58 KB), `portrait.jpg` (600×900, 18.64 KB), `large_photo.jpg` (1920×1080), `my summer holiday.jpg`, `東京_旅行_2026.jpg`, and `corrupted.jpg`.
-- **Automated Real Browser Suite** (`test-fixtures/run-all-jpg-heic-tests.cjs`):
-  - Single conversion: `landscape.jpg` converted to `landscape.heic` (1200×800 dimensions preserved, genuine `ftypheic` container).
-  - Batch conversion & error isolation: 2 valid files converted sequentially; 1 corrupted file failed gracefully with clear inline error message without aborting the batch. Download All as ZIP button activated for $\ge 2$ converted items.
-  - Special filename handling: Filenames with spaces and Unicode Japanese characters processed without truncation or URI corruption.
-  - Responsive layout: Viewports 375px, 390px, 768px, 1024px, 1440px audited; 0 horizontal overflow detected.
-  - Accessibility audit: Sliders and live progress regions have appropriate aria-labels, role attributes, and polite announcements.
-  - Network privacy audit: 0 POST/upload requests, 0 bytes uploaded to remote servers.
-  - Category grouping audit: `/image` displays `Image Conversion` group heading with both active tools.
-
-### Milestone 6: Quality Multi-Level Testing & SEO Content Audit
-- **Quality Scaling Verification** (`test-fixtures/test-jpg-heic-quality.cjs`):
-  - 50% Quality: 18.35 KB (19% smaller than source 22.58 KB JPEG)
-  - 75% Quality: 60.71 KB
-  - 85% Quality: 64.82 KB
-  - 100% Quality: 66.50 KB
-- **Roundtrip Decode Test** (`test-fixtures/test-roundtrip-check.cjs`): Generated HEIC fixture (`test-gen.heic`) decoded back into JPEG via `heic2any` in Chrome, verifying 100% interoperability.
-- **SEO & Schema Audit** (`test-fixtures/verify-jpg-heic-seo.cjs`):
-  - Exactly 1 H1 (`JPG to HEIC Converter`), logical H2 hierarchy.
-  - 156-character meta description, canonical URL.
-  - 5 FAQs matching `FAQPage` JSON-LD schema, plus `SoftwareApplication` and `BreadcrumbList` schemas.
-
-### Milestone 7: Prior Tool Regression Testing
-- **Vite Cache Fix**: Fixed Vite dynamic import cache invalidation (HTTP 504 Outdated Optimize Dep) by purging `.vite` cache and restarting the dev server.
-- **Tool #1 HEIC to JPG Regression** (`test-fixtures/lightweight-regression.cjs`):
-  - `autumn_1440x960.heic` queued, converted in browser memory to JPG (1440×960 preserved), previewed, and downloaded.
-  - Route statuses verified: `/image/heic-to-jpg` (200), `/video/video-compressor` (200), `/pdf/image-to-pdf` (200, Coming Soon), `/pdf/subtitle-converter` (200, Coming Soon).
-- **Tool #2 Video Compressor Regression** (`test-fixtures/run-all-video-tests.cjs`):
-  - Multi-target compression (0.3 MB, 0.2 MB, 0.12 MB), MOV to MP4 conversion, bitrate warnings, FFmpeg engine reuse, responsiveness, and privacy verified 100% passing.
-
-### Milestone 8: Static Analysis & Production Build
-- `npx astro check`: **0 errors, 0 warnings, 0 hints** (24 files checked).
-- `npx astro build`: **0 errors**, 10 static routes generated in 3.57s (`/image/jpg-to-heic/index.html` built).
-
-### Milestone 9: Git Checkpoint
-- Commit: `feat: complete JPG to HEIC converter`
-- Tag: `image-jpg-to-heic-complete`
-
----
-
-## Current Tool Progress — Tool #2 Video Compressor
-
-- **Status**: Development Complete, Real Browser Verified, Content & SEO Complete.
-- **Component & Script Architecture**:
-  - `src/components/tools/VideoCompressorTool.astro`: Main reactive UI with file dropzone, metadata preview card, target size controls, resolution scaling, real-time progress card, and result download card.
-  - `src/scripts/video-compressor.ts`: Modular client-side engine manager handling lazy loading, WebAssembly virtual filesystem lifecycle, dynamic bitrate budget calculation, overshoot retry logic, and object URL memory management.
-  - `src/components/tools/VideoCompressorContent.astro`: Educational and practical editorial content explaining video compression mechanics, real-world file size limits, and 100% client-side privacy guarantees.
-- **FFmpeg Engine Integration**:
-  - `@ffmpeg/ffmpeg` (v0.12.15) & `@ffmpeg/util` (v0.12.2) with single-threaded `@ffmpeg/core` (v0.12.10 ESM).
-  - Self-hosted in `public/ffmpeg/ffmpeg-core.js` and `public/ffmpeg/ffmpeg-core.wasm`.
-  - Zero CDN dependencies, 100% offline, zero data leakage.
-  - Single-threaded core eliminates `SharedArrayBuffer` requirement, avoiding COOP/COEP headers that disrupt Google Fonts or mobile Safari compatibility.
-  - Lazy-loaded: Engine loads only when the user clicks "Compress Video". Cached in memory and reused for consecutive conversions in the same session without page refresh.
-- **Target-Size Budget & Bitrate Calculation**:
-  - Total bit budget: $R_{\text{total}} = \frac{\text{TargetBytes} \times 8}{\text{DurationSec}}$
-  - Container safety reserve: $4\%$ container overhead ($R_{\text{net}} = R_{\text{total}} \times 0.96$)
-  - Audio bitrate strategy:
-    - 128 kbps for total bitrate $\ge 800$ kbps
-    - 96 kbps for $400 \le \text{bitrate} < 800$ kbps
-    - 64 kbps for $< 400$ kbps
-  - Video bitrate: $R_{\text{video}} = \max(45\text{ kbps}, \frac{R_{\text{net}} - R_{\text{audio}}}{1000})$
-  - Corrective retry pass: If first encode exceeds target by $> 10\%$, calculates corrective ratio $\text{adjustFactor} = \frac{\text{targetBytes}}{\text{firstOutputBytes}} \times 0.95$ and runs one additional encoding pass.
-- **Resolution Control & Safeguards**:
-  - Options: Keep Original, 1080p, 720p, 480p.
-  - No upscaling: If source is smaller than target resolution, source resolution is preserved.
-  - Aspect ratio preserved and dimensions rounded to even numbers for H.264 macroblock compliance.
-- **Visual Warnings & Honest Messaging**:
-  - Target larger than source: *"Target size is larger than the original video. Compression may not reduce file size."*
-  - Aggressive target: *"Target size is very small for this video duration. Visual quality will be significantly reduced."*
-  - Memory warning: Prominently warns that large videos may exceed browser RAM.
-- **Output Container & Playback**:
-  - MP4 container (`libx264` video, `aac` audio) with `-movflags +faststart`.
-  - Filename mapping: `input.mp4` $\rightarrow$ `input-compressed.mp4`; `input.mov` $\rightarrow$ `input-compressed.mp4`.
-
----
-
-## Current Tool Verification
-
-Automated CDP test suite (`test-fixtures/run-all-video-tests.cjs`), SEO verification (`test-fixtures/verify-video-content-seo.cjs`), and lightweight regression (`test-fixtures/lightweight-regression.cjs`) executed against real Google Chrome:
-
-### 1. MP4 Target-Size Multi-Target Accuracy (`sample.mp4`, 383,631 B, 560x320, 5.568s)
-| Target (MB) | Target (Bytes) | Actual Output (Bytes) | Actual (UI) | Difference vs Target | Size Reduction vs Source | Passes | Valid Container |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **0.30 MB** | 314,573 B | 271,029 B | 264.7 KB | **-13.8%** (Under budget) | **29% smaller** | 1 pass | Valid MP4 (`ftypisom`) |
-| **0.20 MB** | 209,715 B | 196,367 B | 191.8 KB | **-6.4%** (Under budget) | **49% smaller** | 1 pass | Valid MP4 (`ftypisom`) |
-| **0.12 MB** | 125,829 B | 196,367 B | 191.8 KB | **+56.1%** (Hit safety floor) | **49% smaller** | 1 pass | Valid MP4 (`ftypisom`) |
-
-### 2. MOV to MP4 Conversion (`sample.mov`, 469,690 B, 1280x731, 5.57s)
-- **Target Size**: 0.25 MB (262,144 B)
-- **Actual Output**: 253,646 B (247.7 KB) — **46% smaller**, within target budget (-3.2% deviation)
-- **Container**: Successfully transmuxed/encoded from QuickTime to standard MP4 with valid `ftyp` box
-- **Playback**: Valid duration (5.571s), dimensions preserved (1280 × 731), native HTML5 `<video>` playback verified
-
-### 3. Engine Reuse Without Refresh
-- Consecutive conversion executed immediately without page reload in under 4 seconds.
-- Engine cached in memory; no redundant WASM re-fetching or reinitialization.
-
-### 4. Quality Protection & Size Warnings
-- Aggressive target (0.05 MB): Warning banner displayed (*"Target size is very small for this video duration. Visual quality will be significantly reduced."*).
-- Target larger than source (10 MB): Warning banner displayed (*"Target size is larger than the original video. Compression may not reduce file size."*).
-
-### 5. Responsive Viewport Audit
-- 375px (Mobile portrait): **PASS** (0 horizontal overflow)
-- 390px (iPhone 12/13/14/15/16): **PASS** (0 horizontal overflow)
-- 768px (Tablet portrait): **PASS** (0 horizontal overflow)
-- 1024px (Small desktop): **PASS** (0 horizontal overflow)
-- 1440px (Wide desktop): **PASS** (0 horizontal overflow)
-
-### 6. Accessibility (A11y)
-- `aria-label="Target file size in megabytes"` on target input.
-- `aria-label="Video Resolution Scaling"` on resolution select.
-- `role="status"` and `aria-live="polite"` on progress announcement container.
-- Skip to content link operational.
-
-### 7. Network Privacy Audit
-- Remote POST requests: **0**
-- Remote file payload uploads: **0 bytes**
-- 100% of processing executed client-side inside local WebAssembly Web Worker.
-
-### 8. Content & SEO Verification
-- Exactly 1 `<h1>`: `Video Compressor`.
-- Semantic `<h2>` hierarchy (`What is video compression?`, `Why compress a video?`, `How It Works`, `Browser and file limitations`, `Frequently asked questions`).
-- Meta description: 145 characters (`Compress MP4 and MOV videos to a target file size in your browser. Fast, 100% private in-browser WebAssembly processing with zero server uploads.`).
-- Canonical: `https://browserfiletools.com/video/video-compressor`.
-- JSON-LD Schemas: Valid `SoftwareApplication`, `BreadcrumbList`, and `FAQPage` (matching 5 visible FAQs).
-
-### 9. Tool #1 Light Regression
-- Executed `node test-fixtures/lightweight-regression.cjs`.
-- Genuine Nokia `autumn_1440x960.heic` queued, converted, previewed, and downloaded.
-- 1440 × 960 resolution preserved; JPEG MIME and payload verified.
-- All category and tool routes verified HTTP 200.
-
----
-
-## Current Tool Bugs / Fixes
-
-1. **Bug 1: Vite Worker Prebundling Failure (`ERR_ABORTED`)**
-   - *Symptom*: Loading `@ffmpeg/ffmpeg` caused Vite to attempt prebundling `worker.js` into `node_modules/.vite/deps/worker.js`, resulting in `net::ERR_ABORTED`.
-   - *Fix*: Added `vite: { optimizeDeps: { exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'] }, worker: { format: 'es' } }` to `astro.config.mjs`.
-2. **Bug 2: Worker Module Import Type Mismatch**
-   - *Symptom*: `@ffmpeg/ffmpeg` loads Web Workers as `{ type: 'module' }`. Initial copying of `dist/umd/ffmpeg-core.js` failed because UMD files do not have `export default createFFmpegCore`.
-   - *Fix*: Copied `node_modules/@ffmpeg/core/dist/esm/*` to `public/ffmpeg/`, providing the ESM build with native default export.
-3. **Bug 3: Target Size Input Clamping for Sub-Megabyte Files**
-   - *Symptom*: `target-size-input` had `min="1"` and `step="1"`, and JS used `Math.max(1, ...)`, preventing sub-megabyte compression testing on short sample clips.
-   - *Fix*: Updated input to `min="0.01"`, `step="any"`, and JS parsing to `Math.max(0.05, ...)`.
-4. **Bug 4: Dropzone Reset Decoupling**
-   - *Symptom*: `FileDropzone` listened to `file-dropzone:reset` only on its own container element, preventing the parent tool component from resetting the dropzone state.
-   - *Fix*: Added a global `document.addEventListener('file-dropzone:reset', ...)` in `FileDropzone.astro`.
-5. **Bug 5: Component Ready State Synchronization**
-   - *Symptom*: Asynchronous `<video>` metadata extraction could race with user interactions or automated test inputs.
-   - *Fix*: Added `data-ready="true"` attribute to `#video-config-card` upon completion of metadata extraction, and cleaned it in `resetToIdle()`.
-
----
-
-## Current Tool Next Action
-
-Tool #2 is complete and verified. Next action: Plan and implement JPG to HEIC under Image tools, then proceed to Tool #3 — Image to PDF (`/pdf/image-to-pdf`).
-
----
-
-## Tool Status
-
-| Tool | Route | Status | Functional Verification | Content / SEO | Launch Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **HEIC to JPG** | `/image/heic-to-jpg` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
-| **Video Compressor** | `/video/video-compressor` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
-| **JPG to HEIC** | `/image/jpg-to-heic` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
-| **Image to PDF** | `/pdf/image-to-pdf` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
-| **Subtitle Converter** | `/pdf/subtitle-converter` | Coming Soon | Foundation Dropzone Shell | Shell Metadata | Coming Soon |
-
----
-
-## Architecture
-
-- **Framework & Runtime**: Astro v5 static site generator with TypeScript and Tailwind CSS.
-- **Client-Side Processing Guarantee**: 100% in-browser processing. Zero server backends, zero remote API endpoints, zero file uploads, zero cloud queues.
-- **Single Source of Truth**: `src/data/tools.ts` defines all categories, tools, metadata, limitations, and FAQs.
-- **Layout System**:
-  - `BaseLayout.astro`: Provides HTML document skeleton, canonical URL resolution, Open Graph / Twitter cards, meta tags, and multi-schema JSON-LD rendering.
-  - `ToolLayout.astro`: Reusable layout providing breadcrumbs, H1/title hero, compact & prominent privacy badges, main conversion slot, ad placement, editorial slot, and structured content slots.
-- **Components**:
-  - `FileDropzone.astro`: Accessible drag-and-drop and click-to-browse file selector with memory threshold warning and custom event dispatching (`file-dropzone:files-selected`, `file-dropzone:reset`).
-  - `HeicToJpgTool.astro`: Active converter component for Tool #1, providing quality controls (50%–100%), sequential batch processing, real progress bar, preview thumbnails, individual JPG downloads, and batch ZIP export.
-  - `VideoCompressorTool.astro`: Active converter component for Tool #2, providing single-video MP4/MOV compression to target file size (MB), resolution presets, real-time FFmpeg progress, and direct MP4 download.
-  - `HeicContent.astro`: Rich static editorial content for Tool #1.
-  - `VideoCompressorContent.astro`: Rich static editorial content for Tool #2.
-- **Dynamic Routing**: `src/pages/[category]/[tool].astro` dynamically maps `getAllTools()` into static routes with automatic code splitting.
-- **Structured Data**: Injects `SoftwareApplication`, `BreadcrumbList`, and `FAQPage` JSON-LD schemas on active tool pages.
-- **Code-Splitting & Lazy Loading**: Heavy conversion engines (`heic2any` ~1.35 MB, `jszip` ~98 KB, `@ffmpeg/ffmpeg` ~11 kB client wrapper) are dynamically loaded only when the user initiates processing. FFmpeg WebAssembly core assets are self-hosted in `public/ffmpeg/`.
-
----
-
-## Completed Tool History
-
-### Tool #1 — HEIC to JPG
-
-#### Phase 1.1 — Foundation & Site Shell
-- Built core Astro site structure, Tailwind design system, `src/data/tools.ts` data layer, `Header`, `Footer`, `BaseLayout`, and `ToolLayout`. Initialized all 9 static routes.
-
-#### Phase 1.2 — Foundation Hardening & Dropzone
-- Hardened `FileDropzone.astro` with decoupled custom events, accessible keyboard navigation, and memory warning boundaries (> 50 MB / > 100 MB). Verified zero horizontal overflow across 375px–1440px.
-
-#### Phase 1.3 — HEIC to JPG Implementation
-- Implemented `src/scripts/heic-to-jpg.ts` and `src/components/tools/HeicToJpgTool.astro`. Integrated dynamic imports for `heic2any` and `jszip`. Added batch queue management, sequential conversion loop, error isolation per file, and ZIP packaging.
-
-#### Phase 1.4 — Real Browser Verification (Nokia Conformance Fixtures)
-- Automated Google Chrome via CDP without mock data. Tested with genuine Nokia HEIF Conformance files (`autumn_1440x960.heic`, `winter_1440x960.heic`, `spring_1440x960.heic`).
-- Verified JPEG signature `0xFF 0xD8 0xFF 0xE0`, 1440 × 960 dimensions preserved, quality levels (50%, 90%, 100%), zero POST uploads, and error isolation with `corrupted.heic`.
-
-#### Phase 1.5 — Final Functional Gap Check & Hardening
-- Resolved duplicate output filename collisions (`photo.jpg`, `photo-2.jpg`).
-- Added accessible progress announcements (`role="status"`, `aria-live="polite"`).
-- Hardened queue reset to completely clear inner DOM elements and ZIP button visibility.
-- Verified object URL cleanup lifecycle balance via `activeObjectUrls` tracking.
-
-#### Phase 1.6 — Supporting Content & On-Page SEO
-- Created `HeicContent.astro`. Verified 1 H1, logical H2 hierarchy, 150-char meta description, and FAQPage schema matching visible details text.
-
-#### Phase 1.7 — Final HEIC QA & Git Checkpoint
-- Full regression suite passed across single-file conversion, multi-file queueing, ZIP export, and failure isolation.
-- Git checkpoint: `05cb0d1` (`feat: finish HEIC to JPG tool with QA and SEO`), tag: `tool-1-heic-complete`.
-
----
-
-### Tool #2 — Video Compressor
-
-#### Milestone 1: Architecture & Dependencies
-- Selected single-threaded WebAssembly core (`@ffmpeg/core` v0.12.10 ESM).
-- Reasoning: Avoids `SharedArrayBuffer` requirement and COOP/COEP isolation headers that break Google Fonts or degrade mobile Safari compatibility.
-- Installed `@ffmpeg/ffmpeg` (0.12.15), `@ffmpeg/util` (0.12.2), `@ffmpeg/core` (0.12.10).
-- Self-hosted `ffmpeg-core.js` and `ffmpeg-core.wasm` in `public/ffmpeg/`.
-- Designed bitrate budget formula with 4% container reserve, stepped audio bitrate (64/96/128 kbps), and 45 kbps video floor.
-
-#### Milestone 2: FFmpeg Engine Successfully Loads
-- Implemented `src/scripts/video-compressor.ts`. Configured Vite `optimizeDeps.exclude` and `worker: { format: 'es' }`.
-- Lazy loading verified: FFmpeg does not load on initial page render; initializes dynamically upon conversion and is cached for session reuse.
-
-#### Milestone 3: First Genuine Video Successfully Compresses
-- Tested `test-fixtures/sample.mp4` (383,631 B, 560x320, 5.568s). Encoded with `libx264` + `aac` + `-movflags +faststart`.
-- Output validated: ISO BMFF MP4 (`ftypisom`), 560 × 320 dimensions, 5.568s duration, native HTML5 playback confirmed.
-
-#### Milestone 4: Target-Size Logic & Accuracy
-- Multi-target accuracy verified:
-  - 0.30 MB target $\rightarrow$ 264.7 KB (-13.8% under target, 29% smaller than source)
-  - 0.20 MB target $\rightarrow$ 191.8 KB (-6.4% under target, 49% smaller than source)
-  - 0.12 MB target $\rightarrow$ 191.8 KB (hit safety floor, 49% smaller than source)
-
-#### Milestone 5: MP4 & MOV Testing Completed
-- Tested `sample.mov` (469,690 B, QuickTime container). Target 0.25 MB $\rightarrow$ 247.7 KB output (-3.2% deviation, 46% reduction). Transcoded to standard MP4 with verified playback.
-- Engine reuse verified: Consecutive second conversion completed without reload in < 4s.
-
-#### Milestone 6: Quality Protection & Size Warnings
-- Aggressive target (0.05 MB) and target larger than source (10 MB) warnings verified in browser DOM.
-
-#### Milestone 7: Responsive, Accessibility & Privacy Testing
-- Responsive viewports (375px, 390px, 768px, 1024px, 1440px) passed with 0 horizontal overflow.
-- Accessibility labels, live regions, and keyboard operation verified.
-- Privacy audit: 0 POST requests, 0 byte leaks.
-
-#### Milestone 8: Supporting Content & SEO Completed
-- Created `VideoCompressorContent.astro`. Updated `src/data/tools.ts` with 145-char meta description, 1 H1, logical H2s, 5 FAQs matching `FAQPage` JSON-LD schema, `SoftwareApplication`, and `BreadcrumbList`.
-
-#### Milestone 9: Light Regression of Tool #1 Passed
-- HEIC converter queues, converts, previews, and downloads genuine Nokia fixtures without regressions. All routes verified HTTP 200.
-
-#### Milestone 10: Production Build & Static Analysis
-- `npx astro check`: 0 errors across 21 files.
-- `npx astro build`: 0 errors; 9 static routes built in 2.60s. Client script 11.0 kB.
-
-#### Milestone 11: Git Checkpoint
-- Commit: `1dea4b2` (`feat: complete browser video compressor`)
-- Tag: `tool-2-video-compressor-complete`
+## Historical Milestone Archives (Completed Tools)
+
+### [Historical Snapshot] Tool #4 — Subtitle Converter
+- Completed in prior sprint (Git commit `18b96cf`, Tag `tool-4-subtitle-converter-complete`).
+- Zero-dependency browser-native SRT / VTT / TXT converter with live editor.
+- 54/54 real browser tests passed, 0 POST requests, 0 byte leaks.
+
+### [Historical Snapshot] Tool #3 — Image to PDF Converter
+- Completed in prior sprint (Git tag `tool-3-image-to-pdf-complete`).
+- In-browser jsPDF document compiler supporting multiple page sizes, orientations, margins, drag-and-drop reordering.
+- Real browser tests passed, error isolation confirmed.
+
+### [Historical Snapshot] Additional Tool — JPG to HEIC Converter
+- Completed in prior sprint (Git tag `image-jpg-to-heic-complete`).
+- In-browser libheif/x265 WebAssembly encoding with roundtrip validation against `heic2any`.
+
+### [Historical Snapshot] Tool #2 — Video Compressor
+- Completed in prior sprint (Git commit `1dea4b2`, Tag `tool-2-video-compressor-complete`).
+- Single-threaded WebAssembly FFmpeg v0.12 engine with target-size budget calculations and MP4/MOV support.
+
+### [Historical Snapshot] Tool #1 — HEIC to JPG
+- Completed in prior sprint (Git commit `05cb0d1`, Tag `tool-1-heic-complete`).
+- In-browser `heic2any` decoding, Nokia conformance validation, batch processing, and ZIP export.
 
 ---
 
@@ -552,10 +228,12 @@ Tool #2 is complete and verified. Next action: Plan and implement JPG to HEIC un
 1. **Physical Mobile Device Verification**:
    - Physical iPhone Safari and Android Chrome verification remains pending before production launch.
 2. **Font Hosting (Optional Hardening)**:
-   - External requests to Google Fonts (`fonts.googleapis.com` / `fonts.gstatic.com`) occur for typography assets. No user file data is transmitted, but self-hosting fonts locally can be considered in a subsequent optimization pass.
+   - External requests to Google Fonts (`fonts.googleapis.com` / `fonts.gstatic.com`) occur for typography assets. No user file data is transmitted.
 
 ---
 
 ## Next Recommended Tool
 
-Tool #4 — Subtitle Converter (`/pdf/subtitle-converter`).
+Based on the original category inventory and logical expansion:
+- **Audio Compressor / Converter** (`/audio/audio-compressor` or `/audio/audio-converter`), or
+- **PDF Merger** (`/pdf/pdf-merger`).
