@@ -154,6 +154,11 @@ const { tool } = Astro.props;
       <!-- Result cards dynamically inserted -->
     </div>
   </div>
+
+  <!-- Cross-link to reverse tool -->
+  <div class="mt-8 text-center text-xs text-surface-500">
+    Need the reverse? <a href="/image/jpg-to-heic" class="font-medium text-brand-600 hover:text-brand-700 underline underline-offset-2">Convert JPG to HEIC</a>.
+  </div>
 </div>
 
 <script>
@@ -456,6 +461,7 @@ const { tool } = Astro.props;
           completedCount++;
         } catch (err: any) {
           // Per-file error isolation: one failed file does not crash the rest
+          console.error('HEIC conversion error:', err);
           item.status = 'failed';
           const msg = err?.message || String(err);
           if (msg.includes('format') || msg.includes('not supported') || msg.includes('container')) {

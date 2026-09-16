@@ -13,6 +13,7 @@ class CDPClient {
     this.ws = null;
     this.id = 1;
     this.callbacks = new Map();
+    this.eventListeners = new Map();
   }
 
   async connect() {
@@ -30,6 +31,9 @@ class CDPClient {
           } else {
             resolve(msg.result);
           }
+        } else if (msg.method) {
+          const listeners = this.eventListeners.get(msg.method) || [];
+          listeners.forEach((cb) => cb(msg.params));
         }
       };
     });
@@ -41,6 +45,13 @@ class CDPClient {
       this.callbacks.set(id, { resolve, reject });
       this.ws.send(JSON.stringify({ id, method, params }));
     });
+  }
+
+  on(event, callback) {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, []);
+    }
+    this.eventListeners.get(event).push(callback);
   }
 
   close() {
@@ -78,6 +89,13 @@ async function sleep(ms) {
   const pageTarget = targets.find((t) => t.type === 'page');
   const cdp = new CDPClient(pageTarget.webSocketDebuggerUrl);
   await cdp.connect();
+
+  cdp.on('Runtime.consoleAPICalled', (params) => {
+    console.log('   [BROWSER LOG]', params.args.map((a) => a.value || a.description || JSON.stringify(a)).join(' '));
+  });
+  cdp.on('Runtime.exceptionThrown', (params) => {
+    console.log('   [BROWSER EXCEPTION]', JSON.stringify(params.exceptionDetails));
+  });
 
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
@@ -146,7 +164,18 @@ async function sleep(ms) {
     }
   }
 
-  if (!converted) throw new Error('Conversion timed out');
+  if (!converted) {
+    const debug = await cdp.send('Runtime.evaluate', {
+      expression: `({
+        results: document.querySelector('#results-list')?.innerHTML,
+        queue: document.querySelector('#queue-list')?.innerHTML,
+        btn: document.querySelector('#start-convert-btn')?.outerHTML
+      })`,
+      returnByValue: true,
+    });
+    console.error('Debug DOM on timeout:', debug.result.value);
+    throw new Error('Conversion timed out');
+  }
   console.log('Conversion succeeded: 1 result card generated');
 
   // 3. Result Preview

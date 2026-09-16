@@ -2,23 +2,98 @@
 
 ## Current Project Status
 
-- **Current Phase**: Tool #2 — Video Compressor — Complete
+- **Current Phase**: Image Tool Expansion — JPG to HEIC: Complete & Production-Ready
 - **Current Completed Tools**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Production-Ready, Real Browser Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Production-Ready, Real Browser Verified
-- **Next Planned Work**: Add JPG to HEIC converter under Image tools, then continue to Tool #3 — Image to PDF.
-- **Active In-Development Tool**: None (Tool #2 complete; awaiting next tool phase)
+  3. JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
+- **Active In-Development Tool**: None (JPG to HEIC complete; ready for Tool #3 — Image to PDF)
+- **Next Planned Work**: Tool #3 — Image to PDF (`/pdf/image-to-pdf`).
 - **Active Routes**:
   - `/image/heic-to-jpg` (Tool #1: Active)
   - `/video/video-compressor` (Tool #2: Active)
+  - `/image/jpg-to-heic` (Image Expansion: Active)
   - `/pdf/image-to-pdf` (Tool #3: Coming Soon)
   - `/pdf/subtitle-converter` (Tool #4: Coming Soon)
   - Category routes: `/image`, `/video`, `/pdf`, `/audio`
   - Homepage: `/`
 - **Build & Static Analysis Status**:
-  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (21 files checked)
-  - `npx astro build`: **0 errors**, 9 static routes built in ~2.6s, client bundle 11.0 kB
-  - Development URL: `http://localhost:4321/video/video-compressor` (Server active)
+  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (24 files checked)
+  - `npx astro build`: **0 errors**, 10 static routes built in 3.57s
+  - Development URL: `http://localhost:4321/image/jpg-to-heic` (Server active)
+- **Next Action**: Ready for Tool #3 — Image to PDF (`/pdf/image-to-pdf`)
+
+---
+
+## Current Tool Progress — JPG to HEIC Converter
+
+### Milestone 1: HEIC Encoder Feasibility Decision
+- **Feasibility Investigation**:
+  - Investigated maintained in-browser HEIC/HEIF encoding packages on npm: `elheif` (kvazaar+libheif) and `@pbk20191/icodec` (x265+libheif).
+  - Selected `@pbk20191/icodec`: Provides genuine ISO BMFF HEIF output container with `ftypheic` signature and `mif1`, `heic`, `miaf` compatible brands.
+  - Crucial roundtrip verification test performed: Generated HEIC fixture (`test-gen.heic`) was fed into the existing `heic2any` decoder in a headless Google Chrome session via CDP. The file decoded back into a crisp JPEG without errors, proving 100% genuine HEIC compliance.
+- **Decision Reasoning**:
+  - 100% client-side WebAssembly execution; zero server calls or telemetry.
+  - Exposes fine-grained quality control (`quality: 0..100` mapped to x265 `--crf`), lossless mode, and encoder speed presets (`fast`, `medium`, `slow`).
+  - Single-threaded execution via Emscripten fibers avoids `SharedArrayBuffer` and COOP/COEP isolation headers, maintaining complete compatibility with Google Fonts and mobile Safari.
+
+### Milestone 2: Dependency & Architecture Selection
+- **Dependencies Installed**: `@pbk20191/icodec` (v0.9.3) added to `package.json`.
+- **Local Asset Isolation**:
+  - Self-hosted `heic-enc.wasm` (6.8 MB) in `public/heic/heic-enc.wasm` to ensure 100% offline, zero-network-leak conversion.
+- **Vite Optimization**: Configured `optimizeDeps.exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@pbk20191/icodec']` in `astro.config.mjs`.
+
+### Milestone 3: Data, Routing & Image Category Grouping
+- **Registry & Data**:
+  - Updated `src/data/tools.ts`: Added `group: 'Image Conversion'` property to group both `heic-to-jpg` and `jpg-to-heic`. Registered `jpg-to-heic` as `status: 'active'`, 156-character meta description, software metadata, and 5 structured FAQs.
+  - Updated `src/pages/[category]/index.astro`: Dynamic category layout supports tool groups; groups render under sub-headings (`Image Conversion`) with clean card grids.
+  - Cross-linked `HeicToJpgTool.astro` to `/image/jpg-to-heic` and `JpgToHeicTool.astro` to `/image/heic-to-jpg`.
+
+### Milestone 4: Client Conversion Engine & Reactive UI
+- **Script & UI Implementation**:
+  - `src/scripts/jpg-to-heic.ts`: Implemented canvas-based bitmap rendering, pixel extraction, lazy dynamic loading of `@pbk20191/icodec`, sequential queue processing, error isolation, deduplicated output filenames, and lazy-loaded JSZip batch packaging.
+  - `src/components/tools/JpgToHeicTool.astro`: Reactive UI with file dropzone, quality slider (50%–100%), batch queue table, real-time progress bar, responsive results card list with dimensions and size comparison, individual download buttons, and batch ZIP download.
+  - `src/components/tools/JpgToHeicContent.astro`: Educational and practical editorial content detailing HEIC benefits, device compatibility, step-by-step instructions, browser limitations, privacy guarantees, and 5 visible FAQs matching `FAQPage` schema.
+  - Mounted tool into dynamic route `src/pages/[category]/[tool].astro`.
+
+### Milestone 5: Real Browser Testing with Genuine Fixtures (CDP Suite)
+- **Fixtures Tested**: `landscape.jpg` (1200×800, 22.58 KB), `portrait.jpg` (600×900, 18.64 KB), `large_photo.jpg` (1920×1080), `my summer holiday.jpg`, `東京_旅行_2026.jpg`, and `corrupted.jpg`.
+- **Automated Real Browser Suite** (`test-fixtures/run-all-jpg-heic-tests.cjs`):
+  - Single conversion: `landscape.jpg` converted to `landscape.heic` (1200×800 dimensions preserved, genuine `ftypheic` container).
+  - Batch conversion & error isolation: 2 valid files converted sequentially; 1 corrupted file failed gracefully with clear inline error message without aborting the batch. Download All as ZIP button activated for $\ge 2$ converted items.
+  - Special filename handling: Filenames with spaces and Unicode Japanese characters processed without truncation or URI corruption.
+  - Responsive layout: Viewports 375px, 390px, 768px, 1024px, 1440px audited; 0 horizontal overflow detected.
+  - Accessibility audit: Sliders and live progress regions have appropriate aria-labels, role attributes, and polite announcements.
+  - Network privacy audit: 0 POST/upload requests, 0 bytes uploaded to remote servers.
+  - Category grouping audit: `/image` displays `Image Conversion` group heading with both active tools.
+
+### Milestone 6: Quality Multi-Level Testing & SEO Content Audit
+- **Quality Scaling Verification** (`test-fixtures/test-jpg-heic-quality.cjs`):
+  - 50% Quality: 18.35 KB (19% smaller than source 22.58 KB JPEG)
+  - 75% Quality: 60.71 KB
+  - 85% Quality: 64.82 KB
+  - 100% Quality: 66.50 KB
+- **Roundtrip Decode Test** (`test-fixtures/test-roundtrip-check.cjs`): Generated HEIC fixture (`test-gen.heic`) decoded back into JPEG via `heic2any` in Chrome, verifying 100% interoperability.
+- **SEO & Schema Audit** (`test-fixtures/verify-jpg-heic-seo.cjs`):
+  - Exactly 1 H1 (`JPG to HEIC Converter`), logical H2 hierarchy.
+  - 156-character meta description, canonical URL.
+  - 5 FAQs matching `FAQPage` JSON-LD schema, plus `SoftwareApplication` and `BreadcrumbList` schemas.
+
+### Milestone 7: Prior Tool Regression Testing
+- **Vite Cache Fix**: Fixed Vite dynamic import cache invalidation (HTTP 504 Outdated Optimize Dep) by purging `.vite` cache and restarting the dev server.
+- **Tool #1 HEIC to JPG Regression** (`test-fixtures/lightweight-regression.cjs`):
+  - `autumn_1440x960.heic` queued, converted in browser memory to JPG (1440×960 preserved), previewed, and downloaded.
+  - Route statuses verified: `/image/heic-to-jpg` (200), `/video/video-compressor` (200), `/pdf/image-to-pdf` (200, Coming Soon), `/pdf/subtitle-converter` (200, Coming Soon).
+- **Tool #2 Video Compressor Regression** (`test-fixtures/run-all-video-tests.cjs`):
+  - Multi-target compression (0.3 MB, 0.2 MB, 0.12 MB), MOV to MP4 conversion, bitrate warnings, FFmpeg engine reuse, responsiveness, and privacy verified 100% passing.
+
+### Milestone 8: Static Analysis & Production Build
+- `npx astro check`: **0 errors, 0 warnings, 0 hints** (24 files checked).
+- `npx astro build`: **0 errors**, 10 static routes generated in 3.57s (`/image/jpg-to-heic/index.html` built).
+
+### Milestone 9: Git Checkpoint
+- Commit: `feat: complete JPG to HEIC converter`
+- Tag: `image-jpg-to-heic-complete`
 
 ---
 
@@ -148,6 +223,7 @@ Tool #2 is complete and verified. Next action: Plan and implement JPG to HEIC un
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **HEIC to JPG** | `/image/heic-to-jpg` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
 | **Video Compressor** | `/video/video-compressor` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
+| **JPG to HEIC** | `/image/jpg-to-heic` | **Development Complete** | Real Browser Verified | Complete | Browser Verified — Physical Mobile Verification Pending |
 | **Image to PDF** | `/pdf/image-to-pdf` | Coming Soon | Foundation Dropzone Shell | Shell Metadata | Coming Soon |
 | **Subtitle Converter** | `/pdf/subtitle-converter` | Coming Soon | Foundation Dropzone Shell | Shell Metadata | Coming Soon |
 
@@ -267,4 +343,4 @@ Tool #2 is complete and verified. Next action: Plan and implement JPG to HEIC un
 
 ## Next Recommended Tool
 
-Add JPG to HEIC converter under Image tools, then continue to Tool #3 — Image to PDF (`/pdf/image-to-pdf`).
+Tool #3 — Image to PDF (`/pdf/image-to-pdf`).

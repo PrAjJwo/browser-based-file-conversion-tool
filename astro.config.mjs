@@ -13,7 +13,7 @@ export default defineConfig({
   ],
   vite: {
     optimizeDeps: {
-      exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+      exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@pbk20191/icodec'],
     },
     worker: {
       format: 'es',

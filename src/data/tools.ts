@@ -14,6 +14,7 @@ export interface FAQItem {
 export interface Tool {
   slug: string;
   category: ToolCategory;
+  group?: string;
   title: string;
   metaTitle?: string;
   metaDescription: string;
@@ -76,6 +77,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'heic-to-jpg',
     category: 'image',
+    group: 'Image Conversion',
     title: 'HEIC to JPG Converter',
     metaTitle: 'HEIC to JPG Converter — Convert HEIC Photos Online',
     metaDescription: 'Convert HEIC and HEIF photos to JPG format directly in your browser. Process single or multiple images locally with complete privacy and zero server uploads.',
@@ -133,6 +135,66 @@ export const TOOLS: Tool[] = [
       {
         question: 'Are my HEIC photos uploaded anywhere?',
         answer: 'No. Your photos are never transmitted over the internet or uploaded to any server. All decoding and JPG encoding execute 100% locally inside your web browser. Your files never leave your device.',
+      },
+    ],
+  },
+  {
+    slug: 'jpg-to-heic',
+    category: 'image',
+    group: 'Image Conversion',
+    title: 'JPG to HEIC Converter',
+    metaTitle: 'JPG to HEIC Converter — Convert JPG Images to HEIC',
+    metaDescription: 'Convert JPG and JPEG images to high-efficiency HEIC format directly in your browser. Fast, 100% private in-browser WebAssembly processing with zero uploads.',
+    shortBlurb: 'Convert standard JPG/JPEG images into modern high-efficiency HEIC files right in your browser with complete privacy and zero server uploads.',
+    acceptedFiles: '.jpg, .jpeg, image/jpeg',
+    acceptedTypesLabel: 'JPG or JPEG images',
+    sizeWarningMB: 50,
+    sizeCeilingNote: 'Batch conversions over 50 MB total execute in browser device memory. Sequential encoding ensures stability.',
+    status: 'active',
+    howItWorks: [
+      {
+        step: 1,
+        title: 'Choose or drop JPG images',
+        description: 'Select one or more .jpg or .jpeg images from your device, or drag and drop them directly onto the converter.',
+      },
+      {
+        step: 2,
+        title: 'Select HEIC quality level',
+        description: 'Adjust the quality slider (50% to 100%) to balance file size against visual detail. Default 85% delivers strong compression efficiency.',
+      },
+      {
+        step: 3,
+        title: 'Convert and download HEIC files',
+        description: 'Download individual converted .heic files or package the entire batch into a convenient ZIP archive.',
+      },
+    ],
+    limitations: [
+      'In-browser HEIC encoding requires allocating device RAM to unpack and compress high-resolution pixel data using WebAssembly.',
+      'Converting JPG to HEIC cannot restore image quality or details that were already lost during original JPEG compression.',
+      'Original EXIF camera metadata and GPS tags are stripped during browser pixel decoding to ensure user privacy.',
+      'File size reduction varies: while HEIC is generally more efficient, already heavily-compressed JPGs may see minimal file size reduction.',
+      'HEIC format compatibility varies: while modern Apple and Android devices natively support HEIC, some older Windows software and web browsers require dedicated decoders.',
+    ],
+    faqs: [
+      {
+        question: 'What is the difference between JPG and HEIC?',
+        answer: 'JPG is an established image format widely supported across virtually all devices and browsers. HEIC (High Efficiency Image Container) is a newer format based on HEIF/HEVC compression that often delivers smaller file sizes at comparable visual quality, though it has more limited native compatibility in legacy software.',
+      },
+      {
+        question: 'Will converting JPG to HEIC reduce file size?',
+        answer: 'In many cases, yes. HEIC\'s advanced compression algorithms are more efficient than standard JPEG. However, because the original JPG was already compressed, file size reduction varies depending on image complexity, texture, and your chosen quality setting.',
+      },
+      {
+        question: 'Does JPG to HEIC improve image quality?',
+        answer: 'No. Converting a JPG to HEIC cannot restore or improve visual quality that was already discarded during the original JPEG compression. The conversion preserves the source pixels as faithfully as possible within the HEIC container.',
+      },
+      {
+        question: 'Will my photo metadata be preserved?',
+        answer: 'Browser-side re-encoding normalizes orientation and decodes raw pixels via standard HTML5 canvas APIs, which strips embedded EXIF camera metadata and location tags. This ensures clean privacy when sharing photos online.',
+      },
+      {
+        question: 'Are my JPG photos uploaded anywhere?',
+        answer: 'No. All decoding, pixel processing, and HEIC encoding execute 100% locally inside your web browser via client-side WebAssembly. Your photos never leave your device and are never sent to any remote server or cloud service.',
       },
     ],
   },
