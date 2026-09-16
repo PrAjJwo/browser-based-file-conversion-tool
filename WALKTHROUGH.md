@@ -421,6 +421,7 @@ Real browser multi-target test measurements on `sample.mp4` (Source: 383,631 byt
 ## Milestone 11: Git Checkpoint
 
 - **Commit Message**: `feat: complete browser video compressor`
+- **Commit Hash**: `1dea4b2e7e63a09d44ffaad4dda9362472d60f13`
 - **Tag**: `tool-2-video-compressor-complete`
 - **Repository Status**: Clean working tree.
 
