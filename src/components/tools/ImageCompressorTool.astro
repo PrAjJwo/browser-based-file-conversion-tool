@@ -49,12 +49,20 @@ const { tool } = Astro.props;
         <span class="text-surface-400" id="queue-images-total-size">• Total: 0 Bytes</span>
       </div>
       <div class="flex items-center gap-3">
-        <!-- Natural cross-link to Image Resizer -->
+        <!-- Natural cross-links to Image Resizer and Image Converter -->
         <a
           href="/image/image-resizer"
           class="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1"
         >
-          <span>Need to change dimensions too? Resize your image</span>
+          <span>Need to change dimensions? Resize image</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <span class="text-surface-300">|</span>
+        <a
+          href="/image/image-converter"
+          class="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1"
+        >
+          <span>Need to change format? Convert format</span>
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
         <span class="text-surface-300">|</span>

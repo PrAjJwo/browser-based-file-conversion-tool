@@ -1,0 +1,149 @@
+---
+---
+
+<div class="space-y-12 text-surface-700 leading-relaxed text-sm sm:text-base">
+  <!-- Section 1 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      JPG, PNG and WebP explained
+    </h2>
+    <p>
+      Different image formats were engineered for distinct tasks across the web, photography, and graphic design. Understanding their strengths ensures you pick the ideal format for your specific workflow:
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <h3 class="font-bold text-surface-900 text-sm flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          JPG / JPEG
+        </h3>
+        <p class="text-xs text-surface-600 leading-relaxed">
+          The universally accepted standard for digital photographs and complex real-world imagery. Uses lossy Discrete Cosine Transform (DCT) compression to drastically reduce file sizes. Does not support transparency.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <h3 class="font-bold text-surface-900 text-sm flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          PNG
+        </h3>
+        <p class="text-xs text-surface-600 leading-relaxed">
+          The gold standard for screenshots, logos, diagrams, and digital graphics. Uses lossless compression that preserves every pixel and supports an 8-bit alpha transparency channel, but results in larger file sizes for photographs.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <h3 class="font-bold text-surface-900 text-sm flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          WebP
+        </h3>
+        <p class="text-xs text-surface-600 leading-relaxed">
+          A modern web format created by Google. Supports both lossy and lossless compression alongside full alpha channel transparency. WebP images are typically 25% to 35% smaller than comparable JPEGs or PNGs at equivalent visual fidelity.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      Why convert image formats?
+    </h2>
+    <p>
+      Format conversion is essential when tailoring images for diverse platforms, applications, and performance requirements:
+    </p>
+    <ul class="list-disc pl-5 space-y-2 text-xs sm:text-sm text-surface-600">
+      <li>
+        <strong>Web Performance and SEO:</strong> Converting heavy PNG graphics or legacy JPG photos to WebP substantially speeds up website load times and improves Google Core Web Vitals scores.
+      </li>
+      <li>
+        <strong>Universal Device Compatibility:</strong> Some older image viewers, desktop software, or hardware kiosks cannot decode WebP files. Converting them to standard JPG ensures seamless cross-platform accessibility.
+      </li>
+      <li>
+        <strong>Preserving or Removing Transparency:</strong> Converting transparent PNG logos to WebP retains alpha channels while halving download size. Conversely, converting PNGs to JPG flattens alpha onto clean white backgrounds for print and standard photo albums.
+      </li>
+      <li>
+        <strong>Design and Editing Pipelines:</strong> Graphic editors frequently require PNG assets for compositing transparent elements, while CMS platforms may mandate JPG uploads.
+      </li>
+    </ul>
+  </section>
+
+  <!-- Section 3 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      Step-by-step format conversion workflow
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm">
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-600 text-white font-bold text-xs">1</span>
+        <h3 class="font-bold text-surface-900">Select or Drop Files</h3>
+        <p class="text-surface-600 text-xs">
+          Choose single or multiple JPG, PNG, or WebP images from your device. All files are inspected and queued in local memory.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-600 text-white font-bold text-xs">2</span>
+        <h3 class="font-bold text-surface-900">Choose Target Format</h3>
+        <p class="text-surface-600 text-xs">
+          Pick your desired output format (JPG, PNG, or WebP) and fine-tune output quality. Transparent images converting to JPG automatically fill on white.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-2">
+        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-600 text-white font-bold text-xs">3</span>
+        <h3 class="font-bold text-surface-900">Convert and Save</h3>
+        <p class="text-surface-600 text-xs">
+          Process the batch sequentially on your device. Download converted photos individually or bundle everything into a single ZIP archive.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4 -->
+  <section class="space-y-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-surface-950 tracking-tight">
+      Format boundaries and device memory
+    </h2>
+    <p>
+      Because conversion runs 100% locally in your browser using HTML5 Canvas APIs, keep these technical details in mind:
+    </p>
+    <ul class="list-disc pl-5 space-y-2 text-xs sm:text-sm text-surface-600">
+      <li>
+        <strong>Client Device Memory:</strong> Processing high-megapixel photos (such as 48 MP smartphone camera shots) unpacks raw pixel bitmaps into RAM. Sequential processing ensures your browser avoids memory crashes.
+      </li>
+      <li>
+        <strong>Clean Transparency Compositing:</strong> When converting images with alpha transparency (PNG or WebP) to JPG, transparent areas are filled with solid `#FFFFFF` white to eliminate unsightly black borders.
+      </li>
+      <li>
+        <strong>Lossless vs Lossy Behavior:</strong> Converting a lossy JPG into a lossless PNG produces a valid PNG file, but it cannot resurrect detail discarded during the original JPEG compression.
+      </li>
+      <li>
+        <strong>Metadata Stripping:</strong> Re-encoding images via HTML5 Canvas strips embedded EXIF camera tags and location metadata, protecting your personal privacy when publishing images online.
+      </li>
+    </ul>
+  </section>
+
+  <!-- Cross-link Box -->
+  <section class="p-5 rounded-2xl bg-brand-50/60 border border-brand-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div class="space-y-1">
+      <h3 class="font-bold text-brand-950 text-sm sm:text-base">Explore Related Image Tools</h3>
+      <p class="text-xs sm:text-sm text-brand-800">
+        Scale dimensions with aspect-ratio locking or compress file sizes while preserving original formats.
+      </p>
+    </div>
+    <div class="flex items-center gap-3 flex-wrap">
+      <a
+        href="/image/image-resizer"
+        class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold whitespace-nowrap transition-colors shadow-xs"
+      >
+        Open Image Resizer
+      </a>
+      <a
+        href="/image/image-compressor"
+        class="px-4 py-2 rounded-xl bg-surface-900 hover:bg-surface-800 text-white text-xs font-semibold whitespace-nowrap transition-colors shadow-xs"
+      >
+        Open Image Compressor
+      </a>
+    </div>
+  </section>
+</div>

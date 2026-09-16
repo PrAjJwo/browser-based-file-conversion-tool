@@ -199,6 +199,66 @@ export const TOOLS: Tool[] = [
     ],
   },
   {
+    slug: 'image-converter',
+    category: 'image',
+    group: 'Image Conversion',
+    title: 'WebP, PNG & JPG Converter',
+    metaTitle: 'WebP, PNG & JPG Converter — Convert Image Formats',
+    metaDescription: 'Convert JPG, PNG, and WebP images directly in your browser. Batch convert image formats with custom quality settings, full privacy, and zero server uploads.',
+    shortBlurb: 'Convert JPG, PNG, and WebP images directly in your browser with custom quality settings, full transparency handling, and complete privacy.',
+    acceptedFiles: '.jpg, .jpeg, .png, .webp, image/jpeg, image/png, image/webp',
+    acceptedTypesLabel: 'JPG, PNG, or WebP images',
+    sizeWarningMB: 50,
+    sizeCeilingNote: 'Batch processing large photos may consume significant browser memory on mobile devices.',
+    status: 'active',
+    howItWorks: [
+      {
+        step: 1,
+        title: 'Choose or drop images',
+        description: 'Select one or more JPG, PNG, or WebP images from your device, or drag and drop them into the converter.',
+      },
+      {
+        step: 2,
+        title: 'Select output format and quality',
+        description: 'Choose your target format (JPG, PNG, or WebP) and adjust quality for lossy formats. Transparency is automatically composited cleanly on white for JPGs.',
+      },
+      {
+        step: 3,
+        title: 'Convert and download',
+        description: 'Process images instantly in device memory, then download individually or package the entire batch into a single ZIP archive.',
+      },
+    ],
+    limitations: [
+      'In-browser format conversion decodes raw uncompressed pixel bitmaps into client device RAM; very large images or extensive batches may cause memory pressure on mobile devices.',
+      'When converting transparent PNG or WebP images to JPG, transparent areas are automatically flattened onto a solid white background because JPEG does not support transparency.',
+      'PNG export uses lossless compression and does not support lossy quality factor adjustments.',
+      'EXIF camera metadata, color profiles, and location tags are stripped during browser canvas re-encoding.',
+      'Converting a lossy image (such as JPG) to a lossless format (such as PNG) preserves visual fidelity but cannot restore details discarded during the original compression.',
+    ],
+    faqs: [
+      {
+        question: 'What is the difference between JPG, PNG and WebP?',
+        answer: 'JPG is a lossy format ideal for photos where small file sizes are preferred over pixel perfection. PNG is a lossless format that preserves crisp graphics and transparent backgrounds, often with larger file sizes. WebP is a modern format developed by Google that offers both lossy and lossless compression with transparency support, typically yielding 25% to 35% smaller file sizes than comparable JPGs or PNGs.',
+      },
+      {
+        question: 'Can I convert PNG with transparency to JPG?',
+        answer: 'Yes, but because the JPEG specification does not support an alpha transparency channel, transparent pixels are automatically composited onto a solid white background (#FFFFFF) to prevent dark borders or black backgrounds.',
+      },
+      {
+        question: 'Does converting an image reduce quality?',
+        answer: 'Converting between lossless formats (e.g. transparent PNG to lossless WebP) or to high-quality settings preserves visual fidelity. When converting to JPG or lossy WebP, subtle color variations are discarded to reduce file size. At the default 90% quality setting, visual degradation is virtually imperceptible.',
+      },
+      {
+        question: 'Can I convert multiple images at once?',
+        answer: 'Yes. You can select multiple JPG, PNG, and WebP files simultaneously. The converter processes images sequentially in local device memory to ensure system stability, and automatically offers a "Download All as ZIP" option when two or more files are completed.',
+      },
+      {
+        question: 'Are my images uploaded anywhere?',
+        answer: 'No. All image loading, canvas drawing, pixel compositing, and format re-encoding execute 100% locally inside your web browser. Zero image bytes, filenames, or metadata are ever transmitted across the internet.',
+      },
+    ],
+  },
+  {
     slug: 'image-resizer',
     category: 'image',
     group: 'Resize & Compress',

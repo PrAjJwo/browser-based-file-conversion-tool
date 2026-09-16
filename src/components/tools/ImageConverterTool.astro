@@ -1,0 +1,665 @@
+---
+import FileDropzone from '../FileDropzone.astro';
+import type { Tool } from '../../data/tools';
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+---
+
+<div id="image-converter-root" class="w-full space-y-6">
+  <!-- Interactive Dropzone -->
+  <FileDropzone
+    toolTitle={tool.title}
+    acceptedFiles={tool.acceptedFiles}
+    acceptedTypesLabel={tool.acceptedTypesLabel}
+    sizeWarningMB={tool.sizeWarningMB}
+    sizeCeilingNote={tool.sizeCeilingNote}
+    status={tool.status}
+    multiple={true}
+    managedExternally={true}
+  />
+
+  <!-- Memory Warning Banner -->
+  <div
+    id="converter-batch-warning"
+    class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3 transition-all"
+    role="alert"
+  >
+    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <div>
+      <p class="font-semibold text-amber-950">Large image batch detected</p>
+      <p class="mt-0.5 leading-relaxed text-amber-800">
+        You have selected over 50 MB of photos. Processing executes sequentially in device memory to ensure browser stability.
+      </p>
+    </div>
+  </div>
+
+  <!-- Active Workspace Section -->
+  <div id="converter-workspace-section" class="hidden space-y-6">
+    <!-- Queue Header Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-surface-50 border border-surface-200/80">
+      <div class="flex items-center gap-2 text-xs text-surface-700">
+        <span class="font-bold text-surface-900 text-sm" id="queue-images-count">0</span>
+        <span>Images Selected</span>
+        <span class="text-surface-400" id="queue-images-total-size">• Total: 0 Bytes</span>
+      </div>
+      <div class="flex items-center flex-wrap gap-3">
+        <!-- Natural cross-links to Image Resizer and Image Compressor -->
+        <a
+          href="/image/image-resizer"
+          class="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1"
+        >
+          <span>Need to change dimensions? Resize image</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <span class="text-surface-300">|</span>
+        <a
+          href="/image/image-compressor"
+          class="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1"
+        >
+          <span>Need a smaller file instead? Compress image</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        <span class="text-surface-300">|</span>
+        <button
+          id="converter-clear-all-btn"
+          type="button"
+          class="text-xs font-semibold text-surface-500 hover:text-rose-600 transition-colors focus-visible:outline-brand-500"
+        >
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Conversion Configuration Card -->
+    <div class="p-5 rounded-2xl bg-surface-50 border border-surface-200/80 space-y-5" id="converter-config-card">
+      <div class="flex items-center justify-between pb-3 border-b border-surface-200/60 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          <span class="text-xs font-bold uppercase tracking-wider text-surface-700">Conversion Settings</span>
+        </div>
+
+        <span class="text-[11px] text-surface-500 font-medium">100% In-Browser • Zero Server Uploads</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+        <!-- Target Format Selector -->
+        <div class="space-y-2">
+          <label for="convert-target-format" class="font-semibold text-surface-900 block">
+            Target Output Format
+          </label>
+          <select
+            id="convert-target-format"
+            class="w-full px-3 py-2 bg-surface-100 border border-surface-300 rounded-xl text-xs font-medium text-surface-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            <option value="image/webp" selected>WebP — Modern, highly efficient (lossy/lossless)</option>
+            <option value="image/jpeg">JPG — Universal photo compatibility (lossy)</option>
+            <option value="image/png">PNG — Lossless with transparent alpha</option>
+          </select>
+          <p class="text-[11px] text-surface-500">
+            Select the desired format for all converted images.
+          </p>
+        </div>
+
+        <!-- Quality Control Block -->
+        <div id="quality-control-block" class="space-y-2 transition-opacity">
+          <div class="flex items-center justify-between">
+            <label for="convert-quality-slider" class="font-semibold text-surface-900 block">
+              Output Quality
+            </label>
+            <span id="quality-val-label" class="text-brand-600 font-bold text-sm">90%</span>
+          </div>
+          <input
+            id="convert-quality-slider"
+            type="range"
+            min="10"
+            max="100"
+            value="90"
+            class="w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+            aria-label="Output Quality Percentage"
+          />
+          <div class="flex items-center justify-between gap-1.5 pt-1" id="quality-preset-buttons">
+            <button type="button" data-preset="50" class="px-2.5 py-1 rounded-lg bg-surface-200 hover:bg-surface-300 text-surface-700 font-medium text-[11px] transition-colors">Low (50%)</button>
+            <button type="button" data-preset="75" class="px-2.5 py-1 rounded-lg bg-surface-200 hover:bg-surface-300 text-surface-700 font-medium text-[11px] transition-colors">Medium (75%)</button>
+            <button type="button" data-preset="90" class="px-2.5 py-1 rounded-lg bg-brand-100 text-brand-800 font-semibold text-[11px] border border-brand-300 transition-colors">High (90%)</button>
+            <button type="button" data-preset="100" class="px-2.5 py-1 rounded-lg bg-surface-200 hover:bg-surface-300 text-surface-700 font-medium text-[11px] transition-colors">Max (100%)</button>
+          </div>
+          <p id="png-lossless-note" class="hidden text-[11px] text-brand-700 bg-brand-50 border border-brand-200 p-2 rounded-lg">
+            PNG uses lossless encoding in this converter. Quality slider does not apply.
+          </p>
+        </div>
+      </div>
+
+      <!-- Transparency Warning Banner -->
+      <div
+        id="transparency-warning-banner"
+        class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5"
+        role="alert"
+      >
+        <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="leading-relaxed">
+          <strong>Transparency Notice:</strong> JPG does not support transparency. Transparent areas will be filled with white.
+        </span>
+      </div>
+
+      <!-- Same-Format Notice Banner -->
+      <div
+        id="same-format-banner"
+        class="hidden p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-start gap-2.5"
+      >
+        <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="leading-relaxed">
+          Same-format export will re-encode the image.
+        </span>
+      </div>
+    </div>
+
+    <!-- Queue List Container -->
+    <div class="space-y-3">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-surface-600">Selected Images Queue</h2>
+      <div id="converter-queue-list" class="space-y-2 max-h-96 overflow-y-auto pr-1">
+        <!-- Dynamically injected queue cards -->
+      </div>
+    </div>
+
+    <!-- Convert Action & Progress Bar -->
+    <div class="p-4 rounded-2xl bg-surface-50 border border-surface-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="w-full sm:w-auto flex-1">
+        <div id="converter-progress-container" class="hidden space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span id="converter-progress-text" class="font-medium text-surface-700" role="status" aria-live="polite">
+              Converting...
+            </span>
+            <span id="converter-progress-percent" class="font-bold text-brand-600">0%</span>
+          </div>
+          <div class="w-full h-2.5 bg-surface-200 rounded-full overflow-hidden">
+            <div id="converter-progress-bar" class="h-full bg-brand-600 transition-all duration-300 w-0"></div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="converter-start-btn"
+        type="button"
+        class="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white text-xs font-bold tracking-wide shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+        </svg>
+        <span id="converter-start-btn-label">Convert Images</span>
+      </button>
+    </div>
+
+    <!-- Completed Results Section -->
+    <div id="converter-results-section" class="hidden space-y-4 pt-2">
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-surface-200">
+        <div>
+          <h2 class="text-sm font-bold text-surface-900">Converted Images</h2>
+          <p class="text-xs text-surface-500" id="results-count-summary">0 images converted successfully</p>
+        </div>
+
+        <button
+          id="converter-download-all-zip-btn"
+          type="button"
+          class="hidden px-4 py-2 rounded-xl bg-surface-900 hover:bg-surface-800 text-white text-xs font-semibold transition-colors flex items-center gap-2 shadow-sm focus-visible:outline-brand-500"
+        >
+          <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span>Download All as ZIP</span>
+        </button>
+      </div>
+
+      <div id="converter-results-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Dynamically injected result cards -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    inspectConverterFile,
+    convertImageItem,
+    downloadConvertedBlob,
+    createConvertedZip,
+    formatBytes,
+    generateItemId,
+    getMimeType,
+    getFormatLabel,
+    type ImageConverterItem,
+    type ConverterConfig,
+    type ImageFormat,
+  } from '../../scripts/image-converter';
+
+  let queueItems: ImageConverterItem[] = [];
+  let isConverting = false;
+  const createdObjectUrls: string[] = [];
+
+  function registerUrl(url: string): string {
+    createdObjectUrls.push(url);
+    return url;
+  }
+
+  function cleanupUrls() {
+    while (createdObjectUrls.length > 0) {
+      const url = createdObjectUrls.pop();
+      if (url) URL.revokeObjectURL(url);
+    }
+  }
+
+  window.addEventListener('beforeunload', cleanupUrls);
+
+  // DOM Elements
+  const workspaceSection = document.getElementById('converter-workspace-section');
+  const batchWarning = document.getElementById('converter-batch-warning');
+  const queueCountLabel = document.getElementById('queue-images-count');
+  const queueSizeLabel = document.getElementById('queue-images-total-size');
+  const queueList = document.getElementById('converter-queue-list');
+  const clearAllBtn = document.getElementById('converter-clear-all-btn');
+
+  const targetFormatSelect = document.getElementById('convert-target-format') as HTMLSelectElement;
+  const qualitySlider = document.getElementById('convert-quality-slider') as HTMLInputElement;
+  const qualityValLabel = document.getElementById('quality-val-label');
+  const qualityControlBlock = document.getElementById('quality-control-block');
+  const pngLosslessNote = document.getElementById('png-lossless-note');
+  const presetButtons = document.querySelectorAll('#quality-preset-buttons button');
+  const transparencyWarning = document.getElementById('transparency-warning-banner');
+  const sameFormatBanner = document.getElementById('same-format-banner');
+
+  const startBtn = document.getElementById('converter-start-btn') as HTMLButtonElement;
+  const startBtnLabel = document.getElementById('converter-start-btn-label');
+  const progressContainer = document.getElementById('converter-progress-container');
+  const progressBar = document.getElementById('converter-progress-bar');
+  const progressText = document.getElementById('converter-progress-text');
+  const progressPercent = document.getElementById('converter-progress-percent');
+
+  const resultsSection = document.getElementById('converter-results-section');
+  const resultsCountSummary = document.getElementById('results-count-summary');
+  const resultsList = document.getElementById('converter-results-list');
+  const downloadAllZipBtn = document.getElementById('converter-download-all-zip-btn');
+
+  // Format change handler
+  function handleFormatChange() {
+    if (!targetFormatSelect) return;
+    const format = targetFormatSelect.value as ImageFormat;
+
+    // Quality slider active for JPG and WebP, disabled for PNG
+    if (format === 'image/png') {
+      if (qualitySlider) qualitySlider.disabled = true;
+      if (qualityControlBlock) {
+        qualityControlBlock.classList.add('opacity-50');
+      }
+      if (pngLosslessNote) pngLosslessNote.classList.remove('hidden');
+    } else {
+      if (qualitySlider) qualitySlider.disabled = false;
+      if (qualityControlBlock) {
+        qualityControlBlock.classList.remove('opacity-50');
+      }
+      if (pngLosslessNote) pngLosslessNote.classList.add('hidden');
+    }
+
+    // Check transparency warning: If JPG is output and queue has PNG or WebP
+    const hasTransparentCandidate = queueItems.some(
+      (item) => item.originalMime === 'image/png' || item.originalMime === 'image/webp'
+    );
+    if (format === 'image/jpeg' && hasTransparentCandidate) {
+      if (transparencyWarning) transparencyWarning.classList.remove('hidden');
+    } else {
+      if (transparencyWarning) transparencyWarning.classList.add('hidden');
+    }
+
+    // Check same-format warning
+    const hasSameFormat = queueItems.some((item) => item.originalMime === format);
+    if (hasSameFormat) {
+      if (sameFormatBanner) sameFormatBanner.classList.remove('hidden');
+    } else {
+      if (sameFormatBanner) sameFormatBanner.classList.add('hidden');
+    }
+  }
+
+  targetFormatSelect?.addEventListener('change', handleFormatChange);
+
+  // Quality Slider listener
+  qualitySlider?.addEventListener('input', () => {
+    const val = parseInt(qualitySlider.value, 10);
+    if (qualityValLabel) qualityValLabel.textContent = `${val}%`;
+
+    presetButtons.forEach((btn) => {
+      const p = parseInt(btn.getAttribute('data-preset') || '0', 10);
+      if (p === val) {
+        btn.className = 'px-2.5 py-1 rounded-lg bg-brand-100 text-brand-800 font-semibold text-[11px] border border-brand-300 transition-colors';
+      } else {
+        btn.className = 'px-2.5 py-1 rounded-lg bg-surface-200 hover:bg-surface-300 text-surface-700 font-medium text-[11px] transition-colors';
+      }
+    });
+  });
+
+  // Quality presets listener
+  presetButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (qualitySlider?.disabled) return;
+      const p = parseInt(btn.getAttribute('data-preset') || '90', 10);
+      if (qualitySlider) {
+        qualitySlider.value = p.toString();
+        qualitySlider.dispatchEvent(new Event('input'));
+      }
+    });
+  });
+
+  // Receive files from dropzone
+  document.addEventListener('file-dropzone:files-selected', (async (e: Event) => {
+    const customEvent = e as CustomEvent<{ files: File[] }>;
+    const incomingFiles = customEvent.detail?.files || [];
+    if (incomingFiles.length === 0) return;
+
+    for (const file of incomingFiles) {
+      const id = generateItemId();
+      try {
+        const info = await inspectConverterFile(file);
+        registerUrl(info.thumbnailUrl);
+        queueItems.push({
+          id,
+          file,
+          filename: file.name,
+          originalWidth: info.width,
+          originalHeight: info.height,
+          originalSizeBytes: file.size,
+          originalMime: info.mime,
+          thumbnailUrl: info.thumbnailUrl,
+          status: 'ready',
+        });
+      } catch (err: any) {
+        queueItems.push({
+          id,
+          file,
+          filename: file.name,
+          originalWidth: 0,
+          originalHeight: 0,
+          originalSizeBytes: file.size,
+          originalMime: getMimeType(file),
+          thumbnailUrl: '',
+          status: 'failed',
+          errorMessage: err.message || 'Failed to inspect file',
+        });
+      }
+    }
+
+    renderQueue();
+    handleFormatChange();
+  }) as EventListener);
+
+  // Render Queue UI
+  function renderQueue() {
+    if (!workspaceSection || !queueList) return;
+
+    if (queueItems.length === 0) {
+      workspaceSection.classList.add('hidden');
+      batchWarning?.classList.add('hidden');
+      return;
+    }
+
+    workspaceSection.classList.remove('hidden');
+
+    const totalBytes = queueItems.reduce((acc, item) => acc + item.originalSizeBytes, 0);
+    if (queueCountLabel) queueCountLabel.textContent = queueItems.length.toString();
+    if (queueSizeLabel) queueSizeLabel.textContent = `• Total: ${formatBytes(totalBytes)}`;
+
+    // Memory warning for large batches
+    if (totalBytes > 50 * 1024 * 1024) {
+      batchWarning?.classList.remove('hidden');
+    } else {
+      batchWarning?.classList.add('hidden');
+    }
+
+    if (startBtnLabel) {
+      startBtnLabel.textContent =
+        queueItems.length === 1 ? 'Convert 1 Image' : `Convert ${queueItems.length} Images`;
+    }
+
+    queueList.innerHTML = queueItems
+      .map((item) => {
+        const isCorrupt = item.status === 'failed';
+        return `
+          <div class="p-3 rounded-xl bg-surface-100/90 border ${
+            isCorrupt ? 'border-rose-200 bg-rose-50/40' : 'border-surface-200/70'
+          } flex items-center justify-between gap-3 text-xs transition-all">
+            <div class="flex items-center gap-3 min-w-0">
+              ${
+                item.thumbnailUrl
+                  ? `<img src="${item.thumbnailUrl}" alt="${item.filename}" class="w-10 h-10 object-cover rounded-lg border border-surface-300 flex-shrink-0 bg-white" />`
+                  : `<div class="w-10 h-10 rounded-lg bg-surface-200 flex items-center justify-center text-surface-400 font-bold flex-shrink-0">?</div>`
+              }
+              <div class="min-w-0">
+                <p class="font-semibold text-surface-900 truncate max-w-[200px] sm:max-w-xs" title="${item.filename}">${item.filename}</p>
+                <div class="flex items-center gap-2 text-[11px] text-surface-500 mt-0.5">
+                  <span class="px-1.5 py-0.2 rounded bg-surface-200 text-surface-700 font-medium">${getFormatLabel(item.originalMime)}</span>
+                  ${item.originalWidth > 0 ? `<span>${item.originalWidth} × ${item.originalHeight}</span>` : ''}
+                  <span>${formatBytes(item.originalSizeBytes)}</span>
+                </div>
+                ${isCorrupt ? `<p class="text-rose-600 text-[11px] font-medium mt-0.5" role="alert">${item.errorMessage}</p>` : ''}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <span class="status-badge px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                item.status === 'completed'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : item.status === 'converting'
+                  ? 'bg-amber-100 text-amber-800 animate-pulse'
+                  : item.status === 'failed'
+                  ? 'bg-rose-100 text-rose-800'
+                  : 'bg-surface-200 text-surface-700'
+              }">${item.status}</span>
+              ${
+                !isConverting
+                  ? `<button type="button" data-remove-id="${item.id}" class="text-surface-400 hover:text-rose-600 p-1 rounded-lg hover:bg-surface-200 transition-colors" title="Remove" aria-label="Remove ${item.filename}">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>`
+                  : ''
+              }
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+
+    // Attach remove handlers
+    queueList.querySelectorAll('button[data-remove-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-remove-id');
+        queueItems = queueItems.filter((i) => i.id !== id);
+        renderQueue();
+        handleFormatChange();
+      });
+    });
+  }
+
+  // Clear All
+  clearAllBtn?.addEventListener('click', () => {
+    if (isConverting) return;
+    queueItems = [];
+    cleanupUrls();
+    renderQueue();
+    if (resultsSection) resultsSection.classList.add('hidden');
+    if (resultsList) resultsList.innerHTML = '';
+  });
+
+  // Start Conversion Batch
+  startBtn?.addEventListener('click', async () => {
+    if (isConverting || queueItems.length === 0) return;
+
+    const validItems = queueItems.filter((item) => item.status !== 'failed');
+    if (validItems.length === 0) {
+      alert('Please add valid image files to convert.');
+      return;
+    }
+
+    isConverting = true;
+    startBtn.disabled = true;
+    startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    if (progressContainer) progressContainer.classList.remove('hidden');
+
+    const config: ConverterConfig = {
+      outputFormat: (targetFormatSelect?.value as ImageFormat) || 'image/webp',
+      quality: parseInt(qualitySlider?.value || '90', 10) / 100,
+    };
+
+    const existingOutNames = new Set<string>();
+    let completedCount = 0;
+
+    for (let idx = 0; idx < queueItems.length; idx++) {
+      const item = queueItems[idx];
+      if (item.status === 'failed') continue;
+
+      item.status = 'converting';
+      renderQueue();
+
+      if (progressText) {
+        progressText.textContent = `Converting file ${completedCount + 1} of ${validItems.length}: ${item.filename}...`;
+      }
+      const currentPct = Math.round((completedCount / validItems.length) * 100);
+      if (progressBar) progressBar.style.width = `${currentPct}%`;
+      if (progressPercent) progressPercent.textContent = `${currentPct}%`;
+
+      try {
+        const res = await convertImageItem(item, config, existingOutNames);
+        const resUrl = registerUrl(URL.createObjectURL(res.blob));
+
+        item.status = 'completed';
+        item.resultBlob = res.blob;
+        item.resultUrl = resUrl;
+        item.resultWidth = res.width;
+        item.resultHeight = res.height;
+        item.resultSizeBytes = res.blob.size;
+        item.resultFilename = res.filename;
+        item.resultMime = res.mimeType;
+        item.isLarger = res.isLarger;
+        item.sizeDiffBytes = res.sizeDiffBytes;
+        item.sizePercentDiff = res.sizePercentDiff;
+        completedCount++;
+      } catch (err: any) {
+        item.status = 'failed';
+        item.errorMessage = err.message || 'Conversion failed.';
+      }
+
+      renderQueue();
+    }
+
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressPercent) progressPercent.textContent = '100%';
+    if (progressText) progressText.textContent = `Conversion complete! (${completedCount} of ${validItems.length} succeeded)`;
+
+    isConverting = false;
+    startBtn.disabled = false;
+    startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+    renderResults();
+  });
+
+  // Render Results UI
+  function renderResults() {
+    if (!resultsSection || !resultsList) return;
+
+    const completed = queueItems.filter((i) => i.status === 'completed' && i.resultBlob && i.resultUrl);
+    if (completed.length === 0) {
+      resultsSection.classList.add('hidden');
+      return;
+    }
+
+    resultsSection.classList.remove('hidden');
+    if (resultsCountSummary) {
+      resultsCountSummary.textContent = `${completed.length} image${completed.length > 1 ? 's' : ''} converted successfully`;
+    }
+
+    if (downloadAllZipBtn) {
+      if (completed.length >= 2) {
+        downloadAllZipBtn.classList.remove('hidden');
+      } else {
+        downloadAllZipBtn.classList.add('hidden');
+      }
+    }
+
+    resultsList.innerHTML = completed
+      .map((item) => {
+        const diffText = item.isLarger
+          ? `<span class="text-rose-600 font-semibold">${item.sizePercentDiff}% larger</span>`
+          : `<span class="text-emerald-600 font-semibold">${item.sizePercentDiff}% smaller</span>`;
+
+        return `
+          <div class="p-4 rounded-xl bg-surface-50 border border-surface-200/80 space-y-3 text-xs result-card">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <img src="${item.resultUrl}" alt="${item.resultFilename}" class="w-14 h-14 object-cover rounded-lg border border-surface-300 flex-shrink-0 bg-white" />
+                <div class="min-w-0">
+                  <p class="font-bold text-surface-900 truncate max-w-[180px] sm:max-w-xs" title="${item.resultFilename}">${item.resultFilename}</p>
+                  <div class="flex items-center gap-1.5 text-[11px] text-surface-500 mt-0.5">
+                    <span class="px-1.5 py-0.2 rounded bg-surface-200 text-surface-700 font-medium">${getFormatLabel(item.originalMime)}</span>
+                    <span>→</span>
+                    <span class="px-1.5 py-0.2 rounded bg-brand-100 text-brand-800 font-semibold">${getFormatLabel(item.resultMime || '')}</span>
+                  </div>
+                  <p class="text-[11px] text-surface-500 mt-0.5">${item.resultWidth} × ${item.resultHeight} px</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-2 rounded-lg bg-surface-100 flex items-center justify-between text-[11px]">
+              <div>
+                <span class="text-surface-500">${formatBytes(item.originalSizeBytes)}</span>
+                <span class="text-surface-400 mx-1">→</span>
+                <span class="font-bold text-surface-900">${formatBytes(item.resultSizeBytes || 0)}</span>
+              </div>
+              <div>${diffText}</div>
+            </div>
+
+            <button
+              type="button"
+              data-download-id="${item.id}"
+              class="w-full py-2 px-3 rounded-lg bg-surface-900 hover:bg-surface-800 text-white font-medium text-xs transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-brand-500"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Download ${getFormatLabel(item.resultMime || '')}</span>
+            </button>
+          </div>
+        `;
+      })
+      .join('');
+
+    // Attach individual download handlers
+    resultsList.querySelectorAll('button[data-download-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-download-id');
+        const item = queueItems.find((i) => i.id === id);
+        if (item && item.resultBlob && item.resultFilename) {
+          downloadConvertedBlob(item.resultBlob, item.resultFilename);
+        }
+      });
+    });
+  }
+
+  // ZIP batch download
+  downloadAllZipBtn?.addEventListener('click', async () => {
+    try {
+      downloadAllZipBtn.classList.add('opacity-50', 'pointer-events-none');
+      const zipBlob = await createConvertedZip(queueItems);
+      downloadConvertedBlob(zipBlob, 'converted-images.zip');
+    } catch (err: any) {
+      alert('Failed to generate ZIP archive: ' + err.message);
+    } finally {
+      downloadAllZipBtn.classList.remove('opacity-50', 'pointer-events-none');
+    }
+  });
+</script>

@@ -2,7 +2,7 @@
 
 ## Current Project Status
 
-- **Current Phase**: Expansion Tool — Image Compressor — Complete
+- **Current Phase**: Expansion Tool — Image Format Converter (WebP / PNG / JPG Converter) — Complete
 - **Completed Launch Tools (Original 4)**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Production-Ready, Real Browser Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Production-Ready, Real Browser Verified
@@ -12,181 +12,198 @@
   5. JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
   6. Image Resizer (`/image/image-resizer`) — Active, Production-Ready, Real Browser Verified
   7. Image Compressor (`/image/image-compressor`) — Active, Production-Ready, Real Browser Verified
+  8. Image Format Converter (`/image/image-converter`) — Active, Production-Ready, Real Browser Verified
 - **Tool Status Summary**:
-  - Image Compressor: Development Complete, Real Browser Verified (14 CDP suites passed), Quality & Format Conversions Verified, Transparent Flattening to White Verified, ZIP Export Verified, Content/SEO Complete, Zero-Error Production Build.
+  - Image Format Converter: Development Complete, Real Browser Verified (15 automated CDP suites passed), Bidirectional JPG/PNG/WebP Conversions Verified, Solid White Background Transparency Flattening Verified, Quality Monotonicity Verified, ZIP Export Verified, Content/SEO Complete, Zero-Error Production Build.
 - **Physical Device Notice**: Physical iPhone Safari and Android Chrome verification remains pending before production launch.
-- **Active In-Development Tool**: None (Image Compressor completed; next expansion tool queued)
-- **Active Routes (12 Total)**:
+- **Active In-Development Tool**: None (Image Format Converter completed; next expansion tool queued)
+- **Active Routes (13 Total)**:
   - `/image/heic-to-jpg` (Tool #1: Active)
   - `/video/video-compressor` (Tool #2: Active)
   - `/image/jpg-to-heic` (Expansion Tool: Active)
   - `/image/image-resizer` (Expansion Tool: Active)
   - `/image/image-compressor` (Expansion Tool: Active)
+  - `/image/image-converter` (Expansion Tool: Active)
   - `/pdf/image-to-pdf` (Tool #3: Active)
   - `/pdf/subtitle-converter` (Tool #4: Active)
   - Category routes: `/image`, `/video`, `/pdf`, `/audio`
   - Homepage: `/`
 - **Build & Static Analysis Status**:
-  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (36 files checked)
-  - `npx astro build`: **0 errors**, 12 static routes built in 5.47s
-  - Sitemap: Includes `https://browserfiletools.com/image/image-compressor/`
-  - Development URL: `http://localhost:4321/image/image-compressor` (Server active)
-- **Next Planned Work**: Expansion tool from category inventory (e.g. Audio Compressor/Converter or PDF Merger).
+  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (39 files checked)
+  - `npx astro build`: **0 errors**, 13 static pages generated in 6.44s
+  - Sitemap: Includes `https://browserfiletools.com/image/image-converter/`
+  - Development URL: `http://localhost:4321/image/image-converter` (Server active)
+- **Next Planned Work**: Expansion tool from category inventory (e.g. Social Image Resizer, Favicon Generator, Audio Converter, or PDF Merge/Split).
 
 ---
 
-## Current Tool Progress — Expansion Tool: Image Compressor
+## Current Tool Progress — Expansion Tool: Image Format Converter (WebP / PNG / JPG Converter)
 
-### Milestone 1: Compressor Architecture & Pipeline Decision
-- **Architecture Strategy**:
-  - 100% browser-native Canvas API and `createImageBitmap` pipeline (`src/scripts/image-compressor.ts`).
-  - Strict preservation of natural pixel dimensions by default without downscaling width or height.
-  - Transparent pixel compositing: JPEG export automatically composites transparent pixels onto `#FFFFFF` solid white to eliminate black background artifacts.
-  - Memory isolation: Bitmaps released via `ImageBitmap.close()`, Canvas buffers cleared (`canvas.width = 0; canvas.height = 0`), and Object URLs tracked and systematically revoked.
-  - Lazy-loaded ZIP bundling: JSZip dynamically imported only when user initiates "Download All as ZIP".
-- **Verification**:
-  - Unit tests in `test-fixtures/test-image-compressor-unit.mjs`: **18/18 unit tests passed**.
+### Milestone 1: Architecture Decision & Pipeline Implementation
+- **Completed Work**:
+  - Architecture strategy decided: 100% browser-native Canvas API and `createImageBitmap` pipeline (`src/scripts/image-converter.ts`).
+  - Zero heavy external dependencies.
+  - Strict preservation of natural pixel dimensions by default without resizing.
+  - Transparency handling rules:
+    - PNG $\rightarrow$ PNG: preserve alpha.
+    - PNG $\rightarrow$ WebP: preserve alpha.
+    - WebP with alpha $\rightarrow$ PNG: preserve alpha.
+    - WebP / PNG $\rightarrow$ JPG: alpha flattened to solid white (`#FFFFFF`) with zero black-background artifacts.
+    - Clear transparency notice for JPG output.
+  - Truthful PNG encoding: quality slider disabled/hidden for PNG output, explaining lossless Canvas behavior.
+  - Disambiguation & filename transformations: swaps extension without double extensions (`photo.jpg` $\rightarrow$ `photo.png`, `photo.final.webp` $\rightarrow$ `photo.final.jpg`, duplicate `photo.png` $\rightarrow$ `photo-2.png`).
+  - Resource cleanup: `ImageBitmap.close()`, canvas buffer clearing, object URL revocation, lazy-loaded JSZip.
+- **Files Changed**:
+  - `src/scripts/image-converter.ts` (created)
+  - `test-fixtures/test-image-converter-unit.mjs` (created)
+- **Actual Test Performed**:
+  - Ran `node test-fixtures/test-image-converter-unit.mjs`.
+- **Actual Result**:
+  - All 18 unit test assertions **PASSED** (formatBytes, getMimeType, getExtensionForMime, getFormatLabel, generateConvertedFilename with special characters, unicode, and collision deduplication).
 
 ### Milestone 2: Tool Registration in tools.ts
-- **Files Modified**: `src/data/tools.ts`.
-- **Configuration**:
-  - Route: `/image/image-compressor`
-  - Category: `image`
-  - Group: `Resize & Compress`
-  - Status: `active`
-  - Meta Title: `Image Compressor — Compress JPG, PNG & WebP Images`
-  - Meta Description: 157 characters (mentioning JPG/PNG/WebP, customizable quality settings, batch processing, and zero server uploads).
-  - 5 visible FAQs matching schema: compression limits, quality impact, PNG/WebP handling, multi-file batching, privacy guarantees.
+- **Completed Work**:
+  - Registered `image-converter` under `category: 'image'`, `group: 'Image Conversion'`.
+  - Title / H1: `WebP, PNG & JPG Converter` (route `/image/image-converter`).
+  - Meta description configured (156 chars): *"Convert JPG, PNG, and WebP images directly in your browser. Batch convert image formats with custom quality settings, full privacy, and zero server uploads."*
+  - Detailed format boundary limitations defined (lossless PNG encoding, solid white background alpha flattening for JPG, stripped EXIF metadata).
+  - 5 structured FAQs added matching `FAQPage` schema.
+- **Files Changed**:
+  - `src/data/tools.ts` (modified)
+- **Actual Result**:
+  - Image category renders:
+    - Image Conversion: HEIC to JPG, JPG to HEIC, WebP / PNG / JPG Converter.
+    - Resize & Compress: Image Resizer, Image Compressor.
 
 ### Milestone 3: Reactive UI & Editorial Content Components
-- **Files Created**:
-  - `src/components/tools/ImageCompressorTool.astro`: Quality slider (10%–100%, default 80%), quick presets (Low Size 50%, Balanced 80%, High 90%), format selector (Same as source, JPG, WebP, PNG), optional max dimension cap, queue item cards with thumbnail previews and remove buttons, progress bar with file-level progress, result cards with size diff calculations, individual downloads, and ZIP batch download.
-  - `src/components/tools/ImageCompressorContent.astro`: Rich educational sections explaining lossy vs lossless compression, DCT transforms, format trade-offs, quality curves, client-side memory limits, and companion links.
-  - Mounted in `src/pages/[category]/[tool].astro`.
+- **Completed Work**:
+  - Created `src/components/tools/ImageConverterTool.astro`:
+    - Dropzone integration supporting JPG, PNG, WebP with multiple file selection.
+    - Output format selector (WebP, JPG, PNG).
+    - Quality slider (10% to 100%, default 90%) with quick presets (50%, 75%, 90%, 100%).
+    - Dynamic lossless notice and slider dimming when PNG output is chosen.
+    - Dynamic transparency warning when JPG output is selected for images containing alpha transparency.
+    - Dynamic same-format re-encode notice (*"Same-format export will re-encode the image."*).
+    - Queue item cards with thumbnail previews, dimensions, source badges, and removal buttons.
+    - File-level progress tracking (*"Converting file 2 of 5..."*).
+    - Per-file result cards with dimensions, before/after sizes, percentage differences, and individual download buttons.
+    - Lazy-loaded "Download All as ZIP" archive packaging.
+    - Memory cleanup handling `beforeunload` and Object URL tracking.
+  - Created `src/components/tools/ImageConverterContent.astro`:
+    - Educational sections: *JPG, PNG and WebP explained*, *Why convert image formats?*, *Step-by-step format conversion workflow*, and *Format boundaries and device memory*.
+    - Dual companion card with cross-links to Image Resizer and Image Compressor.
+  - Mounted in `src/pages/[category]/[tool].astro` for `tool.slug === 'image-converter'`.
+  - Added bidirectional cross-links between Image Resizer, Image Compressor, and Image Format Converter.
+- **Files Changed**:
+  - `src/components/tools/ImageConverterTool.astro` (created)
+  - `src/components/tools/ImageConverterContent.astro` (created)
+  - `src/pages/[category]/[tool].astro` (modified)
+  - `src/components/tools/ImageCompressorTool.astro` (modified)
+  - `src/components/tools/ImageCompressorContent.astro` (modified)
+  - `src/components/tools/ImageResizerTool.astro` (modified)
+  - `src/components/tools/ImageResizerContent.astro` (modified)
 
-### Milestone 4: Single JPG Compression Test (80% Quality Default)
-- **Work Completed**:
-  - Tested `landscape.jpg` (`1200 × 800 px`, 23,117 bytes) at default 80% quality.
-  - Verified: Filename `landscape-compressed.jpg`, output size `17,005 Bytes` (26% smaller), dimensions strictly preserved (`1200 × 800 px`), JPEG header `0xFF 0xD8 0xFF`.
-- **Actual Test Performed**: CDP automated suite Test 2 (`test-fixtures/run-all-image-compressor-tests.cjs`).
-- **Actual Result**: PASS.
+### Milestone 4: JPG -> PNG Conversion Test
+- **Work Completed**: Tested `landscape.jpg` (`1200 × 800 px`, 23,117 B original) converted to PNG.
+- **Actual Test Performed**: CDP automated suite Test 2 (`test-fixtures/run-all-image-converter-tests.cjs`).
+- **Actual Result**: Output `landscape.png` (200,301 B), dimensions strictly preserved (`1200 × 800 px`), verified binary PNG signature `89 50 4E 47 0D 0A 1A 0A`. PASS.
 
-### Milestone 5: JPG Quality Levels Verification (100%, 90%, 80%, 50%, 25%)
-- **Work Completed**:
-  - Quality 100%: **100,105 Bytes**
-  - Quality 90%: **25,838 Bytes**
-  - Quality 80%: **17,005 Bytes**
-  - Quality 50%: **10,552 Bytes**
-  - Quality 25%: **9,009 Bytes**
-  - Strictly monotonic scaling verified ($S_{25} < S_{50} < S_{80} < S_{90} < S_{100}$).
+### Milestone 5: JPG -> WebP Conversion Test
+- **Work Completed**: Tested `landscape.jpg` converted to WebP at 90% quality.
 - **Actual Test Performed**: CDP automated suite Test 3.
-- **Actual Result**: PASS.
+- **Actual Result**: Output `landscape.webp` (15,910 B), dimensions preserved (`1200 × 800 px`), valid `RIFF....WEBP` container signature. PASS.
 
-### Milestone 6: WebP Compression Verification
-- **Work Completed**:
-  - Tested `sample.webp` (`1000 × 600 px`).
-  - Output size: `4,366 Bytes`, RIFF/WEBP header verified, natural dimensions strictly preserved (`1000 × 600 px`).
+### Milestone 6: PNG -> JPG Transparency Handling (Solid White Background)
+- **Work Completed**: Tested `transparent_badge.png` (`800 × 800 px`, alpha corners `[0, 0, 0, 0]`) converted to JPG.
 - **Actual Test Performed**: CDP automated suite Test 4.
-- **Actual Result**: PASS.
+- **Actual Result**: Transparency warning banner was visible. Output `transparent_badge.jpg` (101,134 B), JPEG header `FF D8`, dimensions preserved (`800 × 800 px`), corner pixel verified `[255, 255, 255, 255]` (solid white background, zero black borders). PASS.
 
-### Milestone 7: PNG Compression Behavior & Transparency Handling
-- **Work Completed**:
-  - Tested `transparent_badge.png` (`800 × 800 px` circular alpha badge).
-  - PNG $\rightarrow$ PNG: Lossless re-encoding; quality slider dimmed with clear notice; corner pixel alpha preserved (`alpha = 0`).
-  - PNG $\rightarrow$ JPG: Transparent areas flattened over solid white (`[255, 255, 255, 255]`) with 0 black border artifacts.
-  - PNG $\rightarrow$ WebP: Converted to WebP at 80% quality, reducing file size from `40,222 B` to `22,256 B` (**45% smaller**) while preserving alpha transparency.
+### Milestone 7: PNG -> WebP Verification
+- **Work Completed**: Tested `transparent_badge.png` converted to WebP.
 - **Actual Test Performed**: CDP automated suite Test 5.
-- **Actual Result**: PASS.
+- **Actual Result**: Output `transparent_badge.webp` (26,138 B), dimensions preserved (`800 × 800 px`), alpha channel strictly preserved (`cornerPixel[3] === 0`). PASS.
 
-### Milestone 8: Cross-Format Conversions Verified
-- **Work Completed**:
-  - JPG $\rightarrow$ WebP: verified `.webp` extension and RIFF header.
-  - WebP $\rightarrow$ JPG: verified `.jpg` extension and `ffd8` header.
+### Milestone 8: WebP -> JPG Verification
+- **Work Completed**: Tested `sample.webp` (`1000 × 600 px`) converted to JPG.
 - **Actual Test Performed**: CDP automated suite Test 6.
-- **Actual Result**: PASS.
+- **Actual Result**: Output `sample.jpg` (22,344 B), valid JPEG header `FF D8`, dimensions preserved (`1000 × 600 px`). PASS.
 
-### Milestone 9: Optional Dimension Cap Verification
-- **Work Completed**:
-  - Capped `landscape.jpg` (1200x800) at 800px max dimension.
-  - Verified output dimensions: `800 × 533 px` (proportional scale).
+### Milestone 9: WebP -> PNG Verification
+- **Work Completed**: Tested `sample.webp` (`1000 × 600 px`) converted to PNG.
 - **Actual Test Performed**: CDP automated suite Test 7.
-- **Actual Result**: PASS.
+- **Actual Result**: Output `sample.png` (94,575 B), valid PNG header `89 50 4E 47`, dimensions preserved (`1000 × 600 px`). PASS.
 
-### Milestone 10: Multi-File Batch Processing & Real Progress
-- **Work Completed**:
-  - Batched 3 diverse files simultaneously: `landscape.jpg`, `transparent_badge.png`, and `sample.webp`.
-  - Sequential processing tracked with real progress updates: `Compressing file 1 of 3`, `Compressing file 2 of 3`, `Compressing file 3 of 3`.
-  - All 3 result cards rendered with accurate before/after byte comparisons.
-- **Actual Test Performed**: CDP automated suite Test 8.
-- **Actual Result**: PASS.
+### Milestone 10: Quality Behavior Verified
+- **Work Completed**: Tested WebP output quality levels at 50%, 75%, 90%, 100%.
+- **Actual Test Performed**: CDP automated suite Test 3.
+- **Actual Result**:
+  - Quality 50%: **7,314 Bytes**
+  - Quality 75%: **8,482 Bytes**
+  - Quality 90%: **15,910 Bytes**
+  - Quality 100%: **57,256 Bytes**
+  - Strictly monotonic scaling verified ($S_{50} < S_{75} < S_{90} < S_{100}$). PASS.
 
-### Milestone 11: ZIP Packaging & Batch Download Verification
-- **Work Completed**:
-  - "Download All as ZIP" button automatically surfaces when $\ge 2$ images complete.
-  - Intercepted payload: `compressed-images.zip`, **78,502 Bytes**, verified binary PK header `504b0304`.
+### Milestone 11: Multi-File Processing Verified
+- **Work Completed**: Batched 3 diverse images (`landscape.jpg`, `transparent_badge.png`, `sample.webp`) simultaneously to WebP.
 - **Actual Test Performed**: CDP automated suite Test 9.
-- **Actual Result**: PASS.
+- **Actual Result**: Sequential processing with real progress (*"Converting file 1 of 3..."*), all 3 result cards generated with preserved dimensions. PASS.
 
-### Milestone 12: Special Filenames & Collision Disambiguation
-- **Work Completed**:
-  - Queued: `landscape.jpg`, `my photo.jpg` (spaces), `PHOTO.JPG` (uppercase), and duplicate `landscape.jpg`.
-  - Outputs: `landscape-compressed.jpg`, `my photo-compressed.jpg`, `PHOTO-compressed.jpg`, and disambiguated `landscape-compressed-2.jpg`.
+### Milestone 12: ZIP Batch Download Verified
+- **Work Completed**: Verified "Download All as ZIP" on batch results.
 - **Actual Test Performed**: CDP automated suite Test 10.
-- **Actual Result**: PASS.
+- **Actual Result**: Downloaded `converted-images.zip` (**50,266 Bytes**), verified binary PK header `504b0304`. PASS.
 
-### Milestone 13: Invalid File Error Isolation
-- **Work Completed**:
-  - Queued `corrupted.png` alongside valid `landscape.jpg`.
-  - Corrupted file isolated with "Failed" badge; valid file converted successfully to `landscape-compressed.jpg`.
-  - Queue remained fully interactive for subsequent operations.
-- **Actual Test Performed**: CDP automated suite Test 11.
-- **Actual Result**: PASS.
+### Milestone 13: Bugs Discovered & Fixed
+- **Bug 1 Discovered**: Dropzone event was named `file-dropzone:files-selected` in `FileDropzone.astro`, while initial tool script listened to `files-selected`.
+  - **Fix**: Updated event listener in `ImageConverterTool.astro` to `document.addEventListener('file-dropzone:files-selected', ...)` with `EventListener` type cast.
+- **Bug 2 Discovered**: Test 12 asserted uppercase `FAILED` against `.textContent.trim()`, while DOM status was lowercase `failed`.
+  - **Fix**: Added `.toLowerCase()` mapping in test assertion.
+- **Bug 3 Discovered**: `npx astro check` flagged unused variable `dropzoneRoot` in `ImageConverterTool.astro`.
+  - **Fix**: Removed unused declaration, bringing `astro check` to 0 errors, 0 warnings, 0 hints.
 
-### Milestone 14: Cross-Linking with Image Resizer
-- **Work Completed**:
-  - On Image Compressor: Added link in queue header and editorial content to `/image/image-resizer` (*"Need to change dimensions too? Resize your image."*).
-  - On Image Resizer: Added companion link in queue header and editorial content to `/image/image-compressor` (*"Only need a smaller file size? Compress your image."*).
-  - Verified both cross-links active via automated HTTP check.
-
-### Milestone 15: Network Privacy Audit
+### Milestone 14: Network Privacy Audit
 - **Work Completed**: Monitored browser network traffic across all test runs.
-- **Actual Result**: **0 POST requests, 0 remote API calls, 0 bytes uploaded**. All compression executed 100% locally in device RAM.
+- **Actual Result**: **0 POST requests, 0 remote API calls, 0 bytes uploaded**. All conversion executed 100% locally in device RAM. PASS.
 
-### Milestone 16: Responsive Viewports QA (375px to 1440px)
-- **Work Completed**: Tested viewports 375px, 390px, 768px, 1024px, 1440px.
-- **Actual Result**: **0 horizontal overflow** across all 5 viewports.
+### Milestone 15: Responsive Viewports & Accessibility QA
+- **Work Completed**:
+  - Responsive audit across 375px, 390px, 768px, 1024px, 1440px.
+  - Accessibility audit for labels, `role="status"`, `aria-live="polite"`, and `role="alert"`.
+- **Actual Test Performed**: CDP automated suite Tests 14 and 15.
+- **Actual Result**: **0 horizontal overflow** across all 5 viewports; 100% compliant a11y attributes. PASS.
 
-### Milestone 17: Accessibility (A11y) Audit
-- **Work Completed**: Form labels for quality slider, output format dropdown, max dimension selector, progress `role="status"` and `aria-live="polite"`, warning `role="alert"`.
-- **Actual Result**: PASS (100% compliant).
-
-### Milestone 18: Content & SEO Audit
-- **Work Completed**: Exactly 1 H1 (`Image Compressor`), 157-char meta description, canonical URL `https://browserfiletools.com/image/image-compressor`, 5 visible FAQs matching `FAQPage` JSON-LD schema, `SoftwareApplication` and `BreadcrumbList` schemas.
-- **Actual Test Performed**: `test-fixtures/verify-image-compressor-seo.cjs`.
+### Milestone 16: Content & SEO Audit
+- **Work Completed**: Exactly 1 H1 (`WebP, PNG & JPG Converter`), 156-char meta description, canonical URL `https://browserfiletools.com/image/image-converter`, 5 visible FAQs matching `FAQPage` JSON-LD schema, `SoftwareApplication` and `BreadcrumbList` schemas.
+- **Actual Test Performed**: `test-fixtures/verify-image-converter-seo.cjs`.
 - **Actual Result**: PASS (100%).
 
-### Milestone 19: Prior Tool Regression Testing
+### Milestone 17: Previous-Tool Regressions
 - **HEIC to JPG**: Converted Nokia fixture to 1440x960 JPG (`lightweight-regression.cjs`) — **PASS**.
 - **Video Compressor**: Compressed MP4 to 0.3 MB (`test-video-smoke.cjs`) — **PASS**.
 - **JPG to HEIC**: Converted single, batch with error isolation, ZIP download (`run-all-jpg-heic-tests.cjs`) — **PASS**.
-- **Image to PDF**: Single & multi-page PDF generation with margins and reordering (`run-all-pdf-tests.cjs`) — **PASS**.
+- **Image to PDF**: Multi-page PDF generation with margins and reordering (`run-all-pdf-tests.cjs`) — **PASS**.
 - **Subtitle Converter**: 54/54 automated checks passed (`run-all-subtitle-tests.cjs`) — **PASS**.
 - **Image Resizer**: Dimension scaling, aspect lock, percentage, and ZIP passed (`run-all-image-resizer-tests.cjs`) — **PASS**.
-- **Route Statuses**: All 7 active tools return HTTP 200 (Active).
+- **Image Compressor**: Quality scaling, PNG lossless handling, alpha compositing, ZIP passed (`run-all-image-compressor-tests.cjs`) — **PASS**.
+- **All 8 Active Tool Routes**: Returned HTTP 200 OK.
 
-### Milestone 20: Static Analysis & Production Build
-- `npx astro check`: **0 errors, 0 warnings, 0 hints** (36 files checked).
-- `npx astro build`: **0 errors**, 12 static pages generated in 5.47s (`dist/image/image-compressor/index.html` built).
-- Sitemap: `dist/sitemap-0.xml` includes `https://browserfiletools.com/image/image-compressor/`.
+### Milestone 18: Static Analysis & Production Build
+- `npx astro check`: **0 errors, 0 warnings, 0 hints** (39 files checked).
+- `npx astro build`: **0 errors**, 13 static pages generated in 6.44s (`dist/image/image-converter/index.html` built).
+- Sitemap: `dist/sitemap-0.xml` includes `https://browserfiletools.com/image/image-converter/`.
 
-### Milestone 21: Git Checkpoint
-- Commit: `bcb7b14` (`feat: complete image compressor`)
-- Tag: `image-compressor-complete`
-- Working Tree: Clean (All 12 files tracked and committed)
+### Milestone 19: Git Checkpoint
+- Commit: `ab6b0fb` (`feat: complete image format converter`)
+- Tag: `image-converter-complete`
+- Working Tree: Clean (All 15 files tracked and committed)
 
 ---
 
 ## Historical Milestone Archives (Completed Tools)
+
+### [Historical Snapshot] Expansion Tool — Image Compressor
+- Completed in prior sprint (Git commit `f54afbe`, Tag `image-compressor-complete`).
+- In-browser canvas compressor with quality control (10%–100%), presets (50%, 80%, 90%), truthful PNG lossless strategy, dimension preservation, alpha compositing to white, lazy JSZip, and 14/14 automated CDP test suites passed.
 
 ### [Historical Snapshot] Expansion Tool — Image Resizer
 - Completed in prior sprint (Git commit `6e6fcb9`, Tag `image-resizer-complete`).
@@ -229,5 +246,7 @@
 ## Next Recommended Tool
 
 Based on the original category inventory and logical expansion:
-- **Audio Compressor / Converter** (`/audio/audio-compressor` or `/audio/audio-converter`), or
-- **PDF Merger** (`/pdf/pdf-merger`).
+- **Social Image Resizer** (`/image/social-resizer`), or
+- **Favicon Generator** (`/image/favicon-generator`), or
+- **Audio Converter** (`/audio/audio-converter`), or
+- **PDF Merge / Split / Rotate** (`/pdf/pdf-merger`).
