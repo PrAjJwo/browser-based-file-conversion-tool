@@ -13,6 +13,7 @@ class CDPClient {
     this.ws = null;
     this.id = 1;
     this.callbacks = new Map();
+    this.eventListeners = new Map();
   }
 
   async connect() {
@@ -27,9 +28,19 @@ class CDPClient {
           this.callbacks.delete(msg.id);
           if (msg.error) reject(new Error(msg.error.message || JSON.stringify(msg.error)));
           else resolve(msg.result);
+        } else if (msg.method) {
+          const listeners = this.eventListeners.get(msg.method) || [];
+          listeners.forEach((cb) => cb(msg.params));
         }
       };
     });
+  }
+
+  on(event, callback) {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, []);
+    }
+    this.eventListeners.get(event).push(callback);
   }
 
   async send(method, params = {}) {
@@ -54,7 +65,7 @@ async function sleep(ms) {
 
   const chrome = spawn(CHROME_PATH, [
     '--headless=new',
-    '--remote-debugging-port=9230',
+    '--remote-debugging-port=9233',
     '--remote-allow-origins=*',
     `--user-data-dir=${TEMP_USER_DATA}`,
     '--disable-gpu',
@@ -65,7 +76,7 @@ async function sleep(ms) {
   await sleep(1500);
 
   const targets = await new Promise((resolve, reject) => {
-    http.get('http://127.0.0.1:9230/json/list', (res) => {
+    http.get('http://127.0.0.1:9233/json/list', (res) => {
       let data = '';
       res.on('data', (c) => (data += c));
       res.on('end', () => resolve(JSON.parse(data)));
@@ -110,22 +121,22 @@ async function sleep(ms) {
   }
   if (!ready) throw new Error('Video metadata failed to load');
 
-  console.log('2. Starting 0.3 MB compression...');
-  await cdp.send('Runtime.evaluate', {
-    expression: `(() => {
-      document.getElementById('target-size-input').value = '0.3';
-      document.getElementById('target-size-input').dispatchEvent(new Event('input', { bubbles: true }));
-      document.getElementById('start-compression-btn').click();
-    })()`,
-  });
-
   cdp.on('Runtime.consoleAPICalled', (params) => {
     const text = params.args.map((a) => a.value || a.description || JSON.stringify(a)).join(' ');
     console.log('   [BROWSER LOG]', text);
   });
 
+  console.log('2. Starting 0.3 MB compression...');
+  await cdp.send('Runtime.evaluate', {
+    expression: `(() => {
+      document.getElementById('target-size-input').value = '0.3';
+      document.getElementById('target-size-input').dispatchEvent(new Event('input', { bubbles: true }));
+      document.getElementById('start-compress-btn').click();
+    })()`,
+  });
+
   let compressed = false;
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 180; i++) {
     await sleep(500);
     const check = await cdp.send('Runtime.evaluate', {
       expression: `!document.getElementById('video-result-card').classList.contains('hidden')`,

@@ -217,6 +217,7 @@ async function sleep(ms) {
     { path: '/video/video-compressor', rootId: 'video-compressor-root' },
     { path: '/image/jpg-to-heic', rootId: 'jpg-tool-root' },
     { path: '/pdf/image-to-pdf', rootId: 'image-to-pdf-root' },
+    { path: '/pdf/subtitle-converter', rootId: 'subtitle-converter-root' },
   ];
 
   for (const r of activeRoutes) {
@@ -234,9 +235,7 @@ async function sleep(ms) {
     });
   }
 
-  const comingSoonRoutes = [
-    '/pdf/subtitle-converter',
-  ];
+  const comingSoonRoutes = [];
 
   for (const r of comingSoonRoutes) {
     await new Promise((resolve, reject) => {

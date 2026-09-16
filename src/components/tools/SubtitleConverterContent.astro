@@ -1,0 +1,132 @@
+---
+/**
+ * Supporting Editorial Content for Subtitle Converter
+ *
+ * Explains format differences between SRT and WebVTT,
+ * practical conversion scenarios, and client-side privacy guarantees.
+ */
+---
+
+<article class="prose prose-slate max-w-none space-y-12 mb-14">
+  <!-- 1. What are SRT and VTT subtitle files? -->
+  <section aria-labelledby="what-are-subtitles-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          i
+        </div>
+        <h2 id="what-are-subtitles-heading" class="text-xl font-bold text-surface-900">
+          What are SRT and VTT subtitle files?
+        </h2>
+      </div>
+
+      <div class="space-y-3.5 text-xs sm:text-sm text-surface-600 leading-relaxed max-w-none">
+        <p>
+          Closed captions and subtitles are distributed in standardized plain-text formats containing synchronized timestamps and spoken dialogue. The two most prominent caption formats across video streaming and playback are <strong>SubRip (.srt)</strong> and <strong>WebVTT (.vtt)</strong>.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 not-prose">
+          <div class="p-4 rounded-xl bg-surface-50 border border-surface-200 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-brand-100 text-brand-800 font-bold text-xs uppercase tracking-wider">SubRip (.srt)</span>
+              <span class="text-xs text-surface-500 font-medium">Desktop & Media Players</span>
+            </div>
+            <p class="text-xs text-surface-600 leading-relaxed">
+              Created for DVD caption extraction, SubRip is the universal standard for desktop players such as VLC, MPV, and Windows Media Player. It numbers cues sequentially starting from 1 and delineates millisecond timestamps using commas (<code class="text-brand-700 bg-brand-50 px-1 py-0.5 rounded">00:01:23,456</code>).
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-surface-50 border border-surface-200 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-brand-100 text-brand-800 font-bold text-xs uppercase tracking-wider">WebVTT (.vtt)</span>
+              <span class="text-xs text-surface-500 font-medium">HTML5 & Web Streaming</span>
+            </div>
+            <p class="text-xs text-surface-600 leading-relaxed">
+              Developed by the W3C specifically for HTML5 web video, WebVTT is the mandatory format for the browser <code class="text-brand-700 bg-brand-50 px-1 py-0.5 rounded">&lt;track&gt;</code> element. It begins with a leading <code class="text-brand-700 bg-brand-50 px-1 py-0.5 rounded">WEBVTT</code> header and uses period millisecond delimiters (<code class="text-brand-700 bg-brand-50 px-1 py-0.5 rounded">00:01:23.456</code>).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Why convert subtitle formats? -->
+  <section aria-labelledby="why-convert-subtitles-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          ⇄
+        </div>
+        <div>
+          <h2 id="why-convert-subtitles-heading" class="text-xl font-bold text-surface-900">
+            Why convert subtitle formats?
+          </h2>
+          <p class="text-xs text-surface-500 mt-0.5">Scenarios where caption syntax conversion is essential</p>
+        </div>
+      </div>
+
+      <ul class="space-y-3 mt-4 text-surface-600 text-xs sm:text-sm leading-relaxed list-none p-0 not-prose">
+        <li class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span><strong class="text-surface-900">HTML5 Web Video Compatibility:</strong> Standard web browsers and video players (such as Video.js, Plyr, YouTube, and Vimeo) mandate WebVTT captions. Converting desktop SRT files into VTT allows them to render immediately in HTML5 players.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span><strong class="text-surface-900">Desktop Player & Smart TV Support:</strong> Many offline video players, home theater software, and hardware television sets only recognize SRT files. Converting WebVTT back to SubRip ensures your captions load reliably.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span><strong class="text-surface-900">Clean Dialogue Transcript Extraction:</strong> Writers, transcribers, and editors often need plain text transcripts without distracting timecodes and cue numbers. Exporting to TXT produces clean spoken dialogue for notes, summaries, or articles.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span><strong class="text-surface-900">Live Cue Editing & Normalization:</strong> Repairing minor timecode inconsistencies, correcting typos, and standardizing sequential numbering can be done right in the browser before distributing subtitles.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. Client-Side Privacy Guarantee -->
+  <section aria-labelledby="privacy-guarantee-heading">
+    <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+          ✓
+        </div>
+        <div>
+          <h2 id="privacy-guarantee-heading" class="text-xl font-bold text-surface-900">
+            Client-Side Privacy Guarantee
+          </h2>
+          <p class="text-xs text-surface-500 mt-0.5">Your dialogue, scripts, and video captions never leave your device</p>
+        </div>
+      </div>
+
+      <p class="text-surface-600 leading-relaxed mt-3 text-xs sm:text-sm">
+        Subtitle files frequently contain confidential corporate meetings, unreleased video scripts, or proprietary training transcripts. Unlike online subtitle services that send your dialogue files to remote cloud servers, our converter runs <strong>100% locally in your web browser</strong>:
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-xs not-prose">
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+          <strong class="text-surface-900 block font-semibold mb-1">Zero Server Uploads</strong>
+          <p class="text-surface-600">Files are read directly into browser memory using the FileReader API. No network transmission occurs.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+          <strong class="text-surface-900 block font-semibold mb-1">Confidential Transcripts</strong>
+          <p class="text-surface-600">Your transcripts and video dialogues never leave your physical computer or phone.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-50 border border-surface-200">
+          <strong class="text-surface-900 block font-semibold mb-1">Offline Capable</strong>
+          <p class="text-surface-600">Once loaded, conversion continues to function even without an active internet connection.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</article>

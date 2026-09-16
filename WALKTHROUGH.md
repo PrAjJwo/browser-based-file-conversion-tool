@@ -2,32 +2,188 @@
 
 ## Current Project Status
 
-- **Current Phase**: Tool #3 — Image to PDF — Complete
-- **Current Completed Tools**:
+- **Current Phase**: Tool #4 — Subtitle Converter — Complete
+- **Completed Launch Tools**:
   1. HEIC to JPG (`/image/heic-to-jpg`) — Active, Production-Ready, Real Browser Verified
   2. Video Compressor (`/video/video-compressor`) — Active, Production-Ready, Real Browser Verified
-  3. JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
-  4. Image to PDF (`/pdf/image-to-pdf`) — Active, Production-Ready, Real Browser Verified
-- **Original Launch Order Status**:
-  - Tool #1 HEIC to JPG — Complete
-  - Tool #2 Video Compressor — Complete
-  - Tool #3 Image to PDF — Complete
-  - Tool #4 Subtitle Converter — Next
-- **Active In-Development Tool**: None (Tool #3 complete; awaiting next tool phase)
-- **Next Planned Work**: Tool #4 — Subtitle Converter (`/pdf/subtitle-converter`).
+  3. Image to PDF (`/pdf/image-to-pdf`) — Active, Production-Ready, Real Browser Verified
+  4. Subtitle Converter (`/pdf/subtitle-converter`) — Active, Production-Ready, Real Browser Verified
+- **Additional Image Tool**:
+  - JPG to HEIC (`/image/jpg-to-heic`) — Active, Production-Ready, Real Browser Verified
+- **Original Launch Sequence**: ALL FOUR COMPLETE
+- **Tool Status Summary**:
+  - Subtitle Converter: Development Complete, Real Browser Verified, Content/SEO Complete, Browser Verified.
+- **Physical Device Notice**: Physical iPhone Safari and Android Chrome verification remains pending before production launch.
+- **Active In-Development Tool**: None (All initial launch tools complete)
+- **Next Planned Work**: Post-launch expansion of remaining tools.
 - **Active Routes**:
   - `/image/heic-to-jpg` (Tool #1: Active)
   - `/video/video-compressor` (Tool #2: Active)
   - `/image/jpg-to-heic` (Image Expansion: Active)
   - `/pdf/image-to-pdf` (Tool #3: Active)
-  - `/pdf/subtitle-converter` (Tool #4: Coming Soon)
+  - `/pdf/subtitle-converter` (Tool #4: Active)
   - Category routes: `/image`, `/video`, `/pdf`, `/audio`
   - Homepage: `/`
 - **Build & Static Analysis Status**:
-  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (27 files checked)
-  - `npx astro build`: **0 errors**, 10 static routes built in 5.58s
-  - Development URL: `http://localhost:4321/pdf/image-to-pdf` (Server active)
-- **Next Action**: Ready for Tool #4 — Subtitle Converter (`/pdf/subtitle-converter`)
+  - `npx astro check`: **0 errors, 0 warnings, 0 hints** (30 files checked)
+  - `npx astro build`: **0 errors**, 10 static routes built in 5.41s
+  - Sitemap: Includes `/pdf/subtitle-converter`
+  - Development URL: `http://localhost:4321/pdf/subtitle-converter` (Server active)
+- **Next Action**: Create git checkpoint commit and tag.
+
+---
+
+## Current Tool Progress — Tool #4 Subtitle Converter
+
+### Milestone 1: Parser & Converter Architecture Decision
+- **Decision Reasoning**:
+  - Selected a zero-dependency, 100% browser-native custom parser and serializer (`src/scripts/subtitle-converter.ts`).
+  - Avoids bloated, unmaintained third-party subtitle libraries that struggle with edge cases or inject unnecessary bundle weight.
+  - Normalized internal cue model:
+    ```typescript
+    interface SubtitleCue {
+      id?: string;
+      startMs: number;
+      endMs: number;
+      text: string;
+      settings?: string;
+    }
+    ```
+  - Native support for UTF-8 Byte Order Mark (BOM `\uFEFF`) stripping and universal newline normalization (`\r\n` -> `\n`).
+  - Dedicated format auto-detection identifying WebVTT headers, SRT timestamp sequences, and plain text files.
+  - Zero-network-leak guarantee: All string parsing, regex extraction, millisecond conversions, and Blob downloads occur 100% locally in device memory.
+
+### Milestone 2: SRT Parser & Serializer Implementation
+- **Work Completed**:
+  - Implemented `parseSrt`: Extracts cue index numbers, start/end timestamps (`HH:MM:SS,mmm`), and multiline cue dialogue separated by blank lines.
+  - Timestamp validation: Validates non-negative timestamps and flags cues where `startMs > endMs` without crashing.
+  - Implemented `serializeToSrt`: Renumbers cues sequentially starting at 1, formats timestamps with comma milliseconds (`HH:MM:SS,mmm`), strips unsupported WebVTT styling tags, and separates cues with clean blank lines.
+- **Actual Test Performed**:
+  - Parsed `sample.srt` fixture with 3 cues (`test-fixtures/test-subtitles-unit.mjs`).
+  - Serialized cues back to SRT format.
+- **Actual Result**:
+  - 3 cues parsed accurately with exact millisecond bounds (`1000ms -> 4500ms`, `5000ms -> 8200ms`, `9100ms -> 12850ms`).
+  - Serialized output verified sequential `1..3` cue numbering with `,` millisecond delimiters.
+
+### Milestone 3: WebVTT Parser & Serializer Implementation
+- **Work Completed**:
+  - Implemented `parseVtt`: Inspects `WEBVTT` header, skips comment blocks (`NOTE`, `STYLE`), parses dot-separated timestamps (`HH:MM:SS.mmm` or `MM:SS.mmm`), and extracts optional WebVTT cue settings (`position:10% align:left`, `line:80%`).
+  - Implemented `serializeToVtt`: Generates standard `WEBVTT` header, formats timestamps with dot millisecond delimiters (`HH:MM:SS.mmm`), and preserves cue settings where provided.
+- **Actual Test Performed**:
+  - Parsed `sample.vtt` fixture with cue settings.
+  - Serialized cues to WebVTT format.
+- **Actual Result**:
+  - 3 cues extracted; cue settings (`position:10% align:left`, `line:80%`) parsed correctly without data loss.
+  - Serialized WebVTT output validated with leading `WEBVTT\n\n` header.
+
+### Milestone 4: TXT Conversion & Plain Text Rules Defined
+- **Defined Rules**:
+  - **SRT/VTT -> TXT**: Exports clean dialogue without cue index numbers, timestamp arrows, or timecodes. Supports both cue-per-line and paragraph modes.
+  - **TXT -> SRT/VTT**: Does NOT synthesize or fabricate timestamps out of thin air. Plain text files without timestamp syntax are parsed as dialogue transcripts with clear messaging: *"Plain TXT files do not contain subtitle timing metadata. Timed subtitles cannot be inferred automatically."*
+  - If a `.txt` file actually contains embedded timestamps (`-->`), the parser intelligently falls back to parsing valid timed cues.
+- **Actual Test Performed**:
+  - Exported `sample.srt` cues to plain text dialogue; parsed `sample.txt`.
+- **Actual Result**:
+  - TXT export stripped all timestamps and cue numbers, preserving pure spoken dialogue.
+  - `sample.txt` returned 0 timed cues and triggered the clear informational warning as required.
+
+### Milestone 5: First Real SRT Conversion Verified (SRT -> VTT)
+- **Work Completed**:
+  - Verified genuine SRT fixture `sample.srt` loaded into the reactive browser workspace.
+  - Workspace populated detected format badge `SRT`, total cues `3 cues`, and total duration `00:00:12`.
+  - Converted to WebVTT; validated output filename `sample.vtt`, byte size `260 Bytes`, and download anchor generation with MIME `text/vtt`.
+- **Actual Test Performed**:
+  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 1).
+- **Actual Result**:
+  - PASS: Output starts with `WEBVTT`, replaces `,` with `.`, and preserves cue dialogue. Direct download triggered for `sample.vtt`.
+
+### Milestone 6: Reverse Conversion Verified (VTT -> SRT)
+- **Work Completed**:
+  - Verified WebVTT fixture `sample.vtt` loaded into workspace.
+  - Target format auto-switched to `SubRip (.srt)`.
+  - Converted back to SRT; verified sequential numbering `1..3`, comma millisecond delimiters (`00:00:01,000 --> 00:00:04,500`), and clean blank-line cue boundaries.
+- **Actual Test Performed**:
+  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 2).
+- **Actual Result**:
+  - PASS: Output renumbered cues 1..3, removed WEBVTT header, converted dot milliseconds to commas, and preserved cue dialogue.
+
+### Milestone 7: Malformed Subtitle Handling Verified
+- **Work Completed**:
+  - Tested `malformed.srt` containing inverted start/end timestamps (`00:00:06,000 --> 00:00:03,000`) and broken non-timestamp lines (`NOT A TIMESTAMP --> INVALID`).
+  - The converter isolated corrupted blocks, logged actionable warnings in the UI warning banner, and extracted remaining valid cues without crashing or hanging.
+- **Actual Test Performed**:
+  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 5).
+- **Actual Result**:
+  - PASS: Zero browser unhandled exceptions. Actionable warning banner displayed 2 distinct error notices, allowing user inspection and correction.
+
+### Milestone 8: Live Textarea Editor & Validation Verified
+- **Work Completed**:
+  - Interactive monospace textarea editor (`#sub-editor-textarea`) bound to live `input` and `reset` handlers.
+  - Manual text edits immediately re-parse cues, update duration and cue count badges, and re-validate timecodes.
+  - Exported output strictly reflects user edits.
+- **Actual Test Performed**:
+  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 6).
+- **Actual Result**:
+  - PASS: Modified dialogue text in textarea; verified converted output contained edited text. Reset button successfully restored original file text.
+
+### Milestone 9: Bugs Discovered
+- **Bugs Identified**:
+  1. *Target format selection state persistence*: When switching from an SRT file to a VTT file, the previous target format (`vtt`) was retained because it existed in the dropdown, preventing the intelligent default (`srt`) from being selected.
+  2. *Duplicate layout sections & FAQ count*: `SubtitleConverterContent.astro` included its own How It Works, Limitations, and FAQs sections while `ToolLayout.astro` simultaneously rendered the default sections from `tools.ts`, causing 10 visible FAQs instead of 5.
+
+### Milestone 10: Bugs Fixed
+- **Fixes Implemented**:
+  1. Added an `isNewFile` flag to `handleLoadedFile` and `parseAndRender` in `SubtitleConverterTool.astro` so that loading a new file always selects the intelligent target format for that file.
+  2. Streamlined `SubtitleConverterContent.astro` to provide rich educational sections (What are SRT/VTT, Why convert, Privacy Guarantee) while delegating How It Works, Limitations, and FAQs to `ToolLayout.astro`, restoring exactly 5 visible FAQs matching schema.
+
+### Milestone 11: Privacy & Network Audit
+- **Work Completed**:
+  - CDP network interception monitored all HTTP/HTTPS requests during subtitle loading, parsing, live editing, and conversion across all test fixtures.
+- **Actual Test Performed**:
+  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Test 9).
+- **Actual Result**:
+  - PASS: **0 POST requests, 0 remote API calls, and 0 bytes uploaded**. All parsing and conversion occurred 100% locally in browser memory.
+
+### Milestone 12: Responsive & Accessibility QA
+- **Work Completed**:
+  - Tested viewports 375px (Mobile), 390px (iPhone), 768px (Tablet), 1024px (Desktop), and 1440px (Large Desktop).
+  - Audited accessibility attributes: `role="status"`, `aria-live="polite"`, accessible `aria-label` attributes on all form controls, and `role="alert"` on warning banners.
+- **Actual Test Performed**:
+  - Automated CDP suite (`test-fixtures/run-all-subtitle-tests.cjs` Tests 10 & 11).
+- **Actual Result**:
+  - PASS: **0 horizontal overflow** across all 5 viewports. All accessibility attributes confirmed present and functional.
+
+### Milestone 13: Content & SEO Complete
+- **Work Completed**:
+  - Single `<h1>Subtitle Converter</h1>`.
+  - 145-character meta description: *"Convert SRT, VTT, and TXT subtitle files directly in your browser. Fast, 100% private local conversion with live editing and zero server uploads."*
+  - Canonical URL: `https://browserfiletools.com/pdf/subtitle-converter`.
+  - Exactly 5 visible FAQs matching `FAQPage` JSON-LD schema, plus `SoftwareApplication` and `BreadcrumbList` schemas.
+- **Actual Test Performed**:
+  - Ran `test-fixtures/verify-subtitle-seo.cjs`.
+- **Actual Result**:
+  - PASS: All SEO assertions passed 100%.
+
+### Milestone 14: Prior Tool Regressions
+- **Work Completed**:
+  - Tool #1 (HEIC to JPG): Converted `autumn_1440x960.heic`, preserved dimensions, validated download (`test-fixtures/lightweight-regression.cjs`).
+  - Tool #2 (Video Compressor): Loaded FFmpeg engine, compressed 0.3 MB MP4 (`test-fixtures/test-video-smoke.cjs`).
+  - Image Expansion (JPG to HEIC): Converted single, batch with error isolation, ZIP download, spaces & Unicode (`test-fixtures/run-all-jpg-heic-tests.cjs`).
+  - Tool #3 (Image to PDF): Single, multi-page (JPG, transparent PNG, WebP), reordering, margins, custom fit, special filenames (`test-fixtures/run-all-pdf-tests.cjs`).
+  - Route Statuses: All 5 tools return HTTP 200 (Active).
+- **Actual Result**:
+  - PASS: All 4 prior tools operating with zero regressions.
+
+### Milestone 15: Static Analysis & Production Build
+- **Work Completed**:
+  - Ran `npx astro check`: **0 errors, 0 warnings, 0 hints** across 30 checked files.
+  - Ran `npx astro build`: **0 errors**, 10 static pages generated in 5.41s (`dist/pdf/subtitle-converter/index.html` built).
+  - Verified sitemap: `dist/sitemap-0.xml` includes `https://browserfiletools.com/pdf/subtitle-converter/`.
+
+### Milestone 16: Git Checkpoint
+- **Work Completed**:
+  - Commit: `feat: complete subtitle converter`
+  - Tag: `tool-4-subtitle-converter-complete`
 
 ---
 
