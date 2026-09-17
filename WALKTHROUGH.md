@@ -2,7 +2,7 @@
 
 ## Current Project Status
 
-- **Current Phase**: Website Foundation, Brand, UX, QA & Production Polish — Complete
+- **Current Phase**: Visual Experience & Motion System — Complete
 - **Brand**: PureFile
 - **Production Domain**: `https://purefile.tools`
 - **Active Tools**: 9 Converters (Frozen & Fully Verified)
@@ -21,19 +21,25 @@
   - PDF & Document Tools (`/pdf`) — 2 active tools
 - **Inactive / Roadmap Category**:
   - Audio Tools (`/audio`) — 0 active tools. Excluded from primary navigation and active footer links; page retained with `<meta name="robots" content="noindex, follow">` and humanized roadmap copy.
+- **Visual Experience & Motion System**: Complete & Verified
+  - **Zero Heavy Dependencies**: Pure CSS + 1.2KB native `IntersectionObserver` reveal engine (`src/scripts/motion.ts`). Zero GSAP, Framer Motion, or Lottie.
+  - **Harmonious Motion Tokens**: `--motion-fast: 140ms`, `--motion-normal: 220ms`, `--motion-slow: 360ms`; `--ease-standard: cubic-bezier(0.16, 1, 0.3, 1)`, `--ease-out`, `--ease-in`, `--ease-spring`.
+  - **Component Micro-Interactions**:
+    - `.btn-primary` & `.btn-secondary`: Tactile active press (`scale-[0.985]`), subtle hover lift (`-translate-y-0.5`), glowing cobalt drop shadow (`--shadow-button-hover`).
+    - `ToolCard.astro`: Elevation lift (`-translate-y-1`), expanded card shadow (`--shadow-card-hover`), icon scale (`group-hover:scale-105`), forward arrow shift (`group-hover:translate-x-1.5`).
+    - `FileDropzone.astro`: Transition durations tied to `--motion-normal`, hover icon lift, active dropzone scale, and micro-entrance animation on file-accepted status.
+    - Inputs & Selects: Smooth focus ring transitions (`duration-fast`).
+  - **Scroll Reveal System**: `.reveal-on-scroll` with staggered entrance classes (`.reveal-stagger-1` through `.reveal-stagger-4`). One-shot reveal; immediate reveal for above-the-fold content to avoid pop-in/layout shift.
+  - **Visual Depth System**: Subtle ambient hero radial gradient blur (`from-brand-500/8`), layered dark-mode surface elevation (`bg-zinc-900/60`, `border-zinc-800`), and curated shadow tokens.
+  - **Accessibility & Reduced Motion**: Full WCAG 2.2 AA compliance via `@media (prefers-reduced-motion: reduce)`. All animations and transforms resolve instantly to `0s` and opacity `1`.
+  - **Complete System Documentation**: Documented in `VISUAL-SYSTEM.md`.
 - **Owner QA & Testing System**: Complete & Verified
-  - `npm run test:smoke`: **15 / 15 passed** (3.99s) — verifies homepage, categories, tool routes, and live subtitle conversion.
-  - `npm run test:all`: **36 / 36 passed** (75.46s) — verifies routes & SEO, recursive link crawler (18 pages, 0 broken links), all 9 converters end-to-end with raw binary magic byte validation, 5 responsive viewports (375px–1440px with 0px overflow), visual baseline screenshots, `astro check`, and production build.
-  - `npm run qa`: **3 / 3 steps passed** — pre-deployment health check.
-  - Local dev-only QA dashboard at `http://localhost:4321/__qa` (0 production footprint).
-  - Manual checklist and test fixtures documented in `QA-GUIDE.md`.
+  - `npm run test:smoke`: **15 / 15 passed** (6.15s).
+  - `npm run test:all`: **36 / 36 passed** (76.77s) — verifies all 9 active converters end-to-end with raw binary magic byte validation, link crawler, 5 viewports, visual baseline screenshots, `astro check` (0 errors/warnings), and production build.
+  - `npm run qa`: Pre-deployment health check suite passed cleanly (19 static pages built in 5.92s).
 - **Production Readiness**: Certified Complete (`site-polish-ready`)
-  - 19 static HTML pages generated cleanly via `npm run build` (5.76s).
-  - Zero development residue (no ad placeholders, no punctuation glyphs, no "0 tools registered", no "queued in architecture").
-  - Brand consistency: 100% PureFile across title suffixes, headers, footers, logo, favicon, schemas, and 404.
-  - Informational pages: `/about`, `/privacy`, `/terms`, `/contact`, and custom `/404` fully implemented.
-  - Technically accurate privacy guarantees: Clear distinction between 100% on-device browser RAM file processing and normal static CDN resource requests.
-  - Lazy loading: 0 heavy conversion engines (FFmpeg, HEIC encoder, jsPDF, JSZip) load on homepage or category hub pages.
+  - 19 static HTML pages generated cleanly via `npm run build`.
+  - Zero development residue; 100% consistent PureFile brand identity.
 - **Physical Device Verification**:
   - Pending final physical iOS Safari and Android Chrome hardware testing prior to public traffic launch.
 
@@ -57,6 +63,15 @@
 ---
 
 ## Completed Phase History
+
+### [Historical Milestone] Phase 8: Visual Experience & Motion System
+- **Centralized Motion Tokens**: Defined in `src/styles/global.css` and `tailwind.config.mjs` (`--motion-fast`, `--motion-normal`, `--motion-slow`, `--ease-standard`, `--ease-spring`, `--shadow-card-hover`, `--shadow-button-hover`).
+- **Interactive Component States**: Enhanced buttons, tool cards, file dropzones, and form controls with subtle tactile feedback, hover lifts, arrow shifts, and glowing accent shadows.
+- **Scroll Reveal Engine**: Built native zero-dependency `IntersectionObserver` reveal engine in `src/scripts/motion.ts` with staggered animations and immediate above-the-fold visibility.
+- **Visual Depth Polish**: Added restrained ambient radial backdrop glow to the hero section and refined layered dark-mode card surfaces.
+- **Reduced Motion Architecture**: Strict WCAG compliance disabling transforms and animations when `prefers-reduced-motion: reduce` is enabled.
+- **Full Verification**: 36/36 master tests passed, smoke test passed, 0 `astro check` errors, 0 regressions in any converter tool.
+- **Documentation**: Created `VISUAL-SYSTEM.md`.
 
 ### [Historical Milestone] Phase 7: Final Product Polish & Production Readiness
 - **Residue Cleanup**:

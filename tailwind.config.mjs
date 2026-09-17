@@ -21,6 +21,9 @@ export default {
     'card-interactive',
     'card-elevated',
     'card-inset',
+    'reveal-on-scroll',
+    'is-revealed',
+    'animate-entrance',
   ],
   theme: {
     extend: {
@@ -114,6 +117,19 @@ export default {
         'dropzone': '0 4px 20px rgba(0, 0, 0, 0.03)',
         'dropzone-active': '0 8px 30px rgba(37, 99, 235, 0.12)',
         'focus-ring': '0 0 0 3px rgba(37, 99, 235, 0.25)',
+        'card-hover': '0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
+        'button-hover': '0 4px 14px -2px rgba(37, 99, 235, 0.28)',
+        'subtle-lift': '0 4px 12px rgba(0, 0, 0, 0.05)',
+      },
+      transitionDuration: {
+        'fast': '140ms',
+        'normal': '220ms',
+        'slow': '360ms',
+      },
+      transitionTimingFunction: {
+        'standard': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'entrance': 'cubic-bezier(0, 0, 0.2, 1)',
+        'exit': 'cubic-bezier(0.4, 0, 1, 1)',
       },
     },
   },

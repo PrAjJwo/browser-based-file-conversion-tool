@@ -46,9 +46,24 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
 
+  /* Motion Timing Tokens */
+  --motion-fast: 140ms;
+  --motion-normal: 220ms;
+  --motion-slow: 360ms;
+
+  /* Easing Curves */
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Visual Depth Shadows */
+  --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-button-hover: 0 4px 14px -2px rgba(37, 99, 235, 0.28);
   --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.22);
 }
 
@@ -60,6 +75,23 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .reveal-on-scroll {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
   }
 
   ::selection {
@@ -79,7 +111,8 @@
      1. BUTTON SYSTEM
      ========================================================================== */
   .btn-base {
-    @apply inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-150 select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/25 focus-visible:ring-offset-1;
+    @apply inline-flex items-center justify-center font-semibold rounded-lg select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/25 focus-visible:ring-offset-1;
+    transition: all var(--motion-fast) var(--ease-standard);
   }
 
   .btn-sm {
@@ -95,11 +128,29 @@
   }
 
   .btn-primary {
-    @apply btn-base bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 shadow-xs border border-brand-700/25;
+    @apply btn-base bg-brand-600 text-white shadow-xs border border-brand-700/25;
+  }
+  .btn-primary:hover {
+    @apply bg-brand-700;
+    box-shadow: var(--shadow-button-hover);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    @apply bg-brand-800;
+    transform: translateY(0) scale(0.985);
   }
 
   .btn-secondary {
-    @apply btn-base bg-white text-surface-900 hover:bg-surface-50 active:bg-surface-100 shadow-2xs border border-surface-200 hover:border-surface-300;
+    @apply btn-base bg-white text-surface-900 shadow-2xs border border-surface-200;
+  }
+  .btn-secondary:hover {
+    @apply bg-surface-50 border-surface-300;
+    box-shadow: var(--shadow-xs);
+    transform: translateY(-1px);
+  }
+  .btn-secondary:active {
+    @apply bg-surface-100;
+    transform: translateY(0) scale(0.985);
   }
 
   .btn-ghost {
@@ -111,18 +162,21 @@
   }
 
   .btn-icon {
-    @apply inline-flex items-center justify-center rounded-lg text-surface-500 hover:text-surface-900 hover:bg-surface-100 active:bg-surface-200/70 transition-colors p-2;
+    @apply inline-flex items-center justify-center rounded-lg text-surface-500 hover:text-surface-900 hover:bg-surface-100 active:bg-surface-200/70 p-2;
+    transition: all var(--motion-fast) var(--ease-standard);
   }
 
   /* ==========================================================================
      2. FORM SYSTEM
      ========================================================================== */
   .input-base {
-    @apply w-full h-10 px-3 py-2 text-sm text-surface-900 bg-white border border-surface-300 rounded-lg placeholder:text-surface-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all duration-150 disabled:bg-surface-100 disabled:text-surface-400 disabled:cursor-not-allowed;
+    @apply w-full h-10 px-3 py-2 text-sm text-surface-900 bg-white border border-surface-300 rounded-lg placeholder:text-surface-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 disabled:bg-surface-100 disabled:text-surface-400 disabled:cursor-not-allowed;
+    transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard);
   }
 
   .select-base {
-    @apply w-full h-10 px-3 py-2 text-sm text-surface-900 bg-white border border-surface-300 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all duration-150 pr-8 appearance-none;
+    @apply w-full h-10 px-3 py-2 text-sm text-surface-900 bg-white border border-surface-300 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 pr-8 appearance-none;
+    transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717A' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
@@ -131,18 +185,21 @@
 
   .slider-base {
     @apply w-full h-2 bg-surface-200 rounded-lg appearance-none cursor-pointer accent-brand-600 focus:outline-none;
+    transition: background-color var(--motion-fast) var(--ease-standard);
   }
 
   .checkbox-base {
     @apply w-4 h-4 rounded border-surface-300 text-brand-600 focus:ring-brand-500/25 focus:ring-offset-0 cursor-pointer;
+    transition: all var(--motion-fast) var(--ease-standard);
   }
 
   .dropzone-base {
-    @apply border-2 border-dashed border-surface-300 rounded-xl p-6 sm:p-8 text-center bg-white hover:border-brand-400 hover:bg-brand-50/15 transition-all duration-200 cursor-pointer shadow-dropzone;
+    @apply border-2 border-dashed border-surface-300 rounded-2xl p-6 sm:p-8 text-center bg-white hover:border-brand-400 hover:bg-brand-50/15 cursor-pointer shadow-dropzone hover:shadow-dropzone-active;
+    transition: border-color var(--motion-normal) var(--ease-standard), background-color var(--motion-normal) var(--ease-standard), box-shadow var(--motion-normal) var(--ease-standard), transform var(--motion-normal) var(--ease-standard);
   }
 
   .dropzone-active {
-    @apply border-brand-500 bg-brand-50/25 shadow-dropzone-active scale-[1.005];
+    @apply border-brand-500 bg-brand-50/25 shadow-dropzone-active scale-[1.008];
   }
 
   /* ==========================================================================
@@ -153,7 +210,13 @@
   }
 
   .card-interactive {
-    @apply card-base hover:border-brand-300 hover:shadow-sm transition-all duration-200;
+    @apply card-base;
+    transition: border-color var(--motion-normal) var(--ease-standard), box-shadow var(--motion-normal) var(--ease-standard), transform var(--motion-normal) var(--ease-standard);
+  }
+  .card-interactive:hover {
+    @apply border-brand-300;
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
   }
 
   .card-elevated {
@@ -162,6 +225,51 @@
 
   .card-inset {
     @apply bg-surface-50 border border-surface-200/70 rounded-lg p-4;
+  }
+
+  /* ==========================================================================
+     4. REVEAL & MOTION UTILITIES
+     ========================================================================== */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity var(--motion-slow) var(--ease-out), transform var(--motion-slow) var(--ease-out);
+    will-change: opacity, transform;
+  }
+
+  .reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Micro icon reactions */
+  .icon-reaction {
+    transition: transform var(--motion-fast) var(--ease-standard);
+  }
+  .group:hover .icon-reaction-right {
+    transform: translateX(3px);
+  }
+  .group:hover .icon-reaction-up {
+    transform: translateY(-2px);
+  }
+  .group:hover .icon-reaction-down {
+    transform: translateY(2px);
+  }
+
+  /* Keyframe subtle entrance */
+  @keyframes fadeInTranslate {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-entrance {
+    animation: fadeInTranslate var(--motion-slow) var(--ease-out) forwards;
   }
 
   /* ==========================================================================
