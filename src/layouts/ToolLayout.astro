@@ -13,7 +13,7 @@ const { title, metaDescription, tool } = Astro.props;
 const category = getCategoryInfo(tool.category);
 
 const pageTitle = tool.metaTitle || title;
-const siteOrigin = Astro.site ? Astro.site.origin : (process.env.SITE_URL || 'https://browserfiletools.com');
+const siteOrigin = Astro.site ? Astro.site.origin : (process.env.SITE_URL || 'https://purefile.tools');
 const toolUrl = new URL(Astro.url.pathname, siteOrigin).href;
 const categoryUrl = new URL(`/${category.id}`, siteOrigin).href;
 const homeUrl = new URL('/', siteOrigin).href;

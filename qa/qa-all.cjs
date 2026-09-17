@@ -358,6 +358,7 @@ async function checkRouteHttp(urlPath) {
   console.log(`\n${colors.bold}[PHASE 4/7] Auditing Responsive Viewports & Layout Integrity...${colors.reset}`);
   const viewports = [
     { name: 'Desktop Large', width: 1440, height: 900 },
+    { name: 'Desktop Medium', width: 1024, height: 768 },
     { name: 'Tablet iPad', width: 768, height: 1024 },
     { name: 'Mobile iPhone 15', width: 390, height: 844 },
     { name: 'Small Mobile', width: 375, height: 667 },

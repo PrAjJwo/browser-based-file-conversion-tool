@@ -24,7 +24,7 @@ function devQaDashboardPlugin() {
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://browserfiletools.com',
+  site: process.env.SITE_URL || 'https://purefile.tools',
   integrations: [
     tailwind({
       applyBaseStyles: false,
@@ -34,7 +34,7 @@ export default defineConfig({
   vite: {
     plugins: [devQaDashboardPlugin()],
     optimizeDeps: {
-      include: ['jspdf', 'jszip'],
+      include: ['jspdf', 'jszip', 'heic2any'],
       exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@pbk20191/icodec'],
     },
     worker: {

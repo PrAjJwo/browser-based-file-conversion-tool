@@ -38,11 +38,11 @@ All 9 tools have been verified end-to-end with real binary payloads:
 
 | Test Suite | Execution Time | Assertions | Result |
 | :--- | :--- | :--- | :--- |
-| `npm run test:smoke` | 3.88s | 15 / 15 | **100% PASS** |
-| `npm run test:all` | 72.22s | 35 / 35 | **100% PASS** |
+| `npm run test:smoke` | 3.99s | 15 / 15 | **100% PASS** |
+| `npm run test:all` | 75.46s | 36 / 36 | **100% PASS** |
 | `npm run qa` (Pre-Deployment) | 18.42s | 3 Steps | **100% PASS** |
 | `npx astro check` | 0.82s | 57 Files | **0 errors, 0 warnings** |
-| `npm run build` | 5.72s | 19 Pages | **19 static pages built cleanly** |
+| `npm run build` | 5.76s | 19 Pages | **19 static pages built cleanly** |
 
 ### Verified Test Checkpoints
 - **18 App Routes + 404**: All respond with HTTP 200 (or 404), valid `<title>`, `<meta name="description">`, and canonical URLs.
@@ -57,7 +57,7 @@ All 9 tools have been verified end-to-end with real binary payloads:
   - Video Compressor: `00 00 00 20 66 74 79 70 69 73 6f 6d` (`ftypisom` MP4)
   - Image to PDF: `%PDF-1.3`
   - Subtitle Converter: `57 45 42 56 54 54` (`WEBVTT`)
-- **Responsive Viewports**: Tested at 375px, 390px, 768px, 1440px with **0px horizontal scroll overflow**.
+- **Responsive Viewports**: Tested at 375px, 390px, 768px, 1024px, 1440px with **0px horizontal scroll overflow**.
 
 ---
 

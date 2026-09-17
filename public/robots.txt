@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /__qa
 
-Sitemap: https://purefile.dev/sitemap-index.xml
+Sitemap: https://purefile.tools/sitemap-index.xml
