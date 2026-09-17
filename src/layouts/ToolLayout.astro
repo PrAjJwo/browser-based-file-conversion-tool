@@ -126,7 +126,7 @@ const faqSchema =
 
     <!-- Prominent In-Browser Privacy Guarantee Banner -->
     <div class="mb-8">
-      <PrivacyBadge variant="prominent" />
+      <PrivacyBadge variant="tool-proof" />
     </div>
 
     <!-- Main Tool Interaction Slot (e.g. Dropzone & Converter Shell) -->
@@ -137,12 +137,6 @@ const faqSchema =
       </slot>
     </section>
 
-    <!-- Non-intrusive Ad Slot (Positioned safely after conversion area, never between user and CTA) -->
-    <div class="mb-14 p-4 rounded-xl border border-dashed border-surface-300 bg-surface-100/50 text-center">
-      <span class="text-[11px] uppercase tracking-wider font-semibold text-surface-400">Advertisement Placeholder</span>
-      <p class="text-xs text-surface-500 mt-1">Non-intrusive sponsor banner placed below conversion controls</p>
-    </div>
-
     <!-- Supporting Editorial Content Slot -->
     <slot name="editorial" />
 
@@ -151,8 +145,10 @@ const faqSchema =
       <slot name="how-it-works">
         <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
           <div class="flex items-center gap-2 mb-6">
-            <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">
-              ?
+            <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center border border-brand-200/60 flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+              </svg>
             </div>
             <h2 id="how-it-works-heading" class="text-xl font-bold text-surface-900">
               {tool.slug === 'heic-to-jpg' ? 'How to convert HEIC to JPG' : 'How It Works'}
@@ -190,8 +186,10 @@ const faqSchema =
       <slot name="limitations">
         <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
           <div class="flex items-center gap-2 mb-4">
-            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
-              !
+            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200/60 flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
             </div>
             <div>
               <h2 id="limitations-heading" class="text-xl font-bold text-surface-900">
@@ -220,8 +218,10 @@ const faqSchema =
       <slot name="faq">
         <div class="rounded-2xl bg-white border border-surface-200/80 p-6 sm:p-8 shadow-xs">
           <div class="flex items-center gap-2 mb-6">
-            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
-              &amp;
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60 flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 18h.008v.008H12V18z" />
+              </svg>
             </div>
             <h2 id="faq-heading" class="text-xl font-bold text-surface-900">
               Frequently asked questions

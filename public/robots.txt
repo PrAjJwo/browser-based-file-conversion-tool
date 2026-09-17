@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /__qa
 
-Sitemap: https://browserfiletools.com/sitemap-index.xml
+Sitemap: https://purefile.dev/sitemap-index.xml

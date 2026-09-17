@@ -1,0 +1,13 @@
+WEBVTT - Sample WebVTT File
+
+1
+00:00:01.000 --> 00:00:04.500 position:10% align:left
+Welcome to WebVTT captions.
+
+2
+00:00:05.000 --> 00:00:08.200 line:80%
+This format is designed for HTML5 video players.
+
+3
+00:00:09.100 --> 00:00:12.850
+Seamless browser playback with custom cues.

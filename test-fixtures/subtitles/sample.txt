@@ -1,0 +1,4 @@
+This is a plain dialogue transcript without any timestamps.
+Speaker 1: Hello everyone, welcome to the presentation.
+Speaker 2: Thanks for having me today.
+Speaker 1: We will discuss browser file converters and privacy guarantees.

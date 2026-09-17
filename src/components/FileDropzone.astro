@@ -15,7 +15,7 @@ const {
   acceptedTypesLabel = 'All files',
   sizeWarningMB = 100,
   sizeCeilingNote = 'In-browser processing memory is bounded by available local device RAM.',
-  status = 'active',
+  status: _status = 'active',
   toolTitle,
   multiple = false,
   managedExternally = false,
@@ -35,26 +35,7 @@ const fileInputId = `file-input-${uniqueId}`;
   data-multiple={multiple ? 'true' : 'false'}
   data-managed-externally={managedExternally ? 'true' : 'false'}
 >
-  <!-- Coming Soon Foundation Notice -->
-  {status === 'coming-soon' && (
-    <div class="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 shadow-xs">
-      <div class="p-1.5 rounded-lg bg-amber-100 text-amber-700 flex-shrink-0 mt-0.5">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-        </svg>
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200 text-amber-900">
-            Foundation Stage: Coming Soon
-          </span>
-        </div>
-        <p class="text-xs sm:text-sm text-amber-800 mt-1 leading-relaxed">
-          The <strong>{toolTitle}</strong> conversion engine will be integrated in a subsequent stage. The dropzone below provides the complete user interface shell, file validation, and memory ceiling detection.
-        </p>
-      </div>
-    </div>
-  )}
+
 
   <!-- Recommended File Size Limit Notice -->
   <div class="mb-4 px-3.5 py-2.5 rounded-xl bg-surface-100/90 border border-surface-200 text-surface-600 flex flex-wrap items-center justify-between gap-2 text-xs">

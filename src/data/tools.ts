@@ -620,9 +620,12 @@ export const TOOLS: Tool[] = [
   },
 ];
 
-// Helper functions for easy querying
 export function getAllTools(): Tool[] {
   return TOOLS;
+}
+
+export function getActiveTools(): Tool[] {
+  return TOOLS.filter((tool) => tool.status === 'active');
 }
 
 export function getToolsByCategory(category: ToolCategory): Tool[] {

@@ -377,15 +377,15 @@ const currentPath = Astro.url.pathname;
           other.querySelector<HTMLElement>('.chevron')?.classList.remove('rotate-180');
         }
       });
-      panel.classList.remove('hidden');
-      trigger.setAttribute('aria-expanded', 'true');
+      panel?.classList.remove('hidden');
+      trigger?.setAttribute('aria-expanded', 'true');
       chevron?.classList.add('rotate-180');
     }
 
     function closeMenu() {
       timeoutId = window.setTimeout(() => {
-        panel.classList.add('hidden');
-        trigger.setAttribute('aria-expanded', 'false');
+        panel?.classList.add('hidden');
+        trigger?.setAttribute('aria-expanded', 'false');
         chevron?.classList.remove('rotate-180');
       }, 150);
     }

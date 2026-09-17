@@ -1,16 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ToolCard from '../components/ToolCard.astro';
-import { getAllCategories, getAllTools, getToolsByCategory } from '../data/tools';
+import { getAllTools, getToolsByCategory } from '../data/tools';
 
-const categories = getAllCategories();
 const allTools = getAllTools();
 const activeTools = allTools.filter((t) => t.status === 'active');
 
 const imageTools = getToolsByCategory('image');
 const videoTools = getToolsByCategory('video');
 const pdfTools = getToolsByCategory('pdf');
-const audioTools = getToolsByCategory('audio');
 
 // Structured Data for SEO
 const schema = [

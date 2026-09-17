@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Privacy Policy — PureFile"
+  description="Read PureFile's transparent privacy policy. Learn how all file processing is executed 100% in local browser memory without uploading files to remote servers."
+  canonicalUrl="https://purefile.dev/privacy"
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-1.5 text-xs text-surface-500 mb-6" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-brand-600 transition-colors">Home</a>
+      <span>/</span>
+      <span class="text-surface-900 font-medium" aria-current="page">Privacy Policy</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-10 pb-6 border-b border-surface-200">
+      <div class="inline-flex items-center gap-2 mb-3">
+        <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+          Client-Side Sandbox Guarantee
+        </span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-surface-950 tracking-tight">
+        Privacy Policy
+      </h1>
+      <p class="mt-2 text-xs text-surface-500 font-mono">
+        Last updated: September 2026
+      </p>
+    </div>
+
+    <div class="prose prose-sm prose-slate max-w-none space-y-8 text-surface-700 text-xs sm:text-sm leading-relaxed">
+      <!-- Section 1: Core File Processing -->
+      <section class="p-6 rounded-2xl bg-white border border-surface-200/80 shadow-xs">
+        <h2 class="text-base font-bold text-surface-900 mb-3 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center">1</span>
+          File Processing &amp; Zero Server Uploads
+        </h2>
+        <p class="mb-3">
+          <strong>Your files never leave your device.</strong> When you select or drag files into any tool on PureFile (including images, video clips, subtitles, and documents), the data is read exclusively into your local browser memory via standard HTML5 File and Blob APIs.
+        </p>
+        <p>
+          PureFile operates no backend file processing servers, no cloud queues, and no remote storage buckets. All transcoding, compression, resizing, and rendering logic runs directly on your computer's CPU and GPU via client-side WebAssembly and JavaScript engines.
+        </p>
+      </section>
+
+      <!-- Section 2: Network Requests & Static Assets -->
+      <section class="p-6 rounded-2xl bg-white border border-surface-200/80 shadow-xs">
+        <h2 class="text-base font-bold text-surface-900 mb-3 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-brand-100 text-brand-800 font-bold text-xs flex items-center justify-center">2</span>
+          Static Assets &amp; Network Requests
+        </h2>
+        <p class="mb-3">
+          To display the website and enable conversion features, your web browser requests standard static files from our web hosting infrastructure (HTML documents, CSS stylesheets, JavaScript bundles, WebAssembly binaries, and web fonts).
+        </p>
+        <p>
+          Standard HTTP server logs may record typical connection parameters (such as your IP address, browser user-agent, and requested page URL) to serve web traffic, defend against denial-of-service attacks, and ensure network reliability. <strong>These logs never contain any information about the files you convert or their contents.</strong>
+        </p>
+      </section>
+
+      <!-- Section 3: Cookies and Local Storage -->
+      <section class="p-6 rounded-2xl bg-white border border-surface-200/80 shadow-xs">
+        <h2 class="text-base font-bold text-surface-900 mb-3 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-indigo-100 text-indigo-800 font-bold text-xs flex items-center justify-center">3</span>
+          Cookies &amp; Local Storage
+        </h2>
+        <p class="mb-3">
+          PureFile does not use tracking cookies, advertising trackers, or cross-site fingerprinting mechanisms.
+        </p>
+        <p>
+          We may use browser <code class="text-[11px] bg-surface-100 px-1 py-0.5 rounded text-surface-800">localStorage</code> solely to remember client-side preferences (such as your preferred image quality setting or theme preferences) so that your settings persist between sessions on your own computer.
+        </p>
+      </section>
+
+      <!-- Section 4: Third-Party Services -->
+      <section class="p-6 rounded-2xl bg-white border border-surface-200/80 shadow-xs">
+        <h2 class="text-base font-bold text-surface-900 mb-3 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-800 font-bold text-xs flex items-center justify-center">4</span>
+          Third-Party Services &amp; CDNs
+        </h2>
+        <p class="mb-3">
+          Static assets and open-source libraries may be delivered through reliable Content Delivery Networks (such as Cloudflare or GitHub Pages) to provide fast, low-latency access worldwide.
+        </p>
+        <p>
+          None of these third-party CDNs have access to your local files or conversion outputs. Once the page scripts load, all data transformations remain strictly isolated within your browser tab.
+        </p>
+      </section>
+
+      <!-- Section 5: Policy Updates & Contact -->
+      <section class="p-6 rounded-2xl bg-white border border-surface-200/80 shadow-xs">
+        <h2 class="text-base font-bold text-surface-900 mb-3 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-surface-200 text-surface-800 font-bold text-xs flex items-center justify-center">5</span>
+          Questions &amp; Contact
+        </h2>
+        <p>
+          If you have questions about this Privacy Policy or our client-side architecture, please visit our <a href="/contact" class="text-brand-600 hover:text-brand-700 underline font-medium">Contact Page</a> to get in touch.
+        </p>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
